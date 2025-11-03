@@ -1,0 +1,17 @@
+.git
+.gitignore
+Dockerfile
+docker-compose.yaml
+README.md
+node_modules
+dist
+build
+bin
+.env
+.env.*
+*.log
+*.tmp
+/.idea
+/.vscode
+.github/
+**/.DS_Store

@@ -1,0 +1,50 @@
+# Binaries
+.bin/
+
+# Build outputs
+/dist/
+/build/
+
+# Vendor
+/vendor/
+
+# OS
+.DS_Store
+
+# Editor
+.vscode/
+.idea/
+*.swp
+
+# Environment
+.env
+.env.local
+.env.*.local
+
+# Test
+*.test
+
+# Logs
+*.log
+
+# Cache
+.cache/
+
+# Docker
+.docker/
+
+# GitHub workflow env (if any local files contain secrets)
+.envrc
+
+# Ignore local Go module cache (optional)
+/pkg/
+
+# Go specific
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+
+# Temporary
+tmp/

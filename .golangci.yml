@@ -1,0 +1,29 @@
+run:
+  timeout: 5m
+linters:
+  enable:
+    - govet
+    - errcheck
+    - staticcheck
+    - gosimple
+    - gofmt
+    - gofumpt
+    - ineffassign
+    - structcheck
+    - unused
+    - deadcode
+    - typecheck
+    - bodyclose
+    - gosec
+  disable:
+    - gocyclo
+issues:
+  exclude-use-default: false
+  # example: exclude generated files
+  exclude:
+    - "generated"
+linters-settings:
+  gofmt:
+    simplify: true
+  gofumpt:
+    extra: true

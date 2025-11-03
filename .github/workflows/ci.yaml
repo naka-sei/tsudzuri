@@ -1,0 +1,110 @@
+name: Reusable CI (build/push/deploy)
+
+on:
+  workflow_call:
+    inputs:
+      environment:
+        required: true
+        type: string
+      env_var_file:
+        required: true
+        type: string
+        description: "Path to the environment variables file"
+    secrets:
+      GCP_SA_KEY:
+        required: true
+      GCP_PROJECT_ID:
+        required: true
+
+env:
+  REGION: asia-northeast1
+  IMAGE_NAME: tsudzuri-api
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+    outputs:
+      image_ref: ${{ steps.set-output.outputs.image_ref }}
+      version: ${{ steps.set-output.outputs.version }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Get GO_VERSION from Makefile
+        id: get-go-version
+        run: |
+          echo "version=$(make get-go-version)" >> $GITHUB_OUTPUT
+
+      - name: Set up Go (for caching/build parity)
+        uses: actions/setup-go@v6
+        with:
+          go-version: ${{ steps.get-go-version.outputs.version }}
+          cache: true
+
+      - name: Authenticate to GCP
+        uses: google-github-actions/auth@v2
+        with:
+          credentials_json: ${{ secrets.GCP_SA_KEY }}
+
+      - name: Configure docker for Artifact Registry
+        run: |
+          gcloud auth configure-docker ${{ env.REGION }}-docker.pkg.dev --quiet
+
+      - name: Extract version
+        run: |
+          # refs/tags/v1.0.0 から v1.0.0 を抽出
+          VERSION=$(basename $GITHUB_REF)
+          IMAGE_REF=${{ secrets.GCP_PROJECT_ID }}-${{ env.REGION }}-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/tsudzuri/${{ env.IMAGE_NAME }}:${VERSION}
+          docker build --build-arg GO_VERSION=${{ steps.get-go-version.outputs.version }} --target runtime -t $IMAGE_REF .
+          echo "image_ref=$IMAGE_REF" >> $GITHUB_OUTPUT
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+        shell: bash
+        id: set-output
+
+      - name: Push image
+        run: |
+          docker push ${{ steps.set-output.outputs.image_ref }}
+
+  deploy:
+    needs: build-and-push
+    runs-on: ubuntu-latest
+    environment: ${{ inputs.environment }}
+    outputs:
+      service_url: ${{ steps.deploy.outputs.url }}
+    steps:
+      - name: Authenticate to GCP
+        uses: google-github-actions/auth@v2
+        with:
+          credentials_json: ${{ secrets.GCP_SA_KEY }}
+
+      - name: Deploy to Cloud Run
+        id: deploy
+        uses: google-github-actions/deploy-cloudrun@v2
+        with:
+          service: tsudzuri-api
+          region: ${{ env.REGION }}
+          image: ${{ needs.build-and-push.outputs.image_ref }}
+          tag: ${{ needs.build-and-push.outputs.version }}
+          env_vars_file: ${{ inputs.env_var_file }}
+
+  update-traffic:
+    needs: [deploy, build-and-push]
+    runs-on: ubuntu-latest
+    environment: 
+      name: ${{ inputs.environment }}-traffic
+      url: ${{ needs.deploy.outputs.service_url }}
+    steps:
+      - name: Authenticate to GCP
+        uses: google-github-actions/auth@v2
+        with:
+          credentials_json: ${{ secrets.GCP_SA_KEY }}
+
+      - name: Show deployment info
+        run: |
+          echo "新しいリビジョン: ${{ needs.deploy.outputs.service_url }}"
+          echo "バージョン: ${{ needs.build-and-push.outputs.version }}"
+
+      - name: Update traffic
+        run: |
+          gcloud run services update-traffic tsudzuri-api \
+            --region=${{ env.REGION }} \
+            --to-tags=${{ needs.build-and-push.outputs.version }}=100

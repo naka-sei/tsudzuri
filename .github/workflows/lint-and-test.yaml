@@ -1,0 +1,32 @@
+name: Lint and Test
+
+on:
+  push:
+    branches:
+      - 'feature/**'
+
+jobs:
+  lint-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Get GO_VERSION from Makefile
+        id: get-go-version
+        run: |
+          echo "version=$(make get-go-version)" >> $GITHUB_OUTPUT
+
+      - name: Set up Go
+        uses: actions/setup-go@v6
+        with:
+          go-version: ${{ steps.get-go-version.outputs.version }}
+          cache: true
+
+      - name: Install dependencies
+        run: go mod download
+        
+      - name: Run lint
+        run: make lint
+
+      - name: Run tests
+        run: make test
