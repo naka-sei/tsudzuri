@@ -9,9 +9,7 @@ linters:
     - gofmt
     - gofumpt
     - ineffassign
-    - structcheck
     - unused
-    - deadcode
     - typecheck
     - bodyclose
     - gosec

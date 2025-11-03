@@ -18,7 +18,7 @@ on:
 
 env:
   REGION: asia-northeast1
-  IMAGE_NAME: tsudzuri-api
+  IMAGE_NAME: tsudzuri
 
 jobs:
   build-and-push:
@@ -80,7 +80,7 @@ jobs:
         id: deploy
         uses: google-github-actions/deploy-cloudrun@v2
         with:
-          service: tsudzuri-api
+          service: tsudzuri
           region: ${{ env.REGION }}
           image: ${{ needs.build-and-push.outputs.image_ref }}
           tag: ${{ needs.build-and-push.outputs.version }}
@@ -105,6 +105,6 @@ jobs:
 
       - name: Update traffic
         run: |
-          gcloud run services update-traffic tsudzuri-api \
+          gcloud run services update-traffic tsudzuri \
             --region=${{ env.REGION }} \
             --to-tags=${{ needs.build-and-push.outputs.version }}=100

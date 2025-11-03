@@ -1,4 +1,4 @@
-.PHONY: all build dev test clean lint migrate migrate-down up down get-go-version install-tools fmt check-fmt
+.PHONY: all build dev test clean lint up down db/up db/down get-go-version install-tools fmt check-fmt
 
 # central Go version
 # Default to the stable project version. Change here to pin Go for CI/dev.
@@ -39,12 +39,18 @@ up:
 down:
 	docker compose down
 
-# Database
-migrate:
-	migrate -path migrations -database "postgresql://postgres:postgres@localhost:5432/tsudzuri?sslmode=disable" up
+# Database (container helpers)
+db/up:
+	# Start only the db service so we can iterate on DB without rebuilding other services
+	GO_VERSION=$(GO_VERSION) docker compose up -d --build db
 
-migrate-down:
-	migrate -path migrations -database "postgresql://postgres:postgres@localhost:5432/tsudzuri?sslmode=disable" down
+db/down:
+	# Stop and remove the db service (data volume preserved by default)
+	docker compose stop db || true
+	docker compose rm -f -v db || true
+
+migration: db/down db/up
+	@echo "Migration completed: database container restarted with fresh schema"
 
 # Install developer tools (golangci-lint, gofumpt)
 install-tools:

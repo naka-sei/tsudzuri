@@ -36,9 +36,6 @@
 # GitHub workflow env (if any local files contain secrets)
 .envrc
 
-# Ignore local Go module cache (optional)
-/pkg/
-
 # Go specific
 *.exe
 *.exe~
