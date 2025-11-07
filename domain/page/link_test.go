@@ -4,9 +4,10 @@ import (
 	"testing"
 
 	"github.com/google/go-cmp/cmp"
+	"github.com/naka-sei/tsudzuri/pkg/cmperr"
 )
 
-func TestLinks_AddLink(t *testing.T) {
+func TestLinks_addLink(t *testing.T) {
 	type fields struct {
 		links Links
 	}
@@ -64,7 +65,7 @@ func TestLinks_AddLink(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 
-			tt.fields.links.AddLink(tt.args.url, tt.args.memo)
+			tt.fields.links.addLink(tt.args.url, tt.args.memo)
 
 			if diff := cmp.Diff(tt.want.links, tt.fields.links, cmp.AllowUnexported(Link{}, Page{})); diff != "" {
 				t.Fatalf("links mismatch (-want +got):\n%s", diff)
@@ -73,7 +74,7 @@ func TestLinks_AddLink(t *testing.T) {
 	}
 }
 
-func TestLinks_RemoveLink(t *testing.T) {
+func TestLinks_removeLink(t *testing.T) {
 	type fields struct {
 		links Links
 	}
@@ -95,8 +96,8 @@ func TestLinks_RemoveLink(t *testing.T) {
 			name: "remove_existing",
 			fields: fields{
 				links: Links{
-					{url: "a", memo: "A", priority: 0},
-					{url: "b", memo: "B", priority: 1},
+					{url: "a", memo: "A", priority: 1},
+					{url: "b", memo: "B", priority: 2},
 				},
 			},
 			args: args{
@@ -104,7 +105,7 @@ func TestLinks_RemoveLink(t *testing.T) {
 			},
 			want: want{
 				links: Links{
-					{url: "b", memo: "B", priority: 0},
+					{url: "b", memo: "B", priority: 1},
 				},
 			},
 		},
@@ -112,13 +113,16 @@ func TestLinks_RemoveLink(t *testing.T) {
 			name: "remove_not_found",
 			fields: fields{
 				links: Links{
-					{url: "a", memo: "A", priority: 0},
+					{url: "a", memo: "A", priority: 1},
 				},
 			},
 			args: args{
 				url: "no",
 			},
 			want: want{
+				links: Links{
+					{url: "a", memo: "A", priority: 1},
+				},
 				err: ErrNotFoundLink("no"),
 			},
 		},
@@ -129,20 +133,8 @@ func TestLinks_RemoveLink(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 
-			err := tt.fields.links.RemoveLink(tt.args.url)
-			if tt.want.err != nil {
-				if err == nil {
-					t.Fatalf("expected error %v, got nil", tt.want.err)
-				}
-				// compare by error string (NotFoundLink includes the url)
-				if err.Error() != tt.want.err.Error() {
-					t.Fatalf("error mismatch: want %v got %v", tt.want.err, err)
-				}
-				return
-			}
-			if err != nil {
-				t.Fatalf("unexpected error: %v", err)
-			}
+			err := tt.fields.links.removeLink(tt.args.url)
+			cmperr.Diff(t, tt.want.err, err)
 
 			if diff := cmp.Diff(tt.want.links, tt.fields.links, cmp.AllowUnexported(Link{}, Page{})); diff != "" {
 				t.Fatalf("links mismatch (-want +got):\n%s", diff)
@@ -151,12 +143,12 @@ func TestLinks_RemoveLink(t *testing.T) {
 	}
 }
 
-func TestLinks_editLink(t *testing.T) {
+func TestLinks_editLinks(t *testing.T) {
 	type fields struct {
 		links Links
 	}
 	type args struct {
-		edit Link
+		links Links
 	}
 	type want struct {
 		links Links
@@ -170,89 +162,47 @@ func TestLinks_editLink(t *testing.T) {
 		want   want
 	}{
 		{
-			name: "edit_move_forward_and_memo",
+			name: "edit_success_reorder",
 			fields: fields{
 				links: Links{
-					{url: "b", memo: "B", priority: 1},
-					{url: "a", memo: "A", priority: 3},
-					{url: "c", memo: "C", priority: 2},
-					{url: "d", memo: "D", priority: 4},
-				},
-			},
-			args: args{
-				edit: Link{url: "a", memo: "A-new", priority: 1},
-			},
-			want: want{
-				links: Links{
-					{url: "a", memo: "A-new", priority: 1},
+					{url: "a", memo: "A", priority: 1},
 					{url: "b", memo: "B", priority: 2},
 					{url: "c", memo: "C", priority: 3},
-					{url: "d", memo: "D", priority: 4},
-				},
-			},
-		},
-		{
-			name: "edit_move_backward_and_memo",
-			fields: fields{
-				links: Links{
-					{url: "b", memo: "B", priority: 1},
-					{url: "a", memo: "A", priority: 3},
-					{url: "c", memo: "C", priority: 2},
-					{url: "d", memo: "D", priority: 4},
 				},
 			},
 			args: args{
-				edit: Link{url: "c", memo: "C-new", priority: 4},
+				links: Links{
+					{url: "b", memo: "B-mod", priority: 3},
+					{url: "a", memo: "A-mod", priority: 2},
+					{url: "c", memo: "C-mod", priority: 1},
+				},
 			},
 			want: want{
 				links: Links{
-					{url: "b", memo: "B", priority: 1},
-					{url: "a", memo: "A", priority: 2},
-					{url: "d", memo: "D", priority: 3},
-					{url: "c", memo: "C-new", priority: 4},
+					{url: "c", memo: "C-mod", priority: 1},
+					{url: "a", memo: "A-mod", priority: 2},
+					{url: "b", memo: "B-mod", priority: 3},
 				},
-			},
-		},
-		{
-			name: "edit_no_change",
-			fields: fields{
-				links: Links{
-					{url: "x", memo: "X", priority: 1},
-					{url: "y", memo: "Y", priority: 2},
-				},
-			},
-			args: args{
-				edit: Link{url: "x", memo: "X", priority: 1},
-			},
-			want: want{
-				links: Links{
-					{url: "x", memo: "X", priority: 1},
-					{url: "y", memo: "Y", priority: 2},
-				},
+				err: nil,
 			},
 		},
 		{
 			name: "edit_not_found",
 			fields: fields{
 				links: Links{
-					{url: "x", memo: "X", priority: 0},
+					{url: "a", memo: "A", priority: 1},
 				},
 			},
 			args: args{
-				edit: Link{url: "no", memo: "N", priority: 0},
-			},
-			want: want{err: ErrNotFoundLink("no")},
-		},
-		{
-			name: "no_fields",
-			fields: fields{
-				links: Links{},
-			},
-			args: args{
-				edit: Link{url: "x", memo: "X", priority: 1},
+				links: Links{
+					{url: "no", memo: "X", priority: 1},
+				},
 			},
 			want: want{
-				err: ErrNotFoundLink("x"),
+				links: Links{
+					{url: "a", memo: "A", priority: 1},
+				},
+				err: ErrNotFoundLink("no"),
 			},
 		},
 	}
@@ -262,22 +212,46 @@ func TestLinks_editLink(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 
-			err := tt.fields.links.editLink(tt.args.edit)
-			if tt.want.err != nil {
-				if err == nil {
-					t.Fatalf("expected error %v, got nil", tt.want.err)
-				}
-				if err.Error() != tt.want.err.Error() {
-					t.Fatalf("error mismatch: want %v got %v", tt.want.err, err)
-				}
-				return
-			}
-			if err != nil {
-				t.Fatalf("unexpected error: %v", err)
-			}
+			err := tt.fields.links.editLinks(tt.args.links)
+			cmperr.Diff(t, tt.want.err, err)
 
 			if diff := cmp.Diff(tt.want.links, tt.fields.links, cmp.AllowUnexported(Link{}, Page{})); diff != "" {
 				t.Fatalf("links mismatch (-want +got):\n%s", diff)
+			}
+		})
+	}
+}
+
+func TestReconstructLink(t *testing.T) {
+	type args struct {
+		url      string
+		memo     string
+		priority int
+	}
+	tests := []struct {
+		name string
+		args args
+		want Link
+	}{
+		{
+			name: "basic",
+			args: args{url: "https://x", memo: "memo", priority: 3},
+			want: Link{url: "https://x", memo: "memo", priority: 3},
+		},
+		{
+			name: "empty_fields",
+			args: args{url: "", memo: "", priority: 0},
+			want: Link{url: "", memo: "", priority: 0},
+		},
+	}
+
+	for _, tt := range tests {
+		tt := tt
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			got := ReconstructLink(tt.args.url, tt.args.memo, tt.args.priority)
+			if diff := cmp.Diff(tt.want, got, cmp.AllowUnexported(Link{})); diff != "" {
+				t.Fatalf("link mismatch (-want +got):\n%s", diff)
 			}
 		})
 	}

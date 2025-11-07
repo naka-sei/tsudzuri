@@ -10,8 +10,8 @@ type Link struct {
 
 type Links []Link
 
-// AddLink adds a new link to the Links slice.
-func (ls *Links) AddLink(url string, memo string) {
+// addLink adds a new link to the Links slice.
+func (ls *Links) addLink(url string, memo string) {
 	newLink := Link{
 		url:      url,
 		memo:     memo,
@@ -20,8 +20,8 @@ func (ls *Links) AddLink(url string, memo string) {
 	*ls = append(*ls, newLink)
 }
 
-// RemoveLink removes a link by its URL.
-func (ls *Links) RemoveLink(url string) error {
+// removeLink removes a link by its URL.
+func (ls *Links) removeLink(url string) error {
 	deletedIdx, err := ls.getIndexByURL(url)
 	if err != nil {
 		return err
@@ -32,46 +32,31 @@ func (ls *Links) RemoveLink(url string) error {
 
 	// Update priorities
 	for i := range *ls {
-		(*ls)[i].priority = i
+		(*ls)[i].priority = i + 1
 	}
 
 	return nil
 }
 
 // editLink edits a link's order and memo.
-func (ls *Links) editLink(link Link) error {
-	slices.SortFunc(*ls, func(a, b Link) int {
+func (ls *Links) editLinks(links Links) error {
+	if len(links) != len(*ls) {
+		return ErrInvalidLinksLength
+	}
+
+	slices.SortFunc(links, func(a, b Link) int {
 		return a.priority - b.priority
 	})
 
-	currentIdx, err := ls.getIndexByURL(link.url)
-	if err != nil {
-		return err
+	for i, link := range links {
+		_, err := ls.getIndexByURL(link.url)
+		if err != nil {
+			return err
+		}
+		links[i].priority = i + 1
 	}
 
-	// Calculate new index
-	newIndex := link.priority - 1
-	n := len(*ls)
-	if newIndex < 0 {
-		newIndex = 0
-	} else if newIndex >= n {
-		newIndex = n - 1
-	}
-
-	if newIndex == currentIdx {
-		return nil
-	}
-
-	// Delete the element from the current position
-	*ls = slices.Delete(*ls, currentIdx, currentIdx+1)
-
-	// Insert the updated link at the new position
-	*ls = slices.Insert(*ls, newIndex, link)
-
-	// Update priorities
-	for i := range *ls {
-		(*ls)[i].priority = i + 1
-	}
+	*ls = links
 
 	return nil
 }
@@ -85,4 +70,13 @@ func (ls Links) getIndexByURL(url string) (int, error) {
 		return -1, ErrNotFoundLink(url)
 	}
 	return idx, nil
+}
+
+// ReconstructLink reconstructs a Link from its components.
+func ReconstructLink(url string, memo string, priority int) Link {
+	return Link{
+		url:      url,
+		memo:     memo,
+		priority: priority,
+	}
 }

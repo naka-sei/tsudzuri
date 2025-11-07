@@ -1,24 +1,38 @@
 package page
 
 import (
+	"slices"
+
 	di "github.com/naka-sei/tsudzuri/domain/user"
 )
 
 type Page struct {
-	title      string
-	createdBy  di.User
-	inviteCode string
-	links      Links
+	id           string
+	title        string
+	createdBy    di.User
+	inviteCode   string
+	links        Links
+	invitedUsers di.Users
 }
 
 // NewPage creates a new Page instance.
-func NewPage(title string, createdBy di.User, inviteCode string) *Page {
-	return &Page{
-		title:      title,
-		createdBy:  createdBy,
-		inviteCode: inviteCode,
-		links:      Links{},
+func NewPage(title string, createdBy *di.User) (*Page, error) {
+	if createdBy == nil {
+		return nil, ErrNoUserProvided
 	}
+
+	return &Page{
+		title:     title,
+		createdBy: *createdBy,
+		// TODO: Generate a unique invite code
+		inviteCode: "sample",
+		links:      Links{},
+	}, nil
+}
+
+// ID returns the page's ID.
+func (p *Page) ID() string {
+	return p.id
 }
 
 // Title returns the page's title.
@@ -37,18 +51,79 @@ func (p *Page) Links() Links {
 }
 
 // Edit edits the page.
-func (p *Page) Edit(title string, links Links) error {
-	if len(links) != len(p.links) {
-		return ErrInvalidLinksLength
+func (p *Page) Edit(user *di.User, title string, links Links) error {
+	if err := p.Authorize(user); err != nil {
+		return err
+	}
+
+	if err := p.links.editLinks(links); err != nil {
+		return err
 	}
 
 	p.title = title
 
-	for _, link := range links {
-		if err := p.links.editLink(link); err != nil {
-			return err
-		}
+	return nil
+}
+
+// AddLink adds a new link to the page.
+func (p *Page) AddLink(user *di.User, url string, memo string) error {
+	if err := p.Authorize(user); err != nil {
+		return err
+	}
+
+	p.links.addLink(url, memo)
+	return nil
+}
+
+// RemoveLink removes a link from the page.
+func (p *Page) RemoveLink(user *di.User, url string) error {
+	if err := p.Authorize(user); err != nil {
+		return err
+	}
+
+	if err := p.links.removeLink(url); err != nil {
+		return err
 	}
 
 	return nil
+}
+
+// Authorize authorizes the user to access the page.
+func (p *Page) Authorize(user *di.User) error {
+	isUserInvited := slices.ContainsFunc(p.invitedUsers, func(u *di.User) bool {
+		return u.ID() == user.ID()
+	})
+
+	if isUserInvited {
+		return nil
+	}
+
+	if err := p.validateCreatedBy(user); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// validateCreatedBy validates if the given user is the creator of the page.
+func (p *Page) validateCreatedBy(user *di.User) error {
+	if user == nil {
+		return ErrNoUserProvided
+	}
+	if p.createdBy.ID() != user.ID() {
+		return ErrNotCreatedByUser
+	}
+	return nil
+}
+
+// ReconstructPage reconstructs a Page instance from existing data.
+func ReconstructPage(id string, title string, createdBy di.User, inviteCode string, links Links, invitedUsers di.Users) *Page {
+	return &Page{
+		id:           id,
+		title:        title,
+		createdBy:    createdBy,
+		inviteCode:   inviteCode,
+		links:        links,
+		invitedUsers: invitedUsers,
+	}
 }

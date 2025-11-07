@@ -4,6 +4,7 @@ import (
 	"testing"
 
 	"github.com/google/go-cmp/cmp"
+	"github.com/naka-sei/tsudzuri/pkg/cmperr"
 )
 
 func TestUser_Login(t *testing.T) {
@@ -38,25 +39,25 @@ func TestUser_Login(t *testing.T) {
 			name:   "login_no_email",
 			fields: fields{user: NewUser("u2")},
 			args:   args{uid: "u2", provider: ProviderGoogle, email: nil},
-			want:   want{err: ErrNoSpecifiedEmail},
+			want:   want{err: ErrNoSpecifiedEmail, user: NewUser("u2")},
 		},
 		{
 			name:   "login_invalid_uid",
 			fields: fields{user: NewUser("u3")},
 			args:   args{uid: "other", provider: ProviderGoogle, email: &email},
-			want:   want{err: ErrInvalidUID("other")},
+			want:   want{err: ErrInvalidUID("other"), user: NewUser("u3")},
 		},
 		{
 			name:   "login_invalid_provider",
 			fields: fields{user: NewUser("u4")},
 			args:   args{uid: "u4", provider: Provider("x"), email: &email},
-			want:   want{err: ErrInvalidProvider(Provider("x"))},
+			want:   want{err: ErrInvalidProvider(Provider("x")), user: NewUser("u4")},
 		},
 		{
 			name:   "login_already_logged_in",
-			fields: fields{user: ReconstructUser(1, "u5", "google", &email)},
+			fields: fields{user: ReconstructUser("42", "u5", "google", &email)},
 			args:   args{uid: "u5", provider: ProviderGoogle, email: &email},
-			want:   want{err: ErrAlreadyLoggedIn(ProviderGoogle)},
+			want:   want{err: ErrAlreadyLoggedIn(ProviderGoogle), user: ReconstructUser("42", "u5", "google", &email)},
 		},
 	}
 
@@ -66,18 +67,7 @@ func TestUser_Login(t *testing.T) {
 			t.Parallel()
 			u := tt.fields.user
 			err := u.Login(tt.args.uid, tt.args.provider, tt.args.email)
-			if tt.want.err != nil {
-				if err == nil {
-					t.Fatalf("expected error %v, got nil", tt.want.err)
-				}
-				if err.Error() != tt.want.err.Error() {
-					t.Fatalf("error mismatch: want %v got %v", tt.want.err, err)
-				}
-				return
-			}
-			if err != nil {
-				t.Fatalf("unexpected error: %v", err)
-			}
+			cmperr.Diff(t, tt.want.err, err)
 
 			if diff := cmp.Diff(tt.want.user, u, cmp.AllowUnexported(User{})); diff != "" {
 				t.Fatalf("user mismatch (-want +got):\n%s", diff)
@@ -96,8 +86,8 @@ func TestUser_NewUser(t *testing.T) {
 
 func TestUser_ReconstructUser(t *testing.T) {
 	email := "e@r.example"
-	u := ReconstructUser(42, "u42", "google", &email)
-	want := &User{id: 42, uid: "u42", provider: Provider("google"), email: &email}
+	u := ReconstructUser("42", "u42", "google", &email)
+	want := &User{id: "42", uid: "u42", provider: Provider("google"), email: &email}
 	if diff := cmp.Diff(want, u, cmp.AllowUnexported(User{})); diff != "" {
 		t.Fatalf("ReconstructUser mismatch (-want +got):\n%s", diff)
 	}

@@ -5,18 +5,17 @@ import (
 
 	"github.com/google/go-cmp/cmp"
 	di "github.com/naka-sei/tsudzuri/domain/user"
+	"github.com/naka-sei/tsudzuri/pkg/cmperr"
 )
 
 func TestPage_NewPage(t *testing.T) {
 	type args struct {
-		title      string
-		createdBy  di.User
-		inviteCode string
+		title     string
+		createdBy *di.User
 	}
 	type want struct {
-		title      string
-		inviteCode string
-		links      Links
+		page *Page
+		err  error
 	}
 
 	tests := []struct {
@@ -27,14 +26,26 @@ func TestPage_NewPage(t *testing.T) {
 		{
 			name: "new_empty_page",
 			args: args{
-				title:      "Title",
-				createdBy:  di.User{},
-				inviteCode: "invite123",
+				title:     "Title",
+				createdBy: &di.User{},
 			},
 			want: want{
-				title:      "Title",
-				inviteCode: "invite123",
-				links:      Links{},
+				page: &Page{
+					title:      "Title",
+					createdBy:  di.User{},
+					inviteCode: "sample",
+					links:      Links{},
+				},
+			},
+		},
+		{
+			name: "no_user_provided",
+			args: args{
+				title:     "Title",
+				createdBy: nil,
+			},
+			want: want{
+				err: ErrNoUserProvided,
 			},
 		},
 	}
@@ -44,16 +55,11 @@ func TestPage_NewPage(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 
-			got := NewPage(tt.args.title, tt.args.createdBy, tt.args.inviteCode)
+			got, err := NewPage(tt.args.title, tt.args.createdBy)
+			cmperr.Diff(t, tt.want.err, err)
 
-			if diff := cmp.Diff(tt.want.title, got.Title(), cmp.AllowUnexported(Link{}, Page{})); diff != "" {
-				t.Fatalf("title mismatch (-want +got):\n%s", diff)
-			}
-			if diff := cmp.Diff(tt.want.inviteCode, got.InviteCode(), cmp.AllowUnexported(Link{}, Page{})); diff != "" {
-				t.Fatalf("inviteCode mismatch (-want +got):\n%s", diff)
-			}
-			if diff := cmp.Diff(tt.want.links, got.Links(), cmp.AllowUnexported(Link{}, Page{})); diff != "" {
-				t.Fatalf("links mismatch (-want +got):\n%s", diff)
+			if diff := cmp.Diff(tt.want.page, got, cmp.AllowUnexported(Link{}, Page{}, di.User{})); diff != "" {
+				t.Fatalf("page mismatch (-want +got):\n%s", diff)
 			}
 		})
 	}
@@ -64,6 +70,7 @@ func TestPage_Edit(t *testing.T) {
 		page *Page
 	}
 	type args struct {
+		user  *di.User
 		title string
 		links Links
 	}
@@ -89,9 +96,11 @@ func TestPage_Edit(t *testing.T) {
 						{url: "a", memo: "A", priority: 1},
 						{url: "b", memo: "B", priority: 2},
 					},
+					invitedUsers: di.Users{&di.User{}},
 				},
 			},
 			args: args{
+				user:  &di.User{},
 				title: "New",
 				links: Links{
 					{url: "b", memo: "B-new", priority: 1},
@@ -107,6 +116,7 @@ func TestPage_Edit(t *testing.T) {
 						{url: "b", memo: "B-new", priority: 1},
 						{url: "a", memo: "A", priority: 2},
 					},
+					invitedUsers: di.Users{&di.User{}},
 				},
 			},
 		},
@@ -121,15 +131,61 @@ func TestPage_Edit(t *testing.T) {
 						{url: "a", memo: "A", priority: 1},
 						{url: "b", memo: "B", priority: 2},
 					},
+					invitedUsers: di.Users{&di.User{}},
 				},
 			},
 			args: args{
+				user:  &di.User{},
 				title: "New",
 				links: Links{
 					{url: "a", memo: "A", priority: 1},
 				},
 			},
 			want: want{
+				page: &Page{
+					title:      "Old",
+					createdBy:  di.User{},
+					inviteCode: "code",
+					links: Links{
+						{url: "a", memo: "A", priority: 1},
+						{url: "b", memo: "B", priority: 2},
+					},
+					invitedUsers: di.Users{&di.User{}},
+				},
+				err: ErrInvalidLinksLength,
+			},
+		},
+		{
+			name: "invalid_links_length_extra",
+			fields: fields{
+				page: &Page{
+					title:      "Old",
+					createdBy:  di.User{},
+					inviteCode: "code",
+					links: Links{
+						{url: "a", memo: "A", priority: 1},
+					},
+					invitedUsers: di.Users{&di.User{}},
+				},
+			},
+			args: args{
+				user:  &di.User{},
+				title: "New",
+				links: Links{
+					{url: "a", memo: "A", priority: 1},
+					{url: "b", memo: "B", priority: 2},
+				},
+			},
+			want: want{
+				page: &Page{
+					title:      "Old",
+					createdBy:  di.User{},
+					inviteCode: "code",
+					links: Links{
+						{url: "a", memo: "A", priority: 1},
+					},
+					invitedUsers: di.Users{&di.User{}},
+				},
 				err: ErrInvalidLinksLength,
 			},
 		},
@@ -143,15 +199,26 @@ func TestPage_Edit(t *testing.T) {
 					links: Links{
 						{url: "a", memo: "A", priority: 1},
 					},
+					invitedUsers: di.Users{&di.User{}},
 				},
 			},
 			args: args{
+				user:  &di.User{},
 				title: "New",
 				links: Links{
 					{url: "no", memo: "Not Found", priority: 1},
 				},
 			},
 			want: want{
+				page: &Page{
+					title:      "Old",
+					createdBy:  di.User{},
+					inviteCode: "code",
+					links: Links{
+						{url: "a", memo: "A", priority: 1},
+					},
+					invitedUsers: di.Users{&di.User{}},
+				},
 				err: ErrNotFoundLink("no"),
 			},
 		},
@@ -162,23 +229,140 @@ func TestPage_Edit(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 
-			err := tt.fields.page.Edit(tt.args.title, tt.args.links)
-			if tt.want.err != nil {
-				if err == nil {
-					t.Fatalf("expected error %v, got nil", tt.want.err)
-				}
-				if err.Error() != tt.want.err.Error() {
-					t.Fatalf("error mismatch: want %v got %v", tt.want.err, err)
-				}
-				return
-			}
-			if err != nil {
-				t.Fatalf("unexpected error: %v", err)
-			}
+			err := tt.fields.page.Edit(tt.args.user, tt.args.title, tt.args.links)
+			cmperr.Diff(t, tt.want.err, err)
 
 			if diff := cmp.Diff(tt.want.page, tt.fields.page, cmp.AllowUnexported(Link{}, Page{}, di.User{})); diff != "" {
 				t.Fatalf("page mismatch (-want +got):\n%s", diff)
 			}
+		})
+	}
+}
+
+func TestPage_Authorize(t *testing.T) {
+	type fields struct {
+		page *Page
+	}
+	type args struct {
+		user *di.User
+	}
+	type want struct {
+		err error
+	}
+
+	creator := di.ReconstructUser("creator-id", "uid-c", "anonymous", nil)
+	invited := di.ReconstructUser("invited-id", "uid-i", "anonymous", nil)
+	other := di.ReconstructUser("other-id", "uid-o", "anonymous", nil)
+
+	tests := []struct {
+		name   string
+		fields fields
+		args   args
+		want   want
+	}{
+		{
+			name: "invited_user_allowed",
+			fields: fields{
+				page: &Page{
+					createdBy:    *creator,
+					invitedUsers: di.Users{invited},
+				},
+			},
+			args: args{user: invited},
+			want: want{err: nil},
+		},
+		{
+			name: "creator_allowed",
+			fields: fields{
+				page: &Page{
+					createdBy:    *creator,
+					invitedUsers: di.Users{},
+				},
+			},
+			args: args{user: creator},
+			want: want{err: nil},
+		},
+		{
+			name: "no_user_provided",
+			fields: fields{
+				page: &Page{
+					createdBy:    *creator,
+					invitedUsers: di.Users{},
+				},
+			},
+			args: args{user: nil},
+			want: want{err: ErrNoUserProvided},
+		},
+		{
+			name: "unauthorized",
+			fields: fields{
+				page: &Page{
+					createdBy:    *creator,
+					invitedUsers: di.Users{},
+				},
+			},
+			args: args{user: other},
+			want: want{err: ErrNotCreatedByUser},
+		},
+	}
+
+	for _, tt := range tests {
+		tt := tt
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+
+			err := tt.fields.page.Authorize(tt.args.user)
+			cmperr.Diff(t, tt.want.err, err)
+		})
+	}
+}
+
+func TestPage_validateCreatedBy(t *testing.T) {
+	type fields struct {
+		page *Page
+	}
+	type args struct {
+		user *di.User
+	}
+	type want struct {
+		err error
+	}
+
+	creator := di.ReconstructUser("creator-id", "uid-c", "anonymous", nil)
+	other := di.ReconstructUser("other-id", "uid-o", "anonymous", nil)
+
+	tests := []struct {
+		name   string
+		fields fields
+		args   args
+		want   want
+	}{
+		{
+			name:   "nil_user",
+			fields: fields{page: &Page{createdBy: *creator}},
+			args:   args{user: nil},
+			want:   want{err: ErrNoUserProvided},
+		},
+		{
+			name:   "valid_creator",
+			fields: fields{page: &Page{createdBy: *creator}},
+			args:   args{user: creator},
+			want:   want{err: nil},
+		},
+		{
+			name:   "invalid_creator",
+			fields: fields{page: &Page{createdBy: *creator}},
+			args:   args{user: other},
+			want:   want{err: ErrNotCreatedByUser},
+		},
+	}
+
+	for _, tt := range tests {
+		tt := tt
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			err := tt.fields.page.validateCreatedBy(tt.args.user)
+			cmperr.Diff(t, tt.want.err, err)
 		})
 	}
 }

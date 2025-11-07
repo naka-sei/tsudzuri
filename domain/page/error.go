@@ -2,7 +2,11 @@ package page
 
 import "errors"
 
-var ErrInvalidLinksLength = errors.New("invalid links length")
+var (
+	ErrInvalidLinksLength = errors.New("invalid links length")
+	ErrNotCreatedByUser   = errors.New("page not created by the user")
+	ErrNoUserProvided     = errors.New("no user provided")
+)
 
 type NotFoundLinkError struct {
 	url string

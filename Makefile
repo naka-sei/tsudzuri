@@ -80,3 +80,7 @@ deps:
 # Print the configured Go version (for CI to consume)
 get-go-version:
 	@echo $(GO_VERSION)
+
+# Generate code (e.g., mocks)
+generate:
+	go generate ./...

@@ -1,11 +1,13 @@
 package user
 
 type User struct {
-	id       int64
+	id       string
 	uid      string
 	provider Provider
 	email    *string
 }
+
+type Users []*User
 
 // NewUser creates a new User instance.
 func NewUser(uid string) *User {
@@ -16,7 +18,7 @@ func NewUser(uid string) *User {
 }
 
 // ID returns the user's ID.
-func (u *User) ID() int64 {
+func (u *User) ID() string {
 	return u.id
 }
 
@@ -46,7 +48,7 @@ func (u *User) Login(uid string, provider Provider, email *string) error {
 }
 
 // ReconstructUser reconstructs a User instance from existing data.
-func ReconstructUser(id int64, uid string, provider string, email *string) *User {
+func ReconstructUser(id string, uid string, provider string, email *string) *User {
 	return &User{
 		id:       id,
 		uid:      uid,

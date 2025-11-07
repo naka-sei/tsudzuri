@@ -1,0 +1,65 @@
+package page
+
+import (
+	"context"
+
+	dpage "github.com/naka-sei/tsudzuri/domain/page"
+	ctxuser "github.com/naka-sei/tsudzuri/pkg/ctx/user"
+	"github.com/naka-sei/tsudzuri/usecase/service"
+)
+
+//go:generate go run go.uber.org/mock/mockgen@v0.6.0 -destination mock/mock_create/create.go -source=./create.go -package=mockcreateusecase
+type CreateUsecase interface {
+	// Create creates a new page. The user is obtained from context via pkg/ctx/user.UserFromContext.
+	Create(ctx context.Context, title string) (*dpage.Page, error)
+}
+
+type createUsecase struct {
+	repository struct {
+		page dpage.PageRepository
+	}
+	service struct {
+		txn service.TransactionService
+	}
+}
+
+func NewCreateUsecase(
+	pageRepo dpage.PageRepository,
+	txnService service.TransactionService,
+) CreateUsecase {
+	u := &createUsecase{
+		repository: struct {
+			page dpage.PageRepository
+		}{
+			page: pageRepo,
+		},
+		service: struct {
+			txn service.TransactionService
+		}{
+			txn: txnService,
+		},
+	}
+	return u
+}
+
+// Create creates a new page.
+func (u *createUsecase) Create(ctx context.Context, title string) (*dpage.Page, error) {
+	user, ok := ctxuser.UserFromContext(ctx)
+	if !ok {
+		return nil, ErrUserNotFound
+	}
+
+	page, err := dpage.NewPage(title, user)
+	if err != nil {
+		return nil, err
+	}
+
+	err = u.service.txn.RunInTransaction(ctx, func(ctx context.Context) error {
+		return u.repository.page.Save(ctx, page)
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	return page, nil
+}

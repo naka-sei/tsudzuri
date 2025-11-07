@@ -10,6 +10,7 @@
 package mockuser
 
 import (
+	context "context"
 	reflect "reflect"
 
 	user "github.com/naka-sei/tsudzuri/domain/user"
@@ -40,31 +41,87 @@ func (m *MockUserRepository) EXPECT() *MockUserRepositoryMockRecorder {
 	return m.recorder
 }
 
-// FindByID mocks base method.
-func (m *MockUserRepository) FindByID(id int64) (*user.User, error) {
+// Get mocks base method.
+func (m *MockUserRepository) Get(ctx context.Context, id string) (*user.User, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "FindByID", id)
+	ret := m.ctrl.Call(m, "Get", ctx, id)
 	ret0, _ := ret[0].(*user.User)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
-// FindByID indicates an expected call of FindByID.
-func (mr *MockUserRepositoryMockRecorder) FindByID(id any) *gomock.Call {
+// Get indicates an expected call of Get.
+func (mr *MockUserRepositoryMockRecorder) Get(ctx, id any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "FindByID", reflect.TypeOf((*MockUserRepository)(nil).FindByID), id)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Get", reflect.TypeOf((*MockUserRepository)(nil).Get), ctx, id)
+}
+
+// List mocks base method.
+func (m *MockUserRepository) List(ctx context.Context, options ...user.SearchOption) (*user.User, error) {
+	m.ctrl.T.Helper()
+	varargs := []any{ctx}
+	for _, a := range options {
+		varargs = append(varargs, a)
+	}
+	ret := m.ctrl.Call(m, "List", varargs...)
+	ret0, _ := ret[0].(*user.User)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// List indicates an expected call of List.
+func (mr *MockUserRepositoryMockRecorder) List(ctx any, options ...any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	varargs := append([]any{ctx}, options...)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "List", reflect.TypeOf((*MockUserRepository)(nil).List), varargs...)
 }
 
 // Save mocks base method.
-func (m *MockUserRepository) Save(arg0 *user.User) error {
+func (m *MockUserRepository) Save(ctx context.Context, arg1 *user.User) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Save", arg0)
+	ret := m.ctrl.Call(m, "Save", ctx, arg1)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // Save indicates an expected call of Save.
-func (mr *MockUserRepositoryMockRecorder) Save(arg0 any) *gomock.Call {
+func (mr *MockUserRepositoryMockRecorder) Save(ctx, arg1 any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Save", reflect.TypeOf((*MockUserRepository)(nil).Save), arg0)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Save", reflect.TypeOf((*MockUserRepository)(nil).Save), ctx, arg1)
+}
+
+// MockSearchOption is a mock of SearchOption interface.
+type MockSearchOption struct {
+	ctrl     *gomock.Controller
+	recorder *MockSearchOptionMockRecorder
+	isgomock struct{}
+}
+
+// MockSearchOptionMockRecorder is the mock recorder for MockSearchOption.
+type MockSearchOptionMockRecorder struct {
+	mock *MockSearchOption
+}
+
+// NewMockSearchOption creates a new mock instance.
+func NewMockSearchOption(ctrl *gomock.Controller) *MockSearchOption {
+	mock := &MockSearchOption{ctrl: ctrl}
+	mock.recorder = &MockSearchOptionMockRecorder{mock}
+	return mock
+}
+
+// EXPECT returns an object that allows the caller to indicate expected use.
+func (m *MockSearchOption) EXPECT() *MockSearchOptionMockRecorder {
+	return m.recorder
+}
+
+// Apply mocks base method.
+func (m *MockSearchOption) Apply(arg0 *user.SearchParams) {
+	m.ctrl.T.Helper()
+	m.ctrl.Call(m, "Apply", arg0)
+}
+
+// Apply indicates an expected call of Apply.
+func (mr *MockSearchOptionMockRecorder) Apply(arg0 any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Apply", reflect.TypeOf((*MockSearchOption)(nil).Apply), arg0)
 }

@@ -10,6 +10,7 @@
 package mockpage
 
 import (
+	context "context"
 	reflect "reflect"
 
 	page "github.com/naka-sei/tsudzuri/domain/page"
@@ -40,31 +41,101 @@ func (m *MockPageRepository) EXPECT() *MockPageRepositoryMockRecorder {
 	return m.recorder
 }
 
-// FindByID mocks base method.
-func (m *MockPageRepository) FindByID(id int64) (*page.Page, error) {
+// DeleteByID mocks base method.
+func (m *MockPageRepository) DeleteByID(ctx context.Context, id string) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "FindByID", id)
+	ret := m.ctrl.Call(m, "DeleteByID", ctx, id)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// DeleteByID indicates an expected call of DeleteByID.
+func (mr *MockPageRepositoryMockRecorder) DeleteByID(ctx, id any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteByID", reflect.TypeOf((*MockPageRepository)(nil).DeleteByID), ctx, id)
+}
+
+// Get mocks base method.
+func (m *MockPageRepository) Get(ctx context.Context, id string) (*page.Page, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "Get", ctx, id)
 	ret0, _ := ret[0].(*page.Page)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
-// FindByID indicates an expected call of FindByID.
-func (mr *MockPageRepositoryMockRecorder) FindByID(id any) *gomock.Call {
+// Get indicates an expected call of Get.
+func (mr *MockPageRepositoryMockRecorder) Get(ctx, id any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "FindByID", reflect.TypeOf((*MockPageRepository)(nil).FindByID), id)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Get", reflect.TypeOf((*MockPageRepository)(nil).Get), ctx, id)
+}
+
+// List mocks base method.
+func (m *MockPageRepository) List(ctx context.Context, userID string, options ...page.SearchOption) ([]*page.Page, error) {
+	m.ctrl.T.Helper()
+	varargs := []any{ctx, userID}
+	for _, a := range options {
+		varargs = append(varargs, a)
+	}
+	ret := m.ctrl.Call(m, "List", varargs...)
+	ret0, _ := ret[0].([]*page.Page)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// List indicates an expected call of List.
+func (mr *MockPageRepositoryMockRecorder) List(ctx, userID any, options ...any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	varargs := append([]any{ctx, userID}, options...)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "List", reflect.TypeOf((*MockPageRepository)(nil).List), varargs...)
 }
 
 // Save mocks base method.
-func (m *MockPageRepository) Save(arg0 *page.Page) error {
+func (m *MockPageRepository) Save(ctx context.Context, arg1 *page.Page) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Save", arg0)
+	ret := m.ctrl.Call(m, "Save", ctx, arg1)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // Save indicates an expected call of Save.
-func (mr *MockPageRepositoryMockRecorder) Save(arg0 any) *gomock.Call {
+func (mr *MockPageRepositoryMockRecorder) Save(ctx, arg1 any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Save", reflect.TypeOf((*MockPageRepository)(nil).Save), arg0)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Save", reflect.TypeOf((*MockPageRepository)(nil).Save), ctx, arg1)
+}
+
+// MockSearchOption is a mock of SearchOption interface.
+type MockSearchOption struct {
+	ctrl     *gomock.Controller
+	recorder *MockSearchOptionMockRecorder
+	isgomock struct{}
+}
+
+// MockSearchOptionMockRecorder is the mock recorder for MockSearchOption.
+type MockSearchOptionMockRecorder struct {
+	mock *MockSearchOption
+}
+
+// NewMockSearchOption creates a new mock instance.
+func NewMockSearchOption(ctrl *gomock.Controller) *MockSearchOption {
+	mock := &MockSearchOption{ctrl: ctrl}
+	mock.recorder = &MockSearchOptionMockRecorder{mock}
+	return mock
+}
+
+// EXPECT returns an object that allows the caller to indicate expected use.
+func (m *MockSearchOption) EXPECT() *MockSearchOptionMockRecorder {
+	return m.recorder
+}
+
+// Apply mocks base method.
+func (m *MockSearchOption) Apply(arg0 *page.SearchParams) {
+	m.ctrl.T.Helper()
+	m.ctrl.Call(m, "Apply", arg0)
+}
+
+// Apply indicates an expected call of Apply.
+func (mr *MockSearchOptionMockRecorder) Apply(arg0 any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Apply", reflect.TypeOf((*MockSearchOption)(nil).Apply), arg0)
 }

@@ -84,3 +84,25 @@ COMMENT ON COLUMN tsudzuri.link_items.created_at IS 'レコード作成日時';
 COMMENT ON COLUMN tsudzuri.link_items.updated_at IS 'レコード更新日時';
 
 CREATE INDEX IF NOT EXISTS idx_link_items_page_order ON tsudzuri.link_items (page_id, order_index);
+
+-- Page Users (綴りのアクセス権とユーザー固有の設定) テーブル (tsudzuri.page_users)
+CREATE TABLE
+    IF NOT EXISTS tsudzuri.page_users (
+        user_id INTEGER NOT NULL REFERENCES tsudzuri.users (id) ON DELETE CASCADE,
+        page_id INTEGER NOT NULL REFERENCES tsudzuri.pages (id) ON DELETE CASCADE,
+        created_at TIMESTAMPTZ NOT NULL DEFAULT NOW (),
+        updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW (),
+        PRIMARY KEY (user_id, page_id)
+    );
+
+COMMENT ON TABLE tsudzuri.page_users IS 'ユーザーとページの関連付け、およびアクセス権限を管理する中間テーブル。';
+
+COMMENT ON COLUMN tsudzuri.page_users.user_id IS '関連するユーザーのID';
+
+COMMENT ON COLUMN tsudzuri.page_users.page_id IS '関連するページ（綴り）のID';
+
+COMMENT ON COLUMN tsudzuri.page_users.created_at IS 'レコード作成日時';
+
+COMMENT ON COLUMN tsudzuri.page_users.updated_at IS 'レコード更新日時';
+
+CREATE INDEX IF NOT EXISTS idx_page_users_page ON tsudzuri.page_users (page_id);
