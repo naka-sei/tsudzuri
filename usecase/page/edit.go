@@ -2,10 +2,13 @@ package page
 
 import (
 	"context"
+	"fmt"
 
 	dpage "github.com/naka-sei/tsudzuri/domain/page"
 	duser "github.com/naka-sei/tsudzuri/domain/user"
 	ctxuser "github.com/naka-sei/tsudzuri/pkg/ctx/user"
+	"github.com/naka-sei/tsudzuri/pkg/log"
+	"github.com/naka-sei/tsudzuri/pkg/trace"
 	"github.com/naka-sei/tsudzuri/usecase/service"
 )
 
@@ -34,6 +37,12 @@ func NewEditUsecase(pageRepo dpage.PageRepository, txn service.TransactionServic
 
 // Edit edits a page.
 func (u *editUsecase) Edit(ctx context.Context, pageID string, title string, links dpage.Links) error {
+	ctx, end := trace.StartSpan(ctx, "usecase/page/editUsecase.Edit")
+	defer end()
+
+	l := log.LoggerFromContext(ctx)
+	l.Info(fmt.Sprintf("Editing page id: %s title: %s", pageID, title))
+
 	page, err := u.repository.page.Get(ctx, pageID)
 	if err != nil {
 		return err

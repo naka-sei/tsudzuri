@@ -2,10 +2,13 @@ package page
 
 import (
 	"context"
+	"fmt"
 
 	dpage "github.com/naka-sei/tsudzuri/domain/page"
 	duser "github.com/naka-sei/tsudzuri/domain/user"
 	ctxuser "github.com/naka-sei/tsudzuri/pkg/ctx/user"
+	"github.com/naka-sei/tsudzuri/pkg/log"
+	"github.com/naka-sei/tsudzuri/pkg/trace"
 	"github.com/naka-sei/tsudzuri/usecase/service"
 )
 
@@ -45,6 +48,12 @@ func NewDeleteUsecase(
 
 // Delete deletes a page by its ID.
 func (u *deleteUsecase) Delete(ctx context.Context, pageID string) error {
+	ctx, end := trace.StartSpan(ctx, "usecase/page/deleteUsecase.Delete")
+	defer end()
+
+	l := log.LoggerFromContext(ctx)
+	l.Info(fmt.Sprintf("Deleting page with id: %s", pageID))
+
 	page, err := u.repository.page.Get(ctx, pageID)
 	if err != nil {
 		return err

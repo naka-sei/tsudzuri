@@ -2,10 +2,13 @@ package page
 
 import (
 	"context"
+	"fmt"
 
 	dpage "github.com/naka-sei/tsudzuri/domain/page"
 	duser "github.com/naka-sei/tsudzuri/domain/user"
 	ctxuser "github.com/naka-sei/tsudzuri/pkg/ctx/user"
+	"github.com/naka-sei/tsudzuri/pkg/log"
+	"github.com/naka-sei/tsudzuri/pkg/trace"
 )
 
 //go:generate go run go.uber.org/mock/mockgen@v0.6.0 -destination mock/mock_get/get.go -source=./get.go -package=mockgetusecase
@@ -32,6 +35,12 @@ func NewGetUsecase(pageRepo dpage.PageRepository) GetUsecase {
 }
 
 func (u *getUsecase) Get(ctx context.Context, pageID string) (*dpage.Page, error) {
+	ctx, end := trace.StartSpan(ctx, "usecase/page/getUsecase.Get")
+	defer end()
+
+	l := log.LoggerFromContext(ctx)
+	l.Info(fmt.Sprintf("Getting page with id: %s", pageID))
+
 	page, err := u.repository.page.Get(ctx, pageID)
 	if err != nil {
 		return nil, err

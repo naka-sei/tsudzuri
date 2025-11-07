@@ -2,10 +2,13 @@ package page
 
 import (
 	"context"
+	"fmt"
 
 	dpage "github.com/naka-sei/tsudzuri/domain/page"
 	duser "github.com/naka-sei/tsudzuri/domain/user"
 	ctxuser "github.com/naka-sei/tsudzuri/pkg/ctx/user"
+	"github.com/naka-sei/tsudzuri/pkg/log"
+	"github.com/naka-sei/tsudzuri/pkg/trace"
 	"github.com/naka-sei/tsudzuri/usecase/service"
 )
 
@@ -45,6 +48,12 @@ func NewCreateUsecase(
 
 // Create creates a new page.
 func (u *createUsecase) Create(ctx context.Context, title string) (*dpage.Page, error) {
+	ctx, end := trace.StartSpan(ctx, "usecase/page/createUsecase.Create")
+	defer end()
+
+	l := log.LoggerFromContext(ctx)
+	l.Info(fmt.Sprintf("Creating a new page with title: %s", title))
+
 	user, ok := ctxuser.UserFromContext(ctx)
 	if !ok {
 		return nil, duser.ErrUserNotFound

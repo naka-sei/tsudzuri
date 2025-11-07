@@ -2,8 +2,11 @@ package user
 
 import (
 	"context"
+	"fmt"
 
 	duser "github.com/naka-sei/tsudzuri/domain/user"
+	"github.com/naka-sei/tsudzuri/pkg/log"
+	"github.com/naka-sei/tsudzuri/pkg/trace"
 	"github.com/naka-sei/tsudzuri/usecase/service"
 )
 
@@ -47,6 +50,12 @@ func NewCreateUsecase(
 }
 
 func (u *createUsecase) Create(ctx context.Context, uid string) (*duser.User, error) {
+	ctx, end := trace.StartSpan(ctx, "usecase/user/createUsecase.Create")
+	defer end()
+
+	l := log.LoggerFromContext(ctx)
+	l.Info(fmt.Sprintf("Creating user uid: %s", uid))
+
 	newUser := duser.NewUser(uid)
 	err := u.service.txn.RunInTransaction(ctx, func(ctx context.Context) error {
 		return u.repository.user.Save(ctx, newUser)

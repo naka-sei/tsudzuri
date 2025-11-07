@@ -2,9 +2,12 @@ package user
 
 import (
 	"context"
+	"fmt"
 
 	duser "github.com/naka-sei/tsudzuri/domain/user"
 	ctxuser "github.com/naka-sei/tsudzuri/pkg/ctx/user"
+	"github.com/naka-sei/tsudzuri/pkg/log"
+	"github.com/naka-sei/tsudzuri/pkg/trace"
 	"github.com/naka-sei/tsudzuri/usecase/service"
 )
 
@@ -40,10 +43,16 @@ func NewLoginUsecase(userRepo duser.UserRepository, txnService service.Transacti
 }
 
 func (u *loginUsecase) Login(ctx context.Context, uid string, provider string, email *string) error {
+	ctx, end := trace.StartSpan(ctx, "usecase/user/loginUsecase.Login")
+	defer end()
+
+	l := log.LoggerFromContext(ctx)
+
 	user, ok := ctxuser.UserFromContext(ctx)
 	if !ok {
 		return duser.ErrUserNotFound
 	}
+	l.Info(fmt.Sprintf("User %s logging in with provider=%s uid_param=%s", user.ID(), provider, uid))
 	if err := user.Login(uid, provider, email); err != nil {
 		return err
 	}

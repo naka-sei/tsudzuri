@@ -2,10 +2,13 @@ package page
 
 import (
 	"context"
+	"fmt"
 
 	dpage "github.com/naka-sei/tsudzuri/domain/page"
 	duser "github.com/naka-sei/tsudzuri/domain/user"
 	ctxuser "github.com/naka-sei/tsudzuri/pkg/ctx/user"
+	"github.com/naka-sei/tsudzuri/pkg/log"
+	"github.com/naka-sei/tsudzuri/pkg/trace"
 	"github.com/naka-sei/tsudzuri/usecase/service"
 )
 
@@ -49,6 +52,12 @@ func NewLinkRemoveUsecase(
 }
 
 func (u *linkRemoveUsecase) LinkRemove(ctx context.Context, input LinkRemoveUsecaseInput) error {
+	ctx, end := trace.StartSpan(ctx, "usecase/page/linkRemoveUsecase.LinkRemove")
+	defer end()
+
+	l := log.LoggerFromContext(ctx)
+	l.Info(fmt.Sprintf("Removing link from page %s: url=%s", input.PageID, input.URL))
+
 	page, err := u.repository.page.Get(ctx, input.PageID)
 	if err != nil {
 		return err

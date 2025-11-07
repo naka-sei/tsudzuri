@@ -2,10 +2,13 @@ package page
 
 import (
 	"context"
+	"fmt"
 
 	dpage "github.com/naka-sei/tsudzuri/domain/page"
 	duser "github.com/naka-sei/tsudzuri/domain/user"
 	ctxuser "github.com/naka-sei/tsudzuri/pkg/ctx/user"
+	"github.com/naka-sei/tsudzuri/pkg/log"
+	"github.com/naka-sei/tsudzuri/pkg/trace"
 	"github.com/naka-sei/tsudzuri/usecase/service"
 )
 
@@ -50,6 +53,12 @@ func NewLinkAddUsecase(
 }
 
 func (u *linkAddUsecase) LinkAdd(ctx context.Context, input LinkAddUsecaseInput) error {
+	ctx, end := trace.StartSpan(ctx, "usecase/page/linkAddUsecase.LinkAdd")
+	defer end()
+
+	l := log.LoggerFromContext(ctx)
+	l.Info(fmt.Sprintf("Adding link to page %s: url=%s memo=%s", input.PageID, input.URL, input.Memo))
+
 	page, err := u.repository.page.Get(ctx, input.PageID)
 	if err != nil {
 		return err
