@@ -105,7 +105,7 @@ func TestLinkAddUseCase_LinkAdd(t *testing.T) {
 					Memo:   "test link",
 				},
 			},
-			wantErr: ErrUserNotFound,
+			wantErr: duser.ErrUserNotFound,
 		},
 		{
 			name: "unauthorized_user",

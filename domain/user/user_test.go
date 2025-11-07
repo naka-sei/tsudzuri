@@ -13,7 +13,7 @@ func TestUser_Login(t *testing.T) {
 	}
 	type args struct {
 		uid      string
-		provider Provider
+		provider string
 		email    *string
 	}
 	type want struct {
@@ -32,32 +32,32 @@ func TestUser_Login(t *testing.T) {
 		{
 			name:   "login_success",
 			fields: fields{user: NewUser("u1")},
-			args:   args{uid: "u1", provider: ProviderGoogle, email: &email},
-			want:   want{err: nil, user: &User{uid: "u1", provider: ProviderGoogle, email: &email}},
+			args:   args{uid: "u1", provider: "google", email: &email},
+			want:   want{err: nil, user: &User{uid: "u1", provider: "google", email: &email}},
 		},
 		{
 			name:   "login_no_email",
 			fields: fields{user: NewUser("u2")},
-			args:   args{uid: "u2", provider: ProviderGoogle, email: nil},
+			args:   args{uid: "u2", provider: "google", email: nil},
 			want:   want{err: ErrNoSpecifiedEmail, user: NewUser("u2")},
 		},
 		{
 			name:   "login_invalid_uid",
 			fields: fields{user: NewUser("u3")},
-			args:   args{uid: "other", provider: ProviderGoogle, email: &email},
+			args:   args{uid: "other", provider: "google", email: &email},
 			want:   want{err: ErrInvalidUID("other"), user: NewUser("u3")},
 		},
 		{
 			name:   "login_invalid_provider",
 			fields: fields{user: NewUser("u4")},
-			args:   args{uid: "u4", provider: Provider("x"), email: &email},
-			want:   want{err: ErrInvalidProvider(Provider("x")), user: NewUser("u4")},
+			args:   args{uid: "u4", provider: "x", email: &email},
+			want:   want{err: ErrInvalidProvider("x"), user: NewUser("u4")},
 		},
 		{
 			name:   "login_already_logged_in",
 			fields: fields{user: ReconstructUser("42", "u5", "google", &email)},
-			args:   args{uid: "u5", provider: ProviderGoogle, email: &email},
-			want:   want{err: ErrAlreadyLoggedIn(ProviderGoogle), user: ReconstructUser("42", "u5", "google", &email)},
+			args:   args{uid: "u5", provider: "google", email: &email},
+			want:   want{err: ErrAlreadyLoggedIn("google"), user: ReconstructUser("42", "u5", "google", &email)},
 		},
 	}
 

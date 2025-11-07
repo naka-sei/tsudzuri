@@ -114,7 +114,7 @@ func TestEditUsecase_Edit(t *testing.T) {
 				title:  "new title",
 				links:  dpage.Links{},
 			},
-			want: want{err: ErrUserNotFound},
+			want: want{err: duser.ErrUserNotFound},
 		},
 		{
 			name: "unauthorized",

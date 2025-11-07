@@ -4,6 +4,7 @@ import (
 	"context"
 
 	dpage "github.com/naka-sei/tsudzuri/domain/page"
+	duser "github.com/naka-sei/tsudzuri/domain/user"
 	ctxuser "github.com/naka-sei/tsudzuri/pkg/ctx/user"
 	"github.com/naka-sei/tsudzuri/usecase/service"
 )
@@ -46,7 +47,7 @@ func NewCreateUsecase(
 func (u *createUsecase) Create(ctx context.Context, title string) (*dpage.Page, error) {
 	user, ok := ctxuser.UserFromContext(ctx)
 	if !ok {
-		return nil, ErrUserNotFound
+		return nil, duser.ErrUserNotFound
 	}
 
 	page, err := dpage.NewPage(title, user)

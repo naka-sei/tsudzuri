@@ -109,7 +109,7 @@ func TestGetUsecase_Get(t *testing.T) {
 			},
 			want: want{
 				page: nil,
-				err:  ErrUserNotFound,
+				err:  duser.ErrUserNotFound,
 			},
 		},
 		{

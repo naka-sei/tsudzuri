@@ -4,6 +4,7 @@ import (
 	"context"
 
 	dpage "github.com/naka-sei/tsudzuri/domain/page"
+	duser "github.com/naka-sei/tsudzuri/domain/user"
 	ctxuser "github.com/naka-sei/tsudzuri/pkg/ctx/user"
 	"github.com/naka-sei/tsudzuri/usecase/service"
 )
@@ -44,7 +45,7 @@ func (u *editUsecase) Edit(ctx context.Context, pageID string, title string, lin
 
 	user, ok := ctxuser.UserFromContext(ctx)
 	if !ok {
-		return ErrUserNotFound
+		return duser.ErrUserNotFound
 	}
 
 	return u.service.txn.RunInTransaction(ctx, func(ctx context.Context) error {

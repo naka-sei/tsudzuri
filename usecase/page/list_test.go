@@ -102,7 +102,7 @@ func TestListUsecase_List(t *testing.T) {
 			},
 			want: want{
 				pages: nil,
-				err:   ErrUserNotFound,
+				err:   duser.ErrUserNotFound,
 			},
 		},
 	}

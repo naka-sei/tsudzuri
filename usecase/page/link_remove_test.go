@@ -120,7 +120,7 @@ func TestLinkRemoveUsecase_LinkRemove(t *testing.T) {
 					URL:    "https://link2.com",
 				},
 			},
-			want: want{err: ErrUserNotFound},
+			want: want{err: duser.ErrUserNotFound},
 		},
 		{
 			name: "unauthorized_user_not_invited",

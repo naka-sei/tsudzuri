@@ -2,7 +2,10 @@ package user
 
 import "fmt"
 
-var ErrNoSpecifiedEmail = fmt.Errorf("no specified email")
+var (
+	ErrNoSpecifiedEmail = fmt.Errorf("no specified email")
+	ErrUserNotFound     = fmt.Errorf("user not found")
+)
 
 type InvalidUIDError struct {
 	uid string

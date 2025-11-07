@@ -4,6 +4,7 @@ import (
 	"context"
 
 	dpage "github.com/naka-sei/tsudzuri/domain/page"
+	duser "github.com/naka-sei/tsudzuri/domain/user"
 	ctxuser "github.com/naka-sei/tsudzuri/pkg/ctx/user"
 	"github.com/naka-sei/tsudzuri/usecase/service"
 )
@@ -55,7 +56,7 @@ func (u *deleteUsecase) Delete(ctx context.Context, pageID string) error {
 
 	user, ok := ctxuser.UserFromContext(ctx)
 	if !ok {
-		return ErrUserNotFound
+		return duser.ErrUserNotFound
 	}
 
 	if err := page.Authorize(user); err != nil {

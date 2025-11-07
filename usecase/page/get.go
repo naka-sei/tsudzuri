@@ -4,6 +4,7 @@ import (
 	"context"
 
 	dpage "github.com/naka-sei/tsudzuri/domain/page"
+	duser "github.com/naka-sei/tsudzuri/domain/user"
 	ctxuser "github.com/naka-sei/tsudzuri/pkg/ctx/user"
 )
 
@@ -42,7 +43,7 @@ func (u *getUsecase) Get(ctx context.Context, pageID string) (*dpage.Page, error
 
 	user, ok := ctxuser.UserFromContext(ctx)
 	if !ok {
-		return nil, ErrUserNotFound
+		return nil, duser.ErrUserNotFound
 	}
 
 	if err := page.Authorize(user); err != nil {

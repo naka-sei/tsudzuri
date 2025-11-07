@@ -4,6 +4,7 @@ import (
 	"context"
 
 	dpage "github.com/naka-sei/tsudzuri/domain/page"
+	duser "github.com/naka-sei/tsudzuri/domain/user"
 	ctxuser "github.com/naka-sei/tsudzuri/pkg/ctx/user"
 )
 
@@ -33,7 +34,7 @@ func NewListUsecase(pageRepo dpage.PageRepository) ListUsecase {
 func (u *listUsecase) List(ctx context.Context, options ...dpage.SearchOption) ([]*dpage.Page, error) {
 	user, ok := ctxuser.UserFromContext(ctx)
 	if !ok {
-		return nil, ErrUserNotFound
+		return nil, duser.ErrUserNotFound
 	}
 
 	pages, err := u.repository.page.List(ctx, user.ID(), options...)

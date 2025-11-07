@@ -23,7 +23,7 @@ func (u *User) ID() string {
 }
 
 // Login logins the user with the given uid, provider, and email.
-func (u *User) Login(uid string, provider Provider, email *string) error {
+func (u *User) Login(uid string, provider string, email *string) error {
 	if email == nil {
 		return ErrNoSpecifiedEmail
 	}
@@ -32,7 +32,8 @@ func (u *User) Login(uid string, provider Provider, email *string) error {
 		return ErrInvalidUID(uid)
 	}
 
-	if err := provider.isValid(); err != nil {
+	p := Provider(provider)
+	if err := p.isValid(); err != nil {
 		return err
 	}
 
@@ -41,7 +42,7 @@ func (u *User) Login(uid string, provider Provider, email *string) error {
 	}
 
 	u.uid = uid
-	u.provider = provider
+	u.provider = p
 	u.email = email
 
 	return nil
