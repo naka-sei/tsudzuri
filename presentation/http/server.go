@@ -2,6 +2,7 @@ package http
 
 import (
 	page "github.com/naka-sei/tsudzuri/presentation/http/page"
+	user "github.com/naka-sei/tsudzuri/presentation/http/user"
 	prouter "github.com/naka-sei/tsudzuri/presentation/router"
 )
 
@@ -16,17 +17,20 @@ const (
 	pageLinksPath = "/links"
 
 	// User routes
-	userBasePath = "/users"
+	userBasePath  = "/users"
+	userLoginPath = "/login"
 )
 
 type Server struct {
-	*page.CreateService
-	*page.GetService
-	*page.ListService
-	*page.EditService
-	*page.DeleteService
-	*page.LinkAddService
-	*page.LinkRemoveService
+	pageCreate     *page.CreateService
+	pageGet        *page.GetService
+	pageList       *page.ListService
+	pageEdit       *page.EditService
+	pageDelete     *page.DeleteService
+	pageLinkAdd    *page.LinkAddService
+	pageLinkRemove *page.LinkRemoveService
+	userCreate     *user.CreateService
+	userLogin      *user.LoginService
 }
 
 func NewServer(
@@ -37,15 +41,19 @@ func NewServer(
 	deletePageService *page.DeleteService,
 	linkAddPageService *page.LinkAddService,
 	linkRemovePageService *page.LinkRemoveService,
+	createUserService *user.CreateService,
+	loginUserService *user.LoginService,
 ) *Server {
 	return &Server{
-		CreateService:     createPageService,
-		GetService:        getPageService,
-		ListService:       listPageService,
-		EditService:       editPageService,
-		DeleteService:     deletePageService,
-		LinkAddService:    linkAddPageService,
-		LinkRemoveService: linkRemovePageService,
+		pageCreate:     createPageService,
+		pageGet:        getPageService,
+		pageList:       listPageService,
+		pageEdit:       editPageService,
+		pageDelete:     deletePageService,
+		pageLinkAdd:    linkAddPageService,
+		pageLinkRemove: linkRemovePageService,
+		userCreate:     createUserService,
+		userLogin:      loginUserService,
 	}
 }
 
@@ -55,24 +63,32 @@ func (s *Server) Route(r prouter.Router) {
 		// /api/v1/pages
 		r.Route(pageBasePath, func(r prouter.Router) {
 			// POST /api/v1/pages
-			r.Post("/", s.Create, prouter.WithStatusCreated())
+			r.Post("/", s.pageCreate.Create, prouter.WithStatusCreated())
 			// GET /api/v1/pages
-			r.Get("/", s.List)
+			r.Get("/", s.pageList.List)
 			// /api/v1/pages/{id}
 			r.Route(pageIDPath, func(r prouter.Router) {
 				// GET /api/v1/pages/{id}
-				r.Get("/", s.Get)
+				r.Get("/", s.pageGet.Get)
 				// PUT /api/v1/pages/{id}
-				r.Put("/", s.Edit)
+				r.Put("/", s.pageEdit.Edit)
 				// DELETE /api/v1/pages/{id}
-				r.Delete("/", s.Delete, prouter.WithStatusNoContent())
+				r.Delete("/", s.pageDelete.Delete, prouter.WithStatusNoContent())
+				// /api/v1/pages/{id}/links
 				r.Route(pageLinksPath, func(r prouter.Router) {
 					// POST /api/v1/pages/{id}/links
-					r.Post("/", s.LinkAdd, prouter.WithStatusCreated())
+					r.Post("/", s.pageLinkAdd.LinkAdd, prouter.WithStatusCreated())
 					// DELETE /api/v1/pages/{id}/links
-					r.Delete("/", s.LinkRemove, prouter.WithStatusNoContent())
+					r.Delete("/", s.pageLinkRemove.LinkRemove, prouter.WithStatusNoContent())
 				})
 			})
+		})
+		// /api/v1/users
+		r.Route(userBasePath, func(r prouter.Router) {
+			// POST /api/v1/users
+			r.Post("/", s.userCreate.Create, prouter.WithStatusCreated())
+			// POST /api/v1/users/login
+			r.Post(userLoginPath, s.userLogin.Login)
 		})
 	})
 }
