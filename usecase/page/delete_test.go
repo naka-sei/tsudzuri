@@ -10,8 +10,8 @@ import (
 	dpage "github.com/naka-sei/tsudzuri/domain/page"
 	mockpage "github.com/naka-sei/tsudzuri/domain/page/mock/mock_page"
 	duser "github.com/naka-sei/tsudzuri/domain/user"
-	"github.com/naka-sei/tsudzuri/pkg/cmperr"
 	ctxuser "github.com/naka-sei/tsudzuri/pkg/ctx/user"
+	"github.com/naka-sei/tsudzuri/pkg/testutil"
 	mocktransaction "github.com/naka-sei/tsudzuri/usecase/service/mock/mock_transaction"
 )
 
@@ -123,7 +123,7 @@ func TestDeleteUsecase_Delete(t *testing.T) {
 			}
 			u := NewDeleteUsecase(m.pageRepo, m.txnService)
 			err := u.Delete(tt.args.ctx, tt.args.pageID)
-			cmperr.Diff(t, tt.want.err, err)
+			testutil.EqualErr(t, tt.want.err, err)
 		})
 	}
 }

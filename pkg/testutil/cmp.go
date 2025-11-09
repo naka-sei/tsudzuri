@@ -1,4 +1,4 @@
-package cmperr
+package testutil
 
 import (
 	"errors"
@@ -6,8 +6,8 @@ import (
 	"testing"
 )
 
-// Diff compares two errors and returns a human-readable string describing the differences.
-func Diff(t *testing.T, want, got error) {
+// EqualErr compares two errors and returns a human-readable string describing the differences.
+func EqualErr(t *testing.T, want, got error) {
 	t.Helper()
 
 	if want == nil && got == nil {

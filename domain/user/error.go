@@ -7,18 +7,6 @@ var (
 	ErrUserNotFound     = fmt.Errorf("user not found")
 )
 
-type InvalidUIDError struct {
-	uid string
-}
-
-func (e *InvalidUIDError) Error() string {
-	return fmt.Sprintf("invalid uid: %s", e.uid)
-}
-
-func ErrInvalidUID(uid string) *InvalidUIDError {
-	return &InvalidUIDError{uid: uid}
-}
-
 type InvalidProviderError struct {
 	provider Provider
 }

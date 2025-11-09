@@ -5,7 +5,7 @@ import (
 
 	"github.com/google/go-cmp/cmp"
 	di "github.com/naka-sei/tsudzuri/domain/user"
-	"github.com/naka-sei/tsudzuri/pkg/cmperr"
+	"github.com/naka-sei/tsudzuri/pkg/testutil"
 )
 
 func TestPage_NewPage(t *testing.T) {
@@ -56,7 +56,7 @@ func TestPage_NewPage(t *testing.T) {
 			t.Parallel()
 
 			got, err := NewPage(tt.args.title, tt.args.createdBy)
-			cmperr.Diff(t, tt.want.err, err)
+			testutil.EqualErr(t, tt.want.err, err)
 
 			if diff := cmp.Diff(tt.want.page, got, cmp.AllowUnexported(Link{}, Page{}, di.User{})); diff != "" {
 				t.Fatalf("page mismatch (-want +got):\n%s", diff)
@@ -230,7 +230,7 @@ func TestPage_Edit(t *testing.T) {
 			t.Parallel()
 
 			err := tt.fields.page.Edit(tt.args.user, tt.args.title, tt.args.links)
-			cmperr.Diff(t, tt.want.err, err)
+			testutil.EqualErr(t, tt.want.err, err)
 
 			if diff := cmp.Diff(tt.want.page, tt.fields.page, cmp.AllowUnexported(Link{}, Page{}, di.User{})); diff != "" {
 				t.Fatalf("page mismatch (-want +got):\n%s", diff)
@@ -312,7 +312,7 @@ func TestPage_Authorize(t *testing.T) {
 			t.Parallel()
 
 			err := tt.fields.page.Authorize(tt.args.user)
-			cmperr.Diff(t, tt.want.err, err)
+			testutil.EqualErr(t, tt.want.err, err)
 		})
 	}
 }
@@ -362,7 +362,7 @@ func TestPage_validateCreatedBy(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 			err := tt.fields.page.validateCreatedBy(tt.args.user)
-			cmperr.Diff(t, tt.want.err, err)
+			testutil.EqualErr(t, tt.want.err, err)
 		})
 	}
 }

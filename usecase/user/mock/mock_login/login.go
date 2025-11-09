@@ -41,15 +41,15 @@ func (m *MockLoginUsecase) EXPECT() *MockLoginUsecaseMockRecorder {
 }
 
 // Login mocks base method.
-func (m *MockLoginUsecase) Login(ctx context.Context, uid, provider string, email *string) error {
+func (m *MockLoginUsecase) Login(ctx context.Context, provider string, email *string) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Login", ctx, uid, provider, email)
+	ret := m.ctrl.Call(m, "Login", ctx, provider, email)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // Login indicates an expected call of Login.
-func (mr *MockLoginUsecaseMockRecorder) Login(ctx, uid, provider, email any) *gomock.Call {
+func (mr *MockLoginUsecaseMockRecorder) Login(ctx, provider, email any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Login", reflect.TypeOf((*MockLoginUsecase)(nil).Login), ctx, uid, provider, email)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Login", reflect.TypeOf((*MockLoginUsecase)(nil).Login), ctx, provider, email)
 }

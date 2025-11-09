@@ -10,8 +10,8 @@ import (
 	dpage "github.com/naka-sei/tsudzuri/domain/page"
 	mockpage "github.com/naka-sei/tsudzuri/domain/page/mock/mock_page"
 	duser "github.com/naka-sei/tsudzuri/domain/user"
-	"github.com/naka-sei/tsudzuri/pkg/cmperr"
 	ctxuser "github.com/naka-sei/tsudzuri/pkg/ctx/user"
+	"github.com/naka-sei/tsudzuri/pkg/testutil"
 	mocktxn "github.com/naka-sei/tsudzuri/usecase/service/mock/mock_transaction"
 )
 
@@ -168,7 +168,7 @@ func TestEditUsecase_Edit(t *testing.T) {
 			}
 			u := NewEditUsecase(m.pageRepo, m.txn)
 			err := u.Edit(tt.args.ctx, tt.args.pageID, tt.args.title, tt.args.links)
-			cmperr.Diff(t, tt.want.err, err)
+			testutil.EqualErr(t, tt.want.err, err)
 		})
 	}
 }

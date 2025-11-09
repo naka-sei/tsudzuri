@@ -8,9 +8,9 @@ import (
 	cmp "github.com/google/go-cmp/cmp"
 	duser "github.com/naka-sei/tsudzuri/domain/user"
 	mockuser "github.com/naka-sei/tsudzuri/domain/user/mock/mock_user"
-	"github.com/naka-sei/tsudzuri/pkg/cmperr"
 	ctxuser "github.com/naka-sei/tsudzuri/pkg/ctx/user"
 	"github.com/naka-sei/tsudzuri/pkg/ptr"
+	"github.com/naka-sei/tsudzuri/pkg/testutil"
 	mocktransaction "github.com/naka-sei/tsudzuri/usecase/service/mock/mock_transaction"
 	"go.uber.org/mock/gomock"
 )
@@ -22,7 +22,6 @@ func TestLoginUsecase_Login(t *testing.T) {
 	}
 	type args struct {
 		ctx      context.Context
-		uid      string
 		provider string
 		email    *string
 	}
@@ -49,7 +48,6 @@ func TestLoginUsecase_Login(t *testing.T) {
 			},
 			args: args{
 				ctx:      ctxuser.WithUser(context.Background(), duser.NewUser("uid-1")),
-				uid:      "uid-1",
 				provider: "google",
 				email:    ptr.Ptr("u@example.com"),
 			},
@@ -72,7 +70,6 @@ func TestLoginUsecase_Login(t *testing.T) {
 			},
 			args: args{
 				ctx:      ctxuser.WithUser(context.Background(), duser.NewUser("fail-uid")),
-				uid:      "fail-uid",
 				provider: "google",
 				email:    ptr.Ptr("u@example.com"),
 			},
@@ -90,7 +87,6 @@ func TestLoginUsecase_Login(t *testing.T) {
 			},
 			args: args{
 				ctx:      ctxuser.WithUser(context.Background(), duser.NewUser("txn-uid")),
-				uid:      "txn-uid",
 				provider: "google",
 				email:    ptr.Ptr("u@example.com"),
 			},
@@ -106,7 +102,6 @@ func TestLoginUsecase_Login(t *testing.T) {
 			setup: func(f *fields) {},
 			args: args{
 				ctx:      context.Background(),
-				uid:      "uid-1",
 				provider: "google",
 				email:    ptr.Ptr("u@example.com"),
 			},
@@ -120,7 +115,6 @@ func TestLoginUsecase_Login(t *testing.T) {
 			setup: func(f *fields) {},
 			args: args{
 				ctx:      ctxuser.WithUser(context.Background(), duser.NewUser("uid-1")),
-				uid:      "uid-1",
 				provider: "google",
 				email:    nil,
 			},
@@ -146,7 +140,7 @@ func TestLoginUsecase_Login(t *testing.T) {
 			}
 
 			u := NewLoginUsecase(f.userRepo, f.txnService)
-			err := u.Login(tt.args.ctx, tt.args.uid, tt.args.provider, tt.args.email)
+			err := u.Login(tt.args.ctx, tt.args.provider, tt.args.email)
 
 			if gotUser, ok := ctxuser.UserFromContext(tt.args.ctx); ok && tt.want.user != nil {
 				if diff := cmp.Diff(tt.want.user, gotUser, cmp.AllowUnexported(duser.User{})); diff != "" {
@@ -154,7 +148,7 @@ func TestLoginUsecase_Login(t *testing.T) {
 				}
 			}
 
-			cmperr.Diff(t, tt.want.err, err)
+			testutil.EqualErr(t, tt.want.err, err)
 		})
 	}
 }

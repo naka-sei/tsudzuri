@@ -8,6 +8,15 @@ type Link struct {
 	priority int
 }
 
+// URL returns the link URL.
+func (l Link) URL() string { return l.url }
+
+// Memo returns the link memo.
+func (l Link) Memo() string { return l.memo }
+
+// Priority returns the link priority.
+func (l Link) Priority() int { return l.priority }
+
 type Links []Link
 
 // addLink adds a new link to the Links slice.

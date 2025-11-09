@@ -8,7 +8,7 @@ import (
 	cmp "github.com/google/go-cmp/cmp"
 	duser "github.com/naka-sei/tsudzuri/domain/user"
 	mockuser "github.com/naka-sei/tsudzuri/domain/user/mock/mock_user"
-	"github.com/naka-sei/tsudzuri/pkg/cmperr"
+	"github.com/naka-sei/tsudzuri/pkg/testutil"
 	mocktransaction "github.com/naka-sei/tsudzuri/usecase/service/mock/mock_transaction"
 	"go.uber.org/mock/gomock"
 )
@@ -110,7 +110,7 @@ func TestCreateUsecase_Create(t *testing.T) {
 			if diff := cmp.Diff(tt.want.user, got, cmp.AllowUnexported(duser.User{})); diff != "" {
 				t.Errorf("user mismatch (-want +got):\n%s", diff)
 			}
-			cmperr.Diff(t, tt.want.err, err)
+			testutil.EqualErr(t, tt.want.err, err)
 		})
 	}
 }

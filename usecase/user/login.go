@@ -2,7 +2,6 @@ package user
 
 import (
 	"context"
-	"fmt"
 
 	duser "github.com/naka-sei/tsudzuri/domain/user"
 	ctxuser "github.com/naka-sei/tsudzuri/pkg/ctx/user"
@@ -15,7 +14,7 @@ import (
 
 type LoginUsecase interface {
 	// Login authenticates and updates the user with provider and email.
-	Login(ctx context.Context, uid string, provider string, email *string) error
+	Login(ctx context.Context, provider string, email *string) error
 }
 
 type loginUsecase struct {
@@ -42,7 +41,7 @@ func NewLoginUsecase(userRepo duser.UserRepository, txnService service.Transacti
 	}
 }
 
-func (u *loginUsecase) Login(ctx context.Context, uid string, provider string, email *string) error {
+func (u *loginUsecase) Login(ctx context.Context, provider string, email *string) error {
 	ctx, end := trace.StartSpan(ctx, "usecase/user/loginUsecase.Login")
 	defer end()
 
@@ -52,8 +51,10 @@ func (u *loginUsecase) Login(ctx context.Context, uid string, provider string, e
 	if !ok {
 		return duser.ErrUserNotFound
 	}
-	l.Info(fmt.Sprintf("User %s logging in with provider=%s uid_param=%s", user.ID(), provider, uid))
-	if err := user.Login(uid, provider, email); err != nil {
+
+	l.Sugar().Infof("Logging in user id: %s with provider: %s email: %v", user.ID(), provider, email)
+
+	if err := user.Login(provider, email); err != nil {
 		return err
 	}
 	if err := u.service.txn.RunInTransaction(ctx, func(ctx context.Context) error {

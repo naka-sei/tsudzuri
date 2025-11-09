@@ -23,13 +23,9 @@ func (u *User) ID() string {
 }
 
 // Login logins the user with the given uid, provider, and email.
-func (u *User) Login(uid string, provider string, email *string) error {
+func (u *User) Login(provider string, email *string) error {
 	if email == nil {
 		return ErrNoSpecifiedEmail
-	}
-
-	if u.uid != uid {
-		return ErrInvalidUID(uid)
 	}
 
 	p := Provider(provider)
@@ -41,7 +37,6 @@ func (u *User) Login(uid string, provider string, email *string) error {
 		return ErrAlreadyLoggedIn(u.provider)
 	}
 
-	u.uid = uid
 	u.provider = p
 	u.email = email
 

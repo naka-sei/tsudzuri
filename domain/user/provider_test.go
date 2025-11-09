@@ -3,7 +3,7 @@ package user
 import (
 	"testing"
 
-	"github.com/naka-sei/tsudzuri/pkg/cmperr"
+	"github.com/naka-sei/tsudzuri/pkg/testutil"
 )
 
 func TestProvider_isValid(t *testing.T) {
@@ -23,7 +23,7 @@ func TestProvider_isValid(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 			err := tt.p.isValid()
-			cmperr.Diff(t, tt.want, err)
+			testutil.EqualErr(t, tt.want, err)
 		})
 	}
 }

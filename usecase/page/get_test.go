@@ -11,8 +11,8 @@ import (
 	dpage "github.com/naka-sei/tsudzuri/domain/page"
 	mockpage "github.com/naka-sei/tsudzuri/domain/page/mock/mock_page"
 	duser "github.com/naka-sei/tsudzuri/domain/user"
-	"github.com/naka-sei/tsudzuri/pkg/cmperr"
 	ctxuser "github.com/naka-sei/tsudzuri/pkg/ctx/user"
+	"github.com/naka-sei/tsudzuri/pkg/testutil"
 )
 
 func TestGetUsecase_Get(t *testing.T) {
@@ -145,7 +145,7 @@ func TestGetUsecase_Get(t *testing.T) {
 			if diff := cmp.Diff(tt.want.page, got, cmp.AllowUnexported(dpage.Page{}, duser.User{})); diff != "" {
 				t.Errorf("page mismatch (-want +got):\n%s", diff)
 			}
-			cmperr.Diff(t, tt.want.err, err)
+			testutil.EqualErr(t, tt.want.err, err)
 		})
 	}
 }

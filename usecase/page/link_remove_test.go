@@ -8,8 +8,8 @@ import (
 	dpage "github.com/naka-sei/tsudzuri/domain/page"
 	mockpage "github.com/naka-sei/tsudzuri/domain/page/mock/mock_page"
 	duser "github.com/naka-sei/tsudzuri/domain/user"
-	"github.com/naka-sei/tsudzuri/pkg/cmperr"
 	ctxuser "github.com/naka-sei/tsudzuri/pkg/ctx/user"
+	"github.com/naka-sei/tsudzuri/pkg/testutil"
 	mocktxn "github.com/naka-sei/tsudzuri/usecase/service/mock/mock_transaction"
 	"go.uber.org/mock/gomock"
 )
@@ -216,7 +216,7 @@ func TestLinkRemoveUsecase_LinkRemove(t *testing.T) {
 			tt.setup(m)
 			u := NewLinkRemoveUsecase(m.pageRepo, m.txn)
 			err := u.LinkRemove(tt.args.ctx, tt.args.input)
-			cmperr.Diff(t, tt.want.err, err)
+			testutil.EqualErr(t, tt.want.err, err)
 		})
 	}
 }

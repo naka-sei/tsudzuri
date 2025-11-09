@@ -4,7 +4,7 @@ import (
 	"testing"
 
 	"github.com/google/go-cmp/cmp"
-	"github.com/naka-sei/tsudzuri/pkg/cmperr"
+	"github.com/naka-sei/tsudzuri/pkg/testutil"
 )
 
 func TestLinks_addLink(t *testing.T) {
@@ -134,7 +134,7 @@ func TestLinks_removeLink(t *testing.T) {
 			t.Parallel()
 
 			err := tt.fields.links.removeLink(tt.args.url)
-			cmperr.Diff(t, tt.want.err, err)
+			testutil.EqualErr(t, tt.want.err, err)
 
 			if diff := cmp.Diff(tt.want.links, tt.fields.links, cmp.AllowUnexported(Link{}, Page{})); diff != "" {
 				t.Fatalf("links mismatch (-want +got):\n%s", diff)
@@ -213,7 +213,7 @@ func TestLinks_editLinks(t *testing.T) {
 			t.Parallel()
 
 			err := tt.fields.links.editLinks(tt.args.links)
-			cmperr.Diff(t, tt.want.err, err)
+			testutil.EqualErr(t, tt.want.err, err)
 
 			if diff := cmp.Diff(tt.want.links, tt.fields.links, cmp.AllowUnexported(Link{}, Page{})); diff != "" {
 				t.Fatalf("links mismatch (-want +got):\n%s", diff)

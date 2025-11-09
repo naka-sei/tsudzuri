@@ -4,7 +4,7 @@ import (
 	"testing"
 
 	"github.com/google/go-cmp/cmp"
-	"github.com/naka-sei/tsudzuri/pkg/cmperr"
+	"github.com/naka-sei/tsudzuri/pkg/testutil"
 )
 
 func TestUser_Login(t *testing.T) {
@@ -12,7 +12,6 @@ func TestUser_Login(t *testing.T) {
 		user *User
 	}
 	type args struct {
-		uid      string
 		provider string
 		email    *string
 	}
@@ -32,31 +31,25 @@ func TestUser_Login(t *testing.T) {
 		{
 			name:   "login_success",
 			fields: fields{user: NewUser("u1")},
-			args:   args{uid: "u1", provider: "google", email: &email},
+			args:   args{provider: "google", email: &email},
 			want:   want{err: nil, user: &User{uid: "u1", provider: "google", email: &email}},
 		},
 		{
 			name:   "login_no_email",
 			fields: fields{user: NewUser("u2")},
-			args:   args{uid: "u2", provider: "google", email: nil},
+			args:   args{provider: "google", email: nil},
 			want:   want{err: ErrNoSpecifiedEmail, user: NewUser("u2")},
-		},
-		{
-			name:   "login_invalid_uid",
-			fields: fields{user: NewUser("u3")},
-			args:   args{uid: "other", provider: "google", email: &email},
-			want:   want{err: ErrInvalidUID("other"), user: NewUser("u3")},
 		},
 		{
 			name:   "login_invalid_provider",
 			fields: fields{user: NewUser("u4")},
-			args:   args{uid: "u4", provider: "x", email: &email},
+			args:   args{provider: "x", email: &email},
 			want:   want{err: ErrInvalidProvider("x"), user: NewUser("u4")},
 		},
 		{
 			name:   "login_already_logged_in",
 			fields: fields{user: ReconstructUser("42", "u5", "google", &email)},
-			args:   args{uid: "u5", provider: "google", email: &email},
+			args:   args{provider: "google", email: &email},
 			want:   want{err: ErrAlreadyLoggedIn("google"), user: ReconstructUser("42", "u5", "google", &email)},
 		},
 	}
@@ -66,8 +59,8 @@ func TestUser_Login(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 			u := tt.fields.user
-			err := u.Login(tt.args.uid, tt.args.provider, tt.args.email)
-			cmperr.Diff(t, tt.want.err, err)
+			err := u.Login(tt.args.provider, tt.args.email)
+			testutil.EqualErr(t, tt.want.err, err)
 
 			if diff := cmp.Diff(tt.want.user, u, cmp.AllowUnexported(User{})); diff != "" {
 				t.Fatalf("user mismatch (-want +got):\n%s", diff)

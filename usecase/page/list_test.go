@@ -11,8 +11,8 @@ import (
 	dpage "github.com/naka-sei/tsudzuri/domain/page"
 	mockpage "github.com/naka-sei/tsudzuri/domain/page/mock/mock_page"
 	duser "github.com/naka-sei/tsudzuri/domain/user"
-	"github.com/naka-sei/tsudzuri/pkg/cmperr"
 	ctxuser "github.com/naka-sei/tsudzuri/pkg/ctx/user"
+	"github.com/naka-sei/tsudzuri/pkg/testutil"
 )
 
 func TestListUsecase_List(t *testing.T) {
@@ -121,7 +121,7 @@ func TestListUsecase_List(t *testing.T) {
 			}
 			u := NewListUsecase(f.pageRepo)
 			got, err := u.List(tt.args.ctx)
-			cmperr.Diff(t, tt.want.err, err)
+			testutil.EqualErr(t, tt.want.err, err)
 			if diff := cmp.Diff(tt.want.pages, got, cmp.AllowUnexported(dpage.Page{}, duser.User{})); diff != "" {
 				t.Errorf("List() page mismatch (-want +got):\n%s", diff)
 			}

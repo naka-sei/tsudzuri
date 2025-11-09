@@ -9,8 +9,8 @@ import (
 	dpage "github.com/naka-sei/tsudzuri/domain/page"
 	mockpage "github.com/naka-sei/tsudzuri/domain/page/mock/mock_page"
 	duser "github.com/naka-sei/tsudzuri/domain/user"
-	"github.com/naka-sei/tsudzuri/pkg/cmperr"
 	ctxuser "github.com/naka-sei/tsudzuri/pkg/ctx/user"
+	"github.com/naka-sei/tsudzuri/pkg/testutil"
 	mocktxn "github.com/naka-sei/tsudzuri/usecase/service/mock/mock_transaction"
 )
 
@@ -140,7 +140,7 @@ func TestLinkAddUseCase_LinkAdd(t *testing.T) {
 			}
 			u := NewLinkAddUsecase(m.pageRepo, m.txn)
 			err := u.LinkAdd(tt.args.ctx, tt.args.input)
-			cmperr.Diff(t, tt.wantErr, err)
+			testutil.EqualErr(t, tt.wantErr, err)
 		})
 	}
 }
