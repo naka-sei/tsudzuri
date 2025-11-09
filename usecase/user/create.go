@@ -2,7 +2,6 @@ package user
 
 import (
 	"context"
-	"fmt"
 
 	duser "github.com/naka-sei/tsudzuri/domain/user"
 	"github.com/naka-sei/tsudzuri/pkg/log"
@@ -54,7 +53,7 @@ func (u *createUsecase) Create(ctx context.Context, uid string) (*duser.User, er
 	defer end()
 
 	l := log.LoggerFromContext(ctx)
-	l.Info(fmt.Sprintf("Creating user uid: %s", uid))
+	l.Sugar().Infof("Creating user uid: %s", uid)
 
 	newUser := duser.NewUser(uid)
 	err := u.service.txn.RunInTransaction(ctx, func(ctx context.Context) error {

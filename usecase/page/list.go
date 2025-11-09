@@ -2,7 +2,6 @@ package page
 
 import (
 	"context"
-	"fmt"
 
 	dpage "github.com/naka-sei/tsudzuri/domain/page"
 	duser "github.com/naka-sei/tsudzuri/domain/user"
@@ -45,7 +44,7 @@ func (u *listUsecase) List(ctx context.Context, options ...dpage.SearchOption) (
 		return nil, duser.ErrUserNotFound
 	}
 
-	l.Info(fmt.Sprintf("Listing pages for user: %s options: %d", user.ID(), len(options)))
+	l.Sugar().Infof("Listing pages for user: %s options: %d", user.ID(), len(options))
 
 	pages, err := u.repository.page.List(ctx, user.ID(), options...)
 	if err != nil {

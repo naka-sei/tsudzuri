@@ -11,7 +11,7 @@ import (
 )
 
 type EditRequest struct {
-	PageID string        `json:"page_id"`
+	PageID string        `path:"id"`
 	Title  string        `json:"title"`
 	Links  []LinkRequest `json:"links"`
 }

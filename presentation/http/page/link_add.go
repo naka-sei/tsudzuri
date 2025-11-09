@@ -10,7 +10,7 @@ import (
 )
 
 type LinkAddRequest struct {
-	PageID string `json:"page_id"`
+	PageID string `path:"id"`
 	URL    string `json:"url"`
 	Memo   string `json:"memo"`
 }

@@ -2,7 +2,6 @@ package page
 
 import (
 	"context"
-	"fmt"
 
 	dpage "github.com/naka-sei/tsudzuri/domain/page"
 	duser "github.com/naka-sei/tsudzuri/domain/user"
@@ -41,7 +40,7 @@ func (u *editUsecase) Edit(ctx context.Context, pageID string, title string, lin
 	defer end()
 
 	l := log.LoggerFromContext(ctx)
-	l.Info(fmt.Sprintf("Editing page id: %s title: %s", pageID, title))
+	l.Sugar().Infof("Editing page id: %s title: %s", pageID, title)
 
 	page, err := u.repository.page.Get(ctx, pageID)
 	if err != nil {

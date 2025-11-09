@@ -10,7 +10,7 @@ import (
 )
 
 type GetRequest struct {
-	PageID string `json:"page_id"`
+	PageID string `path:"id"`
 }
 
 type GetService struct {

@@ -10,7 +10,7 @@ import (
 )
 
 type DeleteRequest struct {
-	PageID string `json:"page_id"`
+	PageID string `path:"id"`
 }
 
 type DeleteService struct {

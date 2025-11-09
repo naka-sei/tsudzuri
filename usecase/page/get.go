@@ -2,7 +2,6 @@ package page
 
 import (
 	"context"
-	"fmt"
 
 	dpage "github.com/naka-sei/tsudzuri/domain/page"
 	duser "github.com/naka-sei/tsudzuri/domain/user"
@@ -39,7 +38,7 @@ func (u *getUsecase) Get(ctx context.Context, pageID string) (*dpage.Page, error
 	defer end()
 
 	l := log.LoggerFromContext(ctx)
-	l.Info(fmt.Sprintf("Getting page with id: %s", pageID))
+	l.Sugar().Infof("Getting page with id: %s", pageID)
 
 	page, err := u.repository.page.Get(ctx, pageID)
 	if err != nil {

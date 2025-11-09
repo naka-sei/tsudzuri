@@ -94,6 +94,10 @@ func (p *Page) RemoveLink(user *duser.User, url string) error {
 
 // Authorize authorizes the user to access the page.
 func (p *Page) Authorize(user *duser.User) error {
+	if user == nil {
+		return ErrNoUserProvided
+	}
+
 	isUserInvited := slices.ContainsFunc(p.invitedUsers, func(u *duser.User) bool {
 		return u.ID() == user.ID()
 	})

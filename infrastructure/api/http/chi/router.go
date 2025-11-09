@@ -19,6 +19,8 @@ type Router struct {
 	r chi.Router
 }
 
+var _ prouter.Router = (*Router)(nil)
+
 func New(r chi.Router) *Router { return &Router{r: r} }
 
 // Route implements grouping under a path prefix.
@@ -131,10 +133,35 @@ func decodeJSON(r *http.Request, v any) error {
 	dec := json.NewDecoder(r.Body)
 	if err := dec.Decode(v); err != nil {
 		if errors.Is(err, io.EOF) {
-			return nil // empty body treated as zero-value
+			// empty body treated as zero-value, but still set path params
+		} else {
+			return err
 		}
-		return err
 	}
+
+	// Set path parameters
+	vv := reflect.ValueOf(v)
+	if vv.Kind() == reflect.Ptr {
+		vv = vv.Elem()
+	}
+	if vv.Kind() != reflect.Struct {
+		return nil
+	}
+	vt := vv.Type()
+	for i := 0; i < vt.NumField(); i++ {
+		field := vt.Field(i)
+		tag := field.Tag.Get("path")
+		if tag != "" {
+			param := chi.URLParam(r, tag)
+			if param != "" {
+				fv := vv.Field(i)
+				if fv.CanSet() && fv.Kind() == reflect.String {
+					fv.SetString(param)
+				}
+			}
+		}
+	}
+
 	return nil
 }
 
@@ -149,7 +176,7 @@ func writeError(w http.ResponseWriter, r *http.Request, err error) {
 	re := perrcode.GetErrorReason(err)
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
 	w.WriteHeader(sc)
-	_ = json.NewEncoder(w).Encode(re)
+	_ = json.NewEncoder(w).Encode(presp.ErrResponse{Message: re.Message})
 }
 
 func defaultConfigFor(method string, opts ...prouter.Option) *prouter.RouteConfig {

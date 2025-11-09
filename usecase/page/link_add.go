@@ -2,7 +2,6 @@ package page
 
 import (
 	"context"
-	"fmt"
 
 	dpage "github.com/naka-sei/tsudzuri/domain/page"
 	duser "github.com/naka-sei/tsudzuri/domain/user"
@@ -57,7 +56,7 @@ func (u *linkAddUsecase) LinkAdd(ctx context.Context, input LinkAddUsecaseInput)
 	defer end()
 
 	l := log.LoggerFromContext(ctx)
-	l.Info(fmt.Sprintf("Adding link to page %s: url=%s memo=%s", input.PageID, input.URL, input.Memo))
+	l.Sugar().Infof("Adding link to page %s: url=%s memo=%s", input.PageID, input.URL, input.Memo)
 
 	page, err := u.repository.page.Get(ctx, input.PageID)
 	if err != nil {

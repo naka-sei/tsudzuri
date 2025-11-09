@@ -2,7 +2,6 @@ package page
 
 import (
 	"context"
-	"fmt"
 
 	dpage "github.com/naka-sei/tsudzuri/domain/page"
 	duser "github.com/naka-sei/tsudzuri/domain/user"
@@ -52,7 +51,7 @@ func (u *createUsecase) Create(ctx context.Context, title string) (*dpage.Page, 
 	defer end()
 
 	l := log.LoggerFromContext(ctx)
-	l.Info(fmt.Sprintf("Creating a new page with title: %s", title))
+	l.Sugar().Infof("Creating a new page with title: %s", title)
 
 	user, ok := ctxuser.UserFromContext(ctx)
 	if !ok {

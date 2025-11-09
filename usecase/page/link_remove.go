@@ -2,7 +2,6 @@ package page
 
 import (
 	"context"
-	"fmt"
 
 	dpage "github.com/naka-sei/tsudzuri/domain/page"
 	duser "github.com/naka-sei/tsudzuri/domain/user"
@@ -56,7 +55,7 @@ func (u *linkRemoveUsecase) LinkRemove(ctx context.Context, input LinkRemoveUsec
 	defer end()
 
 	l := log.LoggerFromContext(ctx)
-	l.Info(fmt.Sprintf("Removing link from page %s: url=%s", input.PageID, input.URL))
+	l.Sugar().Infof("Removing link from page %s: url=%s", input.PageID, input.URL)
 
 	page, err := u.repository.page.Get(ctx, input.PageID)
 	if err != nil {

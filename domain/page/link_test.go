@@ -205,6 +205,26 @@ func TestLinks_editLinks(t *testing.T) {
 				err: ErrNotFoundLink("no"),
 			},
 		},
+		{
+			name: "edit_invalid_length",
+			fields: fields{
+				links: Links{
+					{url: "a", memo: "A", priority: 1},
+				},
+			},
+			args: args{
+				links: Links{
+					{url: "a", memo: "A", priority: 1},
+					{url: "b", memo: "B", priority: 2},
+				},
+			},
+			want: want{
+				links: Links{
+					{url: "a", memo: "A", priority: 1},
+				},
+				err: ErrInvalidLinksLength,
+			},
+		},
 	}
 
 	for _, tt := range tests {
