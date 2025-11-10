@@ -14,7 +14,7 @@ import (
 func init() {
 	dsn := os.Getenv("TEST_DATABASE_DSN")
 	if dsn == "" {
-		panic("TEST_DATABASE_DSN is not set")
+		return
 	}
 
 	pgtxdb.Register("pgtx", "pgx", dsn)

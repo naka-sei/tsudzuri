@@ -3,10 +3,12 @@ package main
 import (
 	"context"
 	"log"
+	"os"
 
 	texporter "github.com/GoogleCloudPlatform/opentelemetry-operations-go/exporter/trace"
 	"go.opentelemetry.io/contrib/detectors/gcp"
 	"go.opentelemetry.io/otel"
+	"go.opentelemetry.io/otel/exporters/stdout/stdouttrace"
 	"go.opentelemetry.io/otel/propagation"
 	"go.opentelemetry.io/otel/sdk/resource"
 	sdktrace "go.opentelemetry.io/otel/sdk/trace"
@@ -19,12 +21,25 @@ import (
 func InitializeTracer(conf *config.Config) *sdktrace.TracerProvider {
 	ctx := context.Background()
 
-	// Try to create GCP Cloud Trace exporter. If it fails (e.g., missing ADC),
-	// fall back to a provider without an exporter to avoid panics.
-	exporter, err := texporter.New(texporter.WithProjectID(conf.GoogleCloudProject))
+	// Select exporter based on configuration. When stdout exporter is enabled,
+	// we prefer immediate feedback over remote delivery to Cloud Trace.
+	var (
+		exporter sdktrace.SpanExporter
+		err      error
+	)
+	switch {
+	case conf.EnableStdoutTraceExporter:
+		exporter, err = stdouttrace.New(
+			stdouttrace.WithPrettyPrint(),
+			stdouttrace.WithWriter(os.Stdout),
+		)
+	default:
+		// Try to create GCP Cloud Trace exporter. If it fails (e.g., missing ADC),
+		// fall back to a provider without an exporter to avoid panics.
+		exporter, err = texporter.New(texporter.WithProjectID(conf.GoogleCloudProject))
+	}
 	if err != nil {
-		// Log the error but continue with a noop exporter (no WithBatcher)
-		// so local/dev environments without credentials won't crash.
+		// Log the error but continue with a noop exporter so the app keeps running locally.
 		log.Println(err)
 		exporter = nil
 	}
@@ -39,11 +54,17 @@ func InitializeTracer(conf *config.Config) *sdktrace.TracerProvider {
 		log.Fatalln(err)
 	}
 
-	// Build tracer provider options, adding the batcher only when exporter is available.
+	// Build tracer provider options, adding the exporter only when available.
 	opts := []sdktrace.TracerProviderOption{sdktrace.WithResource(res)}
-	if exporter != nil {
+	switch {
+	case exporter != nil && conf.EnableStdoutTraceExporter:
+		opts = append(opts,
+			sdktrace.WithSpanProcessor(sdktrace.NewSimpleSpanProcessor(exporter)),
+			sdktrace.WithSampler(sdktrace.AlwaysSample()),
+		)
+	case exporter != nil:
 		opts = append(opts, sdktrace.WithBatcher(exporter))
-	} else {
+	default:
 		// Avoid sampling work locally if we're not exporting anywhere.
 		opts = append(opts, sdktrace.WithSampler(sdktrace.NeverSample()))
 	}

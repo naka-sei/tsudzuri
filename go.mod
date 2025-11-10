@@ -6,9 +6,11 @@ require (
 	github.com/GoogleCloudPlatform/opentelemetry-operations-go/exporter/trace v1.30.0
 	github.com/blendle/zapdriver v1.3.1
 	github.com/google/go-cmp v0.7.0
+	github.com/google/wire v0.7.0
 	github.com/pkg/errors v0.9.1
 	go.opentelemetry.io/contrib/detectors/gcp v1.36.0
 	go.opentelemetry.io/otel v1.38.0
+	go.opentelemetry.io/otel/exporters/stdout/stdouttrace v1.38.0
 	go.opentelemetry.io/otel/sdk v1.38.0
 	go.uber.org/mock v0.6.0
 	go.uber.org/zap v1.27.0
@@ -28,7 +30,6 @@ require (
 	github.com/felixge/httpsnoop v1.0.4 // indirect
 	github.com/go-openapi/inflect v0.19.0 // indirect
 	github.com/google/s2a-go v0.1.9 // indirect
-	github.com/google/wire v0.7.0 // indirect
 	github.com/googleapis/enterprise-certificate-proxy v0.3.6 // indirect
 	github.com/googleapis/gax-go/v2 v2.15.0 // indirect
 	github.com/hashicorp/hcl/v2 v2.18.1 // indirect

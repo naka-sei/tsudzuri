@@ -20,14 +20,14 @@ type Config struct {
 	// IsDebugMode indicates whether the application is running in debug mode.
 	IsDebugMode bool `envconfig:"IS_DEBUG_MODE" default:"false"`
 
+	// EnableStdoutTraceExporter enables the OpenTelemetry stdout exporter for local debugging.
+	EnableStdoutTraceExporter bool `envconfig:"ENABLE_STDOUT_TRACE_EXPORTER" default:"false"`
+
 	// TsuzduriDatabaseDSNSMKey is the Secret Manager key for the Tsudzuri database DSN.
 	TsuzduriDatabaseDSNSMKey string `envconfig:"TSUDZURI_DATABASE_DSN_SM_KEY" default:"tsudzuri_database-dsn"`
 
 	// TsudzuriDatabaseDSN is the Tsudzuri database DSN.
 	TsudzuriDatabaseDSN string `envconfig:"TSUDZURI_DATABASE_DSN"`
-
-	// TestDatabaseDSN is the test database DSN.
-	TestDatabaseDSN string `envconfig:"TEST_DATABASE_DSN"`
 }
 
 // Load loads the configuration.
