@@ -44,7 +44,7 @@ func TestLoginUsecase_Login(t *testing.T) {
 						return fn(ctx)
 					},
 				)
-				f.userRepo.EXPECT().Save(gomock.Any(), gomock.AssignableToTypeOf(&duser.User{})).Return(nil)
+				f.userRepo.EXPECT().Save(gomock.Any(), gomock.AssignableToTypeOf(&duser.User{})).Return(nil, nil)
 			},
 			args: args{
 				ctx:      ctxuser.WithUser(context.Background(), duser.NewUser("uid-1")),
@@ -66,7 +66,7 @@ func TestLoginUsecase_Login(t *testing.T) {
 						return fn(ctx)
 					},
 				)
-				f.userRepo.EXPECT().Save(gomock.Any(), gomock.AssignableToTypeOf(&duser.User{})).Return(errors.New("save error"))
+				f.userRepo.EXPECT().Save(gomock.Any(), gomock.AssignableToTypeOf(&duser.User{})).Return(nil, errors.New("save error"))
 			},
 			args: args{
 				ctx:      ctxuser.WithUser(context.Background(), duser.NewUser("fail-uid")),

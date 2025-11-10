@@ -6,13 +6,14 @@ import "context"
 
 type PageRepository interface {
 	Get(ctx context.Context, id string) (*Page, error)
-	List(ctx context.Context, userID string, options ...SearchOption) ([]*Page, error)
-	Save(ctx context.Context, page *Page) error
+	List(ctx context.Context, options ...SearchOption) ([]*Page, error)
+	Save(ctx context.Context, page *Page) (*Page, error)
 	DeleteByID(ctx context.Context, id string) error
 }
 
 type SearchParams struct {
-	IDs []string
+	IDs             []string
+	CreatedByUserID string
 }
 
 type SearchOption interface {
@@ -28,5 +29,11 @@ func (f optionFunc) Apply(p *SearchParams) {
 func WithIDs(ids []string) SearchOption {
 	return optionFunc(func(p *SearchParams) {
 		p.IDs = ids
+	})
+}
+
+func WithCreatedByUserID(userID string) SearchOption {
+	return optionFunc(func(p *SearchParams) {
+		p.CreatedByUserID = userID
 	})
 }

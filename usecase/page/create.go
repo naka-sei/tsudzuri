@@ -64,7 +64,8 @@ func (u *createUsecase) Create(ctx context.Context, title string) (*dpage.Page, 
 	}
 
 	err = u.service.txn.RunInTransaction(ctx, func(ctx context.Context) error {
-		return u.repository.page.Save(ctx, page)
+		page, err = u.repository.page.Save(ctx, page)
+		return err
 	})
 	if err != nil {
 		return nil, err

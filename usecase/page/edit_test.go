@@ -48,7 +48,7 @@ func TestEditUsecase_Edit(t *testing.T) {
 				m.txn.EXPECT().RunInTransaction(gomock.Any(), gomock.Any()).DoAndReturn(
 					func(ctx context.Context, fn func(context.Context) error) error { return fn(ctx) },
 				)
-				m.pageRepo.EXPECT().Save(gomock.Any(), page).Return(nil)
+				m.pageRepo.EXPECT().Save(gomock.Any(), page).Return(page, nil)
 			},
 			args: args{
 				ctx:    ctxuser.WithUser(context.Background(), user),
@@ -66,7 +66,7 @@ func TestEditUsecase_Edit(t *testing.T) {
 				m.txn.EXPECT().RunInTransaction(gomock.Any(), gomock.Any()).DoAndReturn(
 					func(ctx context.Context, fn func(context.Context) error) error { return fn(ctx) },
 				)
-				m.pageRepo.EXPECT().Save(gomock.Any(), page).Return(nil)
+				m.pageRepo.EXPECT().Save(gomock.Any(), page).Return(page, nil)
 			},
 			args: args{
 				ctx:    ctxuser.WithUser(context.Background(), invitedUser),
@@ -141,7 +141,7 @@ func TestEditUsecase_Edit(t *testing.T) {
 				m.txn.EXPECT().RunInTransaction(gomock.Any(), gomock.Any()).DoAndReturn(
 					func(ctx context.Context, fn func(context.Context) error) error { return fn(ctx) },
 				)
-				m.pageRepo.EXPECT().Save(gomock.Any(), page).Return(errors.New("save error"))
+				m.pageRepo.EXPECT().Save(gomock.Any(), page).Return(nil, errors.New("save error"))
 			},
 			args: args{
 				ctx:    ctxuser.WithUser(context.Background(), user),

@@ -47,7 +47,7 @@ func TestCreateUsecase_Create(t *testing.T) {
 					},
 				)
 				page, _ := dpage.NewPage("test-title", user)
-				f.pageRepo.EXPECT().Save(gomock.Any(), page).Return(nil)
+				f.pageRepo.EXPECT().Save(gomock.Any(), page).Return(page, nil)
 			},
 			args: args{
 				ctx:   ctxuser.WithUser(context.Background(), user),
@@ -70,7 +70,7 @@ func TestCreateUsecase_Create(t *testing.T) {
 					},
 				)
 				page, _ := dpage.NewPage("fail-title", user)
-				f.pageRepo.EXPECT().Save(gomock.Any(), page).Return(errors.New("save error"))
+				f.pageRepo.EXPECT().Save(gomock.Any(), page).Return(nil, errors.New("save error"))
 			},
 			args: args{
 				ctx:   ctxuser.WithUser(context.Background(), user),

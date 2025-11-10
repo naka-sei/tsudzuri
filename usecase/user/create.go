@@ -57,7 +57,9 @@ func (u *createUsecase) Create(ctx context.Context, uid string) (*duser.User, er
 
 	newUser := duser.NewUser(uid)
 	err := u.service.txn.RunInTransaction(ctx, func(ctx context.Context) error {
-		return u.repository.user.Save(ctx, newUser)
+		var err error
+		newUser, err = u.repository.user.Save(ctx, newUser)
+		return err
 	})
 	if err != nil {
 		return nil, err

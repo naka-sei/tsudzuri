@@ -25,7 +25,10 @@ build:
 	CGO_ENABLED=0 go build -o .bin/api cmd/api/main.go
 
 test:
-	go test -v -race -cover ./...
+	make testdb/up
+	make wait-for-testdb
+	TZ="UTC" TEST_DATABASE_DSN="user=postgres password=postgres host=localhost port=5433 dbname=tsudzuri_test sslmode=disable" go test ./...
+	make testdb/down
 
 clean:
 	rm -rf .bin/
@@ -51,6 +54,31 @@ db/down:
 
 migration: db/down db/up
 	@echo "Migration completed: database container restarted with fresh schema"
+
+
+testdb/up:
+	# Start only the testdb service so we can iterate on test DB without rebuilding other services
+	GO_VERSION=$(GO_VERSION) docker compose up -d --build testdb
+
+testdb/down:
+	# Stop and remove the testdb service (data volume preserved by default)
+	docker compose stop testdb || true
+	docker compose rm -f -v testdb || true
+
+wait-for-testdb:
+	@echo "Waiting for test database to be ready..."
+	# Use pg_isready inside the container to avoid requiring local Postgres client tools
+	@timeout=60; \
+	while ! docker compose exec -T testdb pg_isready -U postgres -d tsudzuri_test > /dev/null 2>&1; do \
+		if [ $$timeout -le 0 ]; then \
+			echo "Timed out waiting for test database to be ready."; \
+			exit 1; \
+		fi; \
+		echo "Test database is not ready yet. Waiting..."; \
+		timeout=$$((timeout-1)); \
+		sleep 1; \
+	done; \
+	echo "Test database is ready."
 
 # Install developer tools (golangci-lint, gofumpt)
 install-tools:
@@ -83,4 +111,5 @@ get-go-version:
 
 # Generate code (e.g., mocks)
 generate:
+	# Generate all code (Ent + mocks, etc.) via go:generate directives
 	go generate ./...

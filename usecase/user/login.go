@@ -58,7 +58,9 @@ func (u *loginUsecase) Login(ctx context.Context, provider string, email *string
 		return err
 	}
 	if err := u.service.txn.RunInTransaction(ctx, func(ctx context.Context) error {
-		return u.repository.user.Save(ctx, user)
+		var err error
+		user, err = u.repository.user.Save(ctx, user)
+		return err
 	}); err != nil {
 		return err
 	}

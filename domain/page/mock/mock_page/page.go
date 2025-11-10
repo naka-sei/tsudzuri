@@ -71,9 +71,9 @@ func (mr *MockPageRepositoryMockRecorder) Get(ctx, id any) *gomock.Call {
 }
 
 // List mocks base method.
-func (m *MockPageRepository) List(ctx context.Context, userID string, options ...page.SearchOption) ([]*page.Page, error) {
+func (m *MockPageRepository) List(ctx context.Context, options ...page.SearchOption) ([]*page.Page, error) {
 	m.ctrl.T.Helper()
-	varargs := []any{ctx, userID}
+	varargs := []any{ctx}
 	for _, a := range options {
 		varargs = append(varargs, a)
 	}
@@ -84,18 +84,19 @@ func (m *MockPageRepository) List(ctx context.Context, userID string, options ..
 }
 
 // List indicates an expected call of List.
-func (mr *MockPageRepositoryMockRecorder) List(ctx, userID any, options ...any) *gomock.Call {
+func (mr *MockPageRepositoryMockRecorder) List(ctx any, options ...any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	varargs := append([]any{ctx, userID}, options...)
+	varargs := append([]any{ctx}, options...)
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "List", reflect.TypeOf((*MockPageRepository)(nil).List), varargs...)
 }
 
 // Save mocks base method.
-func (m *MockPageRepository) Save(ctx context.Context, arg1 *page.Page) error {
+func (m *MockPageRepository) Save(ctx context.Context, arg1 *page.Page) (*page.Page, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Save", ctx, arg1)
-	ret0, _ := ret[0].(error)
-	return ret0
+	ret0, _ := ret[0].(*page.Page)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
 }
 
 // Save indicates an expected call of Save.

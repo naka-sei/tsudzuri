@@ -80,6 +80,7 @@ func (u *linkAddUsecase) LinkAdd(ctx context.Context, input LinkAddUsecaseInput)
 		if err := page.AddLink(user, input.URL, input.Memo); err != nil {
 			return err
 		}
-		return u.repository.page.Save(ctx, page)
+		_, err = u.repository.page.Save(ctx, page)
+		return err
 	})
 }

@@ -25,6 +25,9 @@ type Config struct {
 
 	// TsudzuriDatabaseDSN is the Tsudzuri database DSN.
 	TsudzuriDatabaseDSN string `envconfig:"TSUDZURI_DATABASE_DSN"`
+
+	// TestDatabaseDSN is the test database DSN.
+	TestDatabaseDSN string `envconfig:"TEST_DATABASE_DSN"`
 }
 
 // Load loads the configuration.

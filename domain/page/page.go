@@ -54,6 +54,16 @@ func (p *Page) Links() Links {
 	return p.links
 }
 
+// CreatedBy returns the creator user of the page.
+func (p *Page) CreatedBy() *duser.User {
+	return &p.createdBy
+}
+
+// InvitedUsers returns the invited users for this page.
+func (p *Page) InvitedUsers() duser.Users {
+	return p.invitedUsers
+}
+
 // Edit edits the page.
 func (p *Page) Edit(user *duser.User, title string, links Links) error {
 	if err := p.Authorize(user); err != nil {

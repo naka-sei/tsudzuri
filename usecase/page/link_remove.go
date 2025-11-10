@@ -79,6 +79,7 @@ func (u *linkRemoveUsecase) LinkRemove(ctx context.Context, input LinkRemoveUsec
 		if err := page.RemoveLink(user, input.URL); err != nil {
 			return err
 		}
-		return u.repository.page.Save(ctx, page)
+		_, err = u.repository.page.Save(ctx, page)
+		return err
 	})
 }

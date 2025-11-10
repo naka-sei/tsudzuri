@@ -43,7 +43,7 @@ func TestLinkAddUseCase_LinkAdd(t *testing.T) {
 					DoAndReturn(func(ctx context.Context, f func(context.Context) error) error {
 						return f(ctx)
 					})
-				m.pageRepo.EXPECT().Save(gomock.Any(), page).Return(nil)
+				m.pageRepo.EXPECT().Save(gomock.Any(), page).Return(page, nil)
 			},
 			args: args{
 				ctx: ctxuser.WithUser(context.Background(), creatorUser),
@@ -64,7 +64,7 @@ func TestLinkAddUseCase_LinkAdd(t *testing.T) {
 					DoAndReturn(func(ctx context.Context, f func(context.Context) error) error {
 						return f(ctx)
 					})
-				m.pageRepo.EXPECT().Save(gomock.Any(), page).Return(nil)
+				m.pageRepo.EXPECT().Save(gomock.Any(), page).Return(page, nil)
 			},
 			args: args{
 				ctx: ctxuser.WithUser(context.Background(), invitedUser),

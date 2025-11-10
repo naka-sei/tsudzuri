@@ -60,6 +60,7 @@ func (u *editUsecase) Edit(ctx context.Context, pageID string, title string, lin
 		if err := page.Edit(user, title, links); err != nil {
 			return err
 		}
-		return u.repository.page.Save(ctx, page)
+		_, err = u.repository.page.Save(ctx, page)
+		return err
 	})
 }

@@ -42,7 +42,7 @@ func TestCreateUsecase_Create(t *testing.T) {
 					},
 				)
 				user := duser.NewUser("uid-1")
-				f.userRepo.EXPECT().Save(gomock.Any(), user).Return(nil)
+				f.userRepo.EXPECT().Save(gomock.Any(), user).Return(user, nil)
 			},
 			args: args{
 				ctx: context.Background(),
@@ -65,7 +65,7 @@ func TestCreateUsecase_Create(t *testing.T) {
 					},
 				)
 				user := duser.NewUser("fail-uid")
-				f.userRepo.EXPECT().Save(gomock.Any(), user).Return(errors.New("save error"))
+				f.userRepo.EXPECT().Save(gomock.Any(), user).Return(nil, errors.New("save error"))
 			},
 			args: args{
 				ctx: context.Background(),

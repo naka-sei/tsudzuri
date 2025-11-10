@@ -7,7 +7,7 @@ import "context"
 type UserRepository interface {
 	Get(ctx context.Context, id string) (*User, error)
 	List(ctx context.Context, options ...SearchOption) (*User, error)
-	Save(ctx context.Context, user *User) error
+	Save(ctx context.Context, user *User) (*User, error)
 }
 
 type SearchParams struct {

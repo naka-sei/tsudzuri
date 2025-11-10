@@ -65,7 +65,7 @@ func TestLinkRemoveUsecase_LinkRemove(t *testing.T) {
 				m.txn.EXPECT().RunInTransaction(gomock.Any(), gomock.Any()).DoAndReturn(
 					func(ctx context.Context, fn func(context.Context) error) error { return fn(ctx) },
 				)
-				m.pageRepo.EXPECT().Save(gomock.Any(), expectedPageAfterRemove).Return(nil)
+				m.pageRepo.EXPECT().Save(gomock.Any(), expectedPageAfterRemove).Return(page, nil)
 			},
 			args: args{
 				ctx: ctxuser.WithUser(context.Background(), creator),
@@ -83,7 +83,7 @@ func TestLinkRemoveUsecase_LinkRemove(t *testing.T) {
 				m.txn.EXPECT().RunInTransaction(gomock.Any(), gomock.Any()).DoAndReturn(
 					func(ctx context.Context, fn func(context.Context) error) error { return fn(ctx) },
 				)
-				m.pageRepo.EXPECT().Save(gomock.Any(), expectedPageAfterRemove).Return(nil)
+				m.pageRepo.EXPECT().Save(gomock.Any(), expectedPageAfterRemove).Return(expectedPageAfterRemove, nil)
 			},
 			args: args{
 				ctx: ctxuser.WithUser(context.Background(), invitedUser),
@@ -174,7 +174,7 @@ func TestLinkRemoveUsecase_LinkRemove(t *testing.T) {
 				m.txn.EXPECT().RunInTransaction(gomock.Any(), gomock.Any()).DoAndReturn(
 					func(ctx context.Context, fn func(context.Context) error) error { return fn(ctx) },
 				)
-				m.pageRepo.EXPECT().Save(gomock.Any(), expectedPageAfterRemove).Return(errors.New("save db error"))
+				m.pageRepo.EXPECT().Save(gomock.Any(), expectedPageAfterRemove).Return(nil, errors.New("save db error"))
 			},
 			args: args{
 				ctx: ctxuser.WithUser(context.Background(), creator),

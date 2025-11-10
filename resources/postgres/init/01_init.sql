@@ -4,7 +4,7 @@ CREATE SCHEMA IF NOT EXISTS tsudzuri;
 -- User テーブル (tsudzuri.users)
 CREATE TABLE
     IF NOT EXISTS tsudzuri.users (
-        id SERIAL PRIMARY KEY,
+        id UUID PRIMARY KEY,
         uid VARCHAR(255) UNIQUE NOT NULL,
         provider VARCHAR(20) NOT NULL,
         email VARCHAR(255) UNIQUE,
@@ -31,9 +31,9 @@ CREATE INDEX IF NOT EXISTS idx_users_uid ON tsudzuri.users (uid);
 -- Pages (綴り) テーブル (tsudzuri.pages)
 CREATE TABLE
     IF NOT EXISTS tsudzuri.pages (
-        id SERIAL PRIMARY KEY,
+        id UUID PRIMARY KEY,
         title VARCHAR(50) NOT NULL,
-        creator_id INTEGER NOT NULL REFERENCES tsudzuri.users (id) ON DELETE CASCADE,
+        creator_id UUID NOT NULL REFERENCES tsudzuri.users (id) ON DELETE CASCADE,
         invite_code VARCHAR(8) UNIQUE NOT NULL,
         created_at TIMESTAMPTZ NOT NULL DEFAULT NOW (),
         updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW ()
@@ -58,8 +58,8 @@ CREATE INDEX IF NOT EXISTS idx_pages_creator ON tsudzuri.pages (creator_id);
 -- Link items テーブル (tsudzuri.link_items)
 CREATE TABLE
     IF NOT EXISTS tsudzuri.link_items (
-        id SERIAL PRIMARY KEY,
-        page_id INTEGER NOT NULL REFERENCES tsudzuri.pages (id) ON DELETE CASCADE,
+        id UUID PRIMARY KEY,
+        page_id UUID NOT NULL REFERENCES tsudzuri.pages (id) ON DELETE CASCADE,
         url TEXT NOT NULL,
         memo TEXT,
         priority INTEGER NOT NULL DEFAULT 0,
@@ -83,15 +83,13 @@ COMMENT ON COLUMN tsudzuri.link_items.created_at IS 'レコード作成日時';
 
 COMMENT ON COLUMN tsudzuri.link_items.updated_at IS 'レコード更新日時';
 
-CREATE INDEX IF NOT EXISTS idx_link_items_page_order ON tsudzuri.link_items (page_id, order_index);
+CREATE INDEX IF NOT EXISTS idx_link_items_page_priority ON tsudzuri.link_items (page_id, priority);
 
 -- Page Users (綴りのアクセス権とユーザー固有の設定) テーブル (tsudzuri.page_users)
 CREATE TABLE
     IF NOT EXISTS tsudzuri.page_users (
-        user_id INTEGER NOT NULL REFERENCES tsudzuri.users (id) ON DELETE CASCADE,
-        page_id INTEGER NOT NULL REFERENCES tsudzuri.pages (id) ON DELETE CASCADE,
-        created_at TIMESTAMPTZ NOT NULL DEFAULT NOW (),
-        updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW (),
+        user_id UUID NOT NULL REFERENCES tsudzuri.users (id) ON DELETE CASCADE,
+        page_id UUID NOT NULL REFERENCES tsudzuri.pages (id) ON DELETE CASCADE,
         PRIMARY KEY (user_id, page_id)
     );
 
@@ -100,9 +98,5 @@ COMMENT ON TABLE tsudzuri.page_users IS 'ユーザーとページの関連付け
 COMMENT ON COLUMN tsudzuri.page_users.user_id IS '関連するユーザーのID';
 
 COMMENT ON COLUMN tsudzuri.page_users.page_id IS '関連するページ（綴り）のID';
-
-COMMENT ON COLUMN tsudzuri.page_users.created_at IS 'レコード作成日時';
-
-COMMENT ON COLUMN tsudzuri.page_users.updated_at IS 'レコード更新日時';
 
 CREATE INDEX IF NOT EXISTS idx_page_users_page ON tsudzuri.page_users (page_id);

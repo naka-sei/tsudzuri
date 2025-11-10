@@ -46,7 +46,7 @@ func (u *listUsecase) List(ctx context.Context, options ...dpage.SearchOption) (
 
 	l.Sugar().Infof("Listing pages for user: %s options: %d", user.ID(), len(options))
 
-	pages, err := u.repository.page.List(ctx, user.ID(), options...)
+	pages, err := u.repository.page.List(ctx, options...)
 	if err != nil {
 		return nil, err
 	}
