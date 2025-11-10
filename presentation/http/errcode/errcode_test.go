@@ -83,8 +83,8 @@ func TestGetErrorReason(t *testing.T) {
 			name: "user ErrUserNotFound",
 			err:  duser.ErrUserNotFound,
 			want: &ErrorReason{
-				ErrorCode: CodeUserInternalError,
-				Message:   "ユーザー情報を取得できませんでした。再度お試しください。",
+				ErrorCode: CodeUserUnauthorized,
+				Message:   "認証が必要です。ログインしてください。",
 			},
 		},
 		{
@@ -147,9 +147,9 @@ func TestGetStatusCode(t *testing.T) {
 			want: http.StatusForbidden,
 		},
 		{
-			name: "user internal error",
+			name: "user unauthorized",
 			err:  duser.ErrUserNotFound,
-			want: http.StatusInternalServerError,
+			want: http.StatusUnauthorized,
 		},
 		{
 			name: "unknown error",

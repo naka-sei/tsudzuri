@@ -12,6 +12,7 @@ var (
 	CodeUserInvalidParameter    = newErrorCode("user", "invalid-parameter", "Invalid parameter is provided.")
 	CodeUserAuthorizationFailed = newErrorCode("user", "authorization-failed", "Authorization failed for the requested operation.")
 	CodeUserInternalError       = newErrorCode("user", "internal-error", "An internal error occurred in the user domain.")
+	CodeUserUnauthorized        = newErrorCode("user", "unauthorized", "Authentication is required or has failed.")
 )
 
 var CodeUnknownError = newErrorCode("unknown", "unknown_error", "An unknown error occurred.")

@@ -1,4 +1,4 @@
-.PHONY: all build dev test clean lint up down db/up db/down get-go-version install-tools fmt check-fmt
+.PHONY: all build dev test clean lint up down db/up db/down get-go-version install-tools fmt check-fmt wire
 
 # central Go version
 # Default to the stable project version. Change here to pin Go for CI/dev.
@@ -10,10 +10,12 @@ BIN ?= .bin
 # Tool versions (managed here)
 GOFUMPT_VERSION ?= v0.6.0
 GOLANGCI_VERSION ?= v1.64.8
+WIRE_VERSION ?= v0.7.0
 
 # Tool paths
 GOFUMPT := $(BIN)/gofumpt
 GOLANGCI := $(BIN)/golangci-lint
+WIRE := $(BIN)/wire
 
 # Development
 all: up dev
@@ -22,7 +24,7 @@ dev:
 	air -c .air.toml
 
 build:
-	CGO_ENABLED=0 go build -o .bin/api cmd/api/main.go
+	CGO_ENABLED=0 go build -o .bin/api ./cmd/api
 
 test:
 	make testdb/up
@@ -86,7 +88,9 @@ install-tools:
 	@mkdir -p $(BIN)
 	@GOBIN=$(abspath $(BIN)) go install github.com/golangci/golangci-lint/cmd/golangci-lint@${GOLANGCI_VERSION}
 	@GOBIN=$(abspath $(BIN)) go install mvdan.cc/gofumpt@${GOFUMPT_VERSION}
+	@GOBIN=$(abspath $(BIN)) go install github.com/google/wire/cmd/wire@${WIRE_VERSION}
 	@echo "Installed: $(GOLANGCI) $(GOFUMPT)"
+	@echo "Installed: $(WIRE)"
 
 # Linting
 lint:
@@ -113,3 +117,6 @@ get-go-version:
 generate:
 	# Generate all code (Ent + mocks, etc.) via go:generate directives
 	go generate ./...
+
+wire:
+	@$(WIRE) ./cmd/api

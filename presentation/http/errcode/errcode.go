@@ -81,8 +81,8 @@ func GetErrorReason(err error) *ErrorReason {
 		}
 	case errors.Is(err, duser.ErrUserNotFound):
 		return &ErrorReason{
-			ErrorCode: CodeUserInternalError,
-			Message:   "ユーザー情報を取得できませんでした。再度お試しください。",
+			ErrorCode: CodeUserUnauthorized,
+			Message:   "認証が必要です。ログインしてください。",
 		}
 	case errors.Is(err, duser.ErrNoSpecifiedEmail):
 		return &ErrorReason{
@@ -107,6 +107,8 @@ func GetStatusCode(err error) int {
 		return http.StatusForbidden
 	case CodePageInternalError, CodeUserInternalError:
 		return http.StatusInternalServerError
+	case CodeUserUnauthorized:
+		return http.StatusUnauthorized
 	default:
 		return http.StatusInternalServerError
 	}

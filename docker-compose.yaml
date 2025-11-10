@@ -11,12 +11,8 @@ services:
     ports:
       - "8080:8080"
     environment:
-      - DB_HOST=db
-      - DB_PORT=5432
-      - DB_USER=postgres
-      - DB_PASSWORD=postgres
-      - DB_NAME=tsudzuri
-      - DB_SSL_MODE=disable
+      TSUDZURI_DATABASE_DSN: user=postgres password=postgres dbname=tsudzuri host=db port=5432 sslmode=disable
+      TEST_DATABASE_DSN: user=postgres password=postgres dbname=tsudzuri_test host=testdb port=5432 sslmode=disable
     depends_on:
       - db
     command: make dev
