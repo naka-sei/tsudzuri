@@ -191,3 +191,10 @@ func (c *Connection) Close() error {
 	}
 	return nil
 }
+
+func PtrInt32ToInt(p *int32) int {
+	if p == nil {
+		return 0
+	}
+	return int(*p)
+}

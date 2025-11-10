@@ -98,6 +98,23 @@ func TestPost(t *testing.T) {
 			},
 		},
 		{
+			name: "success_with_request_body_pointer",
+			handler: func(ctx context.Context, req *TestRequest) (TestResponse, error) {
+				return TestResponse{Message: "Hello " + req.Name}, nil
+			},
+			args: args{
+				req: func() *http.Request {
+					req := httptest.NewRequest("POST", "/test", strings.NewReader(`{"name":"pointer"}`))
+					req.Header.Set("Content-Type", "application/json")
+					return req
+				}(),
+			},
+			want: want{
+				status: http.StatusCreated,
+				body:   `{"message":"Hello pointer"}`,
+			},
+		},
+		{
 			name: "error",
 			handler: func(ctx context.Context, req TestRequest) (TestResponse, error) {
 				return TestResponse{}, errors.New("handler error")
@@ -433,6 +450,23 @@ func TestInvoke(t *testing.T) {
 			},
 		},
 		{
+			name: "success_with_req_pointer",
+			handler: func(ctx context.Context, req *TestReq) (TestRes, error) {
+				return TestRes{Greeting: "Hello " + req.Name}, nil
+			},
+			args: args{
+				req: func() *http.Request {
+					req := httptest.NewRequest("POST", "/test", strings.NewReader(`{"name":"Bob"}`))
+					req.Header.Set("Content-Type", "application/json")
+					return req
+				}(),
+			},
+			want: want{
+				res:   TestRes{Greeting: "Hello Bob"},
+				error: false,
+			},
+		},
+		{
 			name: "success_without_req",
 			handler: func(ctx context.Context) (TestRes, error) {
 				return TestRes{Greeting: "Hello World"}, nil
@@ -466,6 +500,26 @@ func TestInvoke(t *testing.T) {
 			},
 			want: want{
 				res:   TestRes{Greeting: "ID: 123"},
+				error: false,
+			},
+		},
+		{
+			name: "with_path_param_pointer",
+			handler: func(ctx context.Context, req *TestReq) (TestRes, error) {
+				return TestRes{Greeting: "ID: " + req.Name}, nil
+			},
+			args: args{
+				req: func() *http.Request {
+					req := httptest.NewRequest("POST", "/test/456", strings.NewReader(`{}`))
+					req.Header.Set("Content-Type", "application/json")
+					rctx := chi.NewRouteContext()
+					rctx.URLParams.Add("id", "456")
+					req = req.WithContext(context.WithValue(req.Context(), chi.RouteCtxKey, rctx))
+					return req
+				}(),
+			},
+			want: want{
+				res:   TestRes{Greeting: "ID: 456"},
 				error: false,
 			},
 		},

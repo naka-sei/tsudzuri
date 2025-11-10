@@ -81,6 +81,17 @@ func (r *pageRepository) List(ctx context.Context, options ...dpage.SearchOption
 		}
 	}
 
+	q = q.Order(ent.Asc(entpage.FieldID))
+	page := postgres.PtrInt32ToInt(params.Page)
+	pageSize := postgres.PtrInt32ToInt(params.PageSize)
+	if pageSize > 0 {
+		if page <= 0 {
+			page = 1
+		}
+		offset := (page - 1) * pageSize
+		q = q.Offset(offset).Limit(pageSize)
+	}
+
 	list, err := q.All(ctx)
 	if err != nil {
 		return nil, err

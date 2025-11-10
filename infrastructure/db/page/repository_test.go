@@ -227,6 +227,28 @@ func TestPageRepository_List(t *testing.T) {
 			args: func(fx *fixture.Fixture) args { return args{} },
 			want: func(fx *fixture.Fixture) want { return want{} },
 		},
+		{
+			name: "pagination_page2",
+			prepare: func(fx *fixture.Fixture) {
+				creator := duser.ReconstructUser("", "creator-uid-pg", string(duser.ProviderGoogle), ptr.Ptr("pg@example.com"))
+				p1 := dpage.ReconstructPage("", "list-P1", *creator, "INVPAG01", nil, nil)
+				p2 := dpage.ReconstructPage("", "list-P2", *creator, "INVPAG02", nil, nil)
+				p3 := dpage.ReconstructPage("", "list-P3", *creator, "INVPAG03", nil, nil)
+				fx.NewUser(creator)
+				fx.NewPage(p1)
+				fx.NewPage(p2)
+				fx.NewPage(p3)
+			},
+			args: func(fx *fixture.Fixture) args {
+				return args{opts: []dpage.SearchOption{dpage.WithPageSearchOption(2), dpage.WithPageSizeSearchOption(2)}}
+			},
+			want: func(fx *fixture.Fixture) want {
+				creator := duser.ReconstructUser(fx.ID("creator-uid-pg"), "creator-uid-pg", string(duser.ProviderGoogle), ptr.Ptr("pg@example.com"))
+				return want{pages: []*dpage.Page{
+					dpage.ReconstructPage(fx.ID("list-P3"), "list-P3", *creator, "INVPAG03", nil, nil),
+				}}
+			},
+		},
 	}
 
 	ctx := context.Background()

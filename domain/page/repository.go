@@ -14,6 +14,8 @@ type PageRepository interface {
 type SearchParams struct {
 	IDs             []string
 	CreatedByUserID string
+	Page            *int32
+	PageSize        *int32
 }
 
 type SearchOption interface {
@@ -35,5 +37,17 @@ func WithIDs(ids []string) SearchOption {
 func WithCreatedByUserID(userID string) SearchOption {
 	return optionFunc(func(p *SearchParams) {
 		p.CreatedByUserID = userID
+	})
+}
+
+func WithPageSearchOption(page int32) SearchOption {
+	return optionFunc(func(p *SearchParams) {
+		p.Page = &page
+	})
+}
+
+func WithPageSizeSearchOption(pageSize int32) SearchOption {
+	return optionFunc(func(p *SearchParams) {
+		p.PageSize = &pageSize
 	})
 }

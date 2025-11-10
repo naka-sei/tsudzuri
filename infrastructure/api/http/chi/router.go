@@ -81,7 +81,8 @@ func (c *Router) invoke(ctx context.Context, r *http.Request, handler any) (any,
 
 	// Supported signatures:
 	// 1) func(context.Context, Req) (Res, error)
-	// 2) func(context.Context) (Res, error)
+	// 2) func(context.Context, *Req) (Res, error)
+	// 3) func(context.Context) (Res, error)
 	if ht.NumOut() != 2 || !isErrorType(ht.Out(1)) {
 		return nil, errors.New("handler must return (Res, error)")
 	}
@@ -94,12 +95,30 @@ func (c *Router) invoke(ctx context.Context, r *http.Request, handler any) (any,
 	args = append(args, reflect.ValueOf(ctx))
 
 	if ht.NumIn() == 2 {
-		// Decode JSON body into request type
-		reqPtr := reflect.New(ht.In(1))
-		if err := decodeJSON(r, reqPtr.Interface()); err != nil {
-			return nil, err
+		// Build a value matching the handler's 2nd parameter type.
+		// Always decode into a pointer to struct for JSON and path param injection.
+		paramT := ht.In(1)
+		switch paramT.Kind() {
+		case reflect.Ptr:
+			// Handler expects *Req
+			if paramT.Elem().Kind() != reflect.Struct {
+				return nil, errors.New("second parameter must be a struct or *struct")
+			}
+			req := reflect.New(paramT.Elem()) // *Req
+			if err := decodeJSON(r, req.Interface()); err != nil {
+				return nil, err
+			}
+			args = append(args, req) // pass *Req
+		case reflect.Struct:
+			// Handler expects Req (by value)
+			reqPtr := reflect.New(paramT) // *Req
+			if err := decodeJSON(r, reqPtr.Interface()); err != nil {
+				return nil, err
+			}
+			args = append(args, reqPtr.Elem()) // pass Req
+		default:
+			return nil, errors.New("second parameter must be a struct or *struct")
 		}
-		args = append(args, reqPtr.Elem())
 	} else if ht.NumIn() > 2 {
 		return nil, errors.New("handler must have 1 or 2 parameters (context, [req])")
 	}
