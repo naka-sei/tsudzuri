@@ -3,9 +3,10 @@ package page
 import (
 	"context"
 
+	duser "github.com/naka-sei/tsudzuri/domain/user"
+	ctxuser "github.com/naka-sei/tsudzuri/pkg/ctx/user"
 	"github.com/naka-sei/tsudzuri/pkg/log"
 	"github.com/naka-sei/tsudzuri/pkg/trace"
-	"github.com/naka-sei/tsudzuri/presentation/http/response"
 	upage "github.com/naka-sei/tsudzuri/usecase/page"
 )
 
@@ -22,17 +23,24 @@ func NewLinkRemoveService(lr upage.LinkRemoveUseCase) *LinkRemoveService {
 	return &LinkRemoveService{usecase: struct{ remove upage.LinkRemoveUseCase }{remove: lr}}
 }
 
-func (s *LinkRemoveService) LinkRemove(ctx context.Context, req LinkRemoveRequest) (response.EmptyResponse, error) {
+func (s *LinkRemoveService) LinkRemove(ctx context.Context, req LinkRemoveRequest) error {
 	ctx, end := trace.StartSpan(ctx, "presentation/http/page.LinkRemove")
 	defer end()
 
 	l := log.LoggerFromContext(ctx)
-	l.Sugar().Infof("Page link remove request page_id=%s url=%s", req.PageID, req.URL)
+	u, ok := ctxuser.UserFromContext(ctx)
+	if !ok {
+		return duser.ErrUserNotFound
+	}
+	uid := u.UID()
+	l.Sugar().Infof("Page link remove request page_id=%s url=%s user_uid=%s", req.PageID, req.URL, uid)
 
 	input := upage.LinkRemoveUsecaseInput{PageID: req.PageID, URL: req.URL}
 	if err := s.usecase.remove.LinkRemove(ctx, input); err != nil {
-		return response.EmptyResponse{}, err
+		return err
 	}
 
-	return response.EmptyResponse{}, nil
+	l.Sugar().Infof("Page link removed: page_id=%s url=%s user_uid=%s", req.PageID, req.URL, uid)
+
+	return nil
 }

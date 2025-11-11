@@ -5,13 +5,12 @@ import (
 	"errors"
 	"testing"
 
-	cmp "github.com/google/go-cmp/cmp"
 	"go.uber.org/mock/gomock"
 
 	duser "github.com/naka-sei/tsudzuri/domain/user"
 	ctxuser "github.com/naka-sei/tsudzuri/pkg/ctx/user"
 	"github.com/naka-sei/tsudzuri/pkg/testutil"
-	"github.com/naka-sei/tsudzuri/presentation/http/response"
+
 	mockdelete "github.com/naka-sei/tsudzuri/usecase/page/mock/mock_delete"
 )
 
@@ -24,7 +23,6 @@ func TestDeleteService_Delete(t *testing.T) {
 		req DeleteRequest
 	}
 	type want struct {
-		res response.EmptyResponse
 		err error
 	}
 
@@ -46,7 +44,6 @@ func TestDeleteService_Delete(t *testing.T) {
 				req: DeleteRequest{PageID: "page-1"},
 			},
 			want: want{
-				res: response.EmptyResponse{},
 				err: nil,
 			},
 		},
@@ -60,7 +57,6 @@ func TestDeleteService_Delete(t *testing.T) {
 				req: DeleteRequest{PageID: "page-1"},
 			},
 			want: want{
-				res: response.EmptyResponse{},
 				err: errors.New("delete error"),
 			},
 		},
@@ -74,7 +70,6 @@ func TestDeleteService_Delete(t *testing.T) {
 				req: DeleteRequest{PageID: "page-1"},
 			},
 			want: want{
-				res: response.EmptyResponse{},
 				err: duser.ErrUserNotFound,
 			},
 		},
@@ -93,10 +88,7 @@ func TestDeleteService_Delete(t *testing.T) {
 				tt.setup(m)
 			}
 			s := NewDeleteService(m.deleteUsecase)
-			got, err := s.Delete(tt.args.ctx, tt.args.req)
-			if diff := cmp.Diff(tt.want.res, got); diff != "" {
-				t.Errorf("response mismatch (-want +got):\n%s", diff)
-			}
+			err := s.Delete(tt.args.ctx, tt.args.req)
 			testutil.EqualErr(t, tt.want.err, err)
 		})
 	}

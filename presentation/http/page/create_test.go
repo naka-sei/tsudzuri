@@ -5,14 +5,13 @@ import (
 	"errors"
 	"testing"
 
-	cmp "github.com/google/go-cmp/cmp"
 	"go.uber.org/mock/gomock"
 
 	dpage "github.com/naka-sei/tsudzuri/domain/page"
 	duser "github.com/naka-sei/tsudzuri/domain/user"
 	ctxuser "github.com/naka-sei/tsudzuri/pkg/ctx/user"
 	"github.com/naka-sei/tsudzuri/pkg/testutil"
-	"github.com/naka-sei/tsudzuri/presentation/http/response"
+
 	mockcreate "github.com/naka-sei/tsudzuri/usecase/page/mock/mock_create"
 )
 
@@ -25,7 +24,6 @@ func TestCreateService_Create(t *testing.T) {
 		req CreateRequest
 	}
 	type want struct {
-		res response.EmptyResponse
 		err error
 	}
 
@@ -48,7 +46,6 @@ func TestCreateService_Create(t *testing.T) {
 				req: CreateRequest{Title: "test-title"},
 			},
 			want: want{
-				res: response.EmptyResponse{},
 				err: nil,
 			},
 		},
@@ -62,7 +59,6 @@ func TestCreateService_Create(t *testing.T) {
 				req: CreateRequest{Title: "fail-title"},
 			},
 			want: want{
-				res: response.EmptyResponse{},
 				err: errors.New("usecase error"),
 			},
 		},
@@ -76,7 +72,6 @@ func TestCreateService_Create(t *testing.T) {
 				req: CreateRequest{Title: "test-title"},
 			},
 			want: want{
-				res: response.EmptyResponse{},
 				err: duser.ErrUserNotFound,
 			},
 		},
@@ -95,10 +90,7 @@ func TestCreateService_Create(t *testing.T) {
 				tt.setup(m)
 			}
 			s := NewCreateService(m.createUsecase)
-			got, err := s.Create(tt.args.ctx, tt.args.req)
-			if diff := cmp.Diff(tt.want.res, got); diff != "" {
-				t.Errorf("response mismatch (-want +got):\n%s", diff)
-			}
+			err := s.Create(tt.args.ctx, tt.args.req)
 			testutil.EqualErr(t, tt.want.err, err)
 		})
 	}

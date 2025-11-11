@@ -5,14 +5,13 @@ import (
 	"errors"
 	"testing"
 
-	cmp "github.com/google/go-cmp/cmp"
 	"go.uber.org/mock/gomock"
 
 	dpage "github.com/naka-sei/tsudzuri/domain/page"
 	duser "github.com/naka-sei/tsudzuri/domain/user"
 	ctxuser "github.com/naka-sei/tsudzuri/pkg/ctx/user"
 	"github.com/naka-sei/tsudzuri/pkg/testutil"
-	"github.com/naka-sei/tsudzuri/presentation/http/response"
+
 	mockedit "github.com/naka-sei/tsudzuri/usecase/page/mock/mock_edit"
 )
 
@@ -25,7 +24,6 @@ func TestEditService_Edit(t *testing.T) {
 		req EditRequest
 	}
 	type want struct {
-		res response.EmptyResponse
 		err error
 	}
 
@@ -54,7 +52,6 @@ func TestEditService_Edit(t *testing.T) {
 				},
 			},
 			want: want{
-				res: response.EmptyResponse{},
 				err: nil,
 			},
 		},
@@ -72,7 +69,6 @@ func TestEditService_Edit(t *testing.T) {
 				},
 			},
 			want: want{
-				res: response.EmptyResponse{},
 				err: nil,
 			},
 		},
@@ -90,7 +86,6 @@ func TestEditService_Edit(t *testing.T) {
 				},
 			},
 			want: want{
-				res: response.EmptyResponse{},
 				err: errors.New("edit error"),
 			},
 		},
@@ -108,7 +103,6 @@ func TestEditService_Edit(t *testing.T) {
 				},
 			},
 			want: want{
-				res: response.EmptyResponse{},
 				err: duser.ErrUserNotFound,
 			},
 		},
@@ -127,10 +121,7 @@ func TestEditService_Edit(t *testing.T) {
 				tt.setup(m)
 			}
 			s := NewEditService(m.editUsecase)
-			got, err := s.Edit(tt.args.ctx, tt.args.req)
-			if diff := cmp.Diff(tt.want.res, got); diff != "" {
-				t.Errorf("response mismatch (-want +got):\n%s", diff)
-			}
+			err := s.Edit(tt.args.ctx, tt.args.req)
 			testutil.EqualErr(t, tt.want.err, err)
 		})
 	}

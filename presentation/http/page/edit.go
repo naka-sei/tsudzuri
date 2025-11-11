@@ -4,9 +4,10 @@ import (
 	"context"
 
 	dpage "github.com/naka-sei/tsudzuri/domain/page"
+	duser "github.com/naka-sei/tsudzuri/domain/user"
+	ctxuser "github.com/naka-sei/tsudzuri/pkg/ctx/user"
 	"github.com/naka-sei/tsudzuri/pkg/log"
 	"github.com/naka-sei/tsudzuri/pkg/trace"
-	"github.com/naka-sei/tsudzuri/presentation/http/response"
 	upage "github.com/naka-sei/tsudzuri/usecase/page"
 )
 
@@ -30,12 +31,17 @@ func NewEditService(eu upage.EditUsecase) *EditService {
 	return &EditService{usecase: struct{ edit upage.EditUsecase }{edit: eu}}
 }
 
-func (s *EditService) Edit(ctx context.Context, req EditRequest) (response.EmptyResponse, error) {
+func (s *EditService) Edit(ctx context.Context, req EditRequest) error {
 	ctx, end := trace.StartSpan(ctx, "presentation/http/page.Edit")
 	defer end()
 
 	l := log.LoggerFromContext(ctx)
-	l.Sugar().Infof("Page edit request id=%s title=%s", req.PageID, req.Title)
+	u, ok := ctxuser.UserFromContext(ctx)
+	if !ok {
+		return duser.ErrUserNotFound
+	}
+	uid := u.UID()
+	l.Sugar().Infof("Page edit request id=%s title=%s user_uid=%s", req.PageID, req.Title, uid)
 
 	var links dpage.Links
 	if len(req.Links) > 0 {
@@ -46,8 +52,10 @@ func (s *EditService) Edit(ctx context.Context, req EditRequest) (response.Empty
 	}
 
 	if err := s.usecase.edit.Edit(ctx, req.PageID, req.Title, links); err != nil {
-		return response.EmptyResponse{}, err
+		return err
 	}
 
-	return response.EmptyResponse{}, nil
+	l.Sugar().Infof("Page edited: id=%s title=%s user_uid=%s", req.PageID, req.Title, uid)
+
+	return nil
 }

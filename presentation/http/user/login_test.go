@@ -5,14 +5,13 @@ import (
 	"errors"
 	"testing"
 
-	cmp "github.com/google/go-cmp/cmp"
 	"go.uber.org/mock/gomock"
 
 	duser "github.com/naka-sei/tsudzuri/domain/user"
 	ctxuser "github.com/naka-sei/tsudzuri/pkg/ctx/user"
 	"github.com/naka-sei/tsudzuri/pkg/ptr"
 	"github.com/naka-sei/tsudzuri/pkg/testutil"
-	"github.com/naka-sei/tsudzuri/presentation/http/response"
+
 	mocklogin "github.com/naka-sei/tsudzuri/usecase/user/mock/mock_login"
 )
 
@@ -25,7 +24,6 @@ func TestLoginService_Login(t *testing.T) {
 		req LoginRequest
 	}
 	type want struct {
-		res response.EmptyResponse
 		err error
 	}
 
@@ -47,7 +45,6 @@ func TestLoginService_Login(t *testing.T) {
 				req: LoginRequest{Provider: "google", Email: ptr.Ptr("u@example.com")},
 			},
 			want: want{
-				res: response.EmptyResponse{},
 				err: nil,
 			},
 		},
@@ -61,7 +58,6 @@ func TestLoginService_Login(t *testing.T) {
 				req: LoginRequest{Provider: "google", Email: ptr.Ptr("fail@example.com")},
 			},
 			want: want{
-				res: response.EmptyResponse{},
 				err: errors.New("usecase error"),
 			},
 		},
@@ -80,10 +76,7 @@ func TestLoginService_Login(t *testing.T) {
 				tt.setup(m)
 			}
 			s := NewLoginService(m.loginUsecase)
-			got, err := s.Login(tt.args.ctx, tt.args.req)
-			if diff := cmp.Diff(tt.want.res, got); diff != "" {
-				t.Errorf("response mismatch (-want +got):\n%s", diff)
-			}
+			err := s.Login(tt.args.ctx, tt.args.req)
 			testutil.EqualErr(t, tt.want.err, err)
 		})
 	}

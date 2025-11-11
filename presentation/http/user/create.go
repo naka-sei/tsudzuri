@@ -33,7 +33,7 @@ func NewCreateService(cu uuser.CreateUsecase) *CreateService {
 
 // Create is a transport-agnostic presentation handler.
 // It expects a context and a request DTO; returns a response DTO or error.
-func (s *CreateService) Create(ctx context.Context, req CreateRequest) (UserResponse, error) {
+func (s *CreateService) Create(ctx context.Context, req CreateRequest) (*UserResponse, error) {
 	ctx, end := trace.StartSpan(ctx, "presentation/http/user.Create")
 	defer end()
 
@@ -42,16 +42,18 @@ func (s *CreateService) Create(ctx context.Context, req CreateRequest) (UserResp
 
 	u, err := s.usecase.create.Create(ctx, req.UID)
 	if err != nil {
-		return UserResponse{}, err
+		return nil, err
+	}
+	if u == nil {
+		return nil, nil
 	}
 
-	res := UserResponse{
+	res := &UserResponse{
 		ID:       u.ID(),
 		UID:      u.UID(), // Assuming UID method exists
 		Provider: string(u.Provider()),
 		Email:    u.Email(),
 	}
-
-	l.Sugar().Infof("User created: id=%s uid=%s", u.ID(), req.UID)
+	l.Sugar().Infof("User created: user_uid=%s", u.UID())
 	return res, nil
 }

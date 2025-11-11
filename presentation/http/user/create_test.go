@@ -22,7 +22,7 @@ func TestCreateService_Create(t *testing.T) {
 		req CreateRequest
 	}
 	type want struct {
-		res UserResponse
+		res *UserResponse
 		err error
 	}
 
@@ -43,7 +43,7 @@ func TestCreateService_Create(t *testing.T) {
 				req: CreateRequest{UID: "test-uid"},
 			},
 			want: want{
-				res: UserResponse{
+				res: &UserResponse{
 					ID:       "id-1",
 					UID:      "test-uid",
 					Provider: "anonymous",
@@ -62,7 +62,7 @@ func TestCreateService_Create(t *testing.T) {
 				req: CreateRequest{UID: "fail-uid"},
 			},
 			want: want{
-				res: UserResponse{},
+				res: nil,
 				err: errors.New("usecase error"),
 			},
 		},

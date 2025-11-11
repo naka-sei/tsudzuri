@@ -62,12 +62,6 @@ func (c *Router) wrap(handler any, method string, opts ...prouter.Option) http.H
 			w.WriteHeader(cfg.SuccessStatus)
 			return
 		}
-		// If handler returns an EmptyResponse (by value or pointer), write only status
-		switch res.(type) {
-		case presp.EmptyResponse, *presp.EmptyResponse:
-			w.WriteHeader(cfg.SuccessStatus)
-			return
-		}
 		writeJSON(w, r, cfg.SuccessStatus, res)
 	}
 }
@@ -83,8 +77,14 @@ func (c *Router) invoke(ctx context.Context, r *http.Request, handler any) (any,
 	// 1) func(context.Context, Req) (Res, error)
 	// 2) func(context.Context, *Req) (Res, error)
 	// 3) func(context.Context) (Res, error)
-	if ht.NumOut() != 2 || !isErrorType(ht.Out(1)) {
-		return nil, errors.New("handler must return (Res, error)")
+	// 4) func(context.Context, Req) error
+	// 5) func(context.Context) error
+
+	isErrorOnly := false
+	if ht.NumOut() == 1 && isErrorType(ht.Out(0)) {
+		isErrorOnly = true
+	} else if ht.NumOut() != 2 || !isErrorType(ht.Out(1)) {
+		return nil, errors.New("handler must return (Res, error) or error")
 	}
 
 	var args []reflect.Value
@@ -124,6 +124,14 @@ func (c *Router) invoke(ctx context.Context, r *http.Request, handler any) (any,
 	}
 
 	outs := hv.Call(args)
+	if isErrorOnly {
+		// handler returned only error
+		var err error
+		if !outs[0].IsNil() {
+			err = outs[0].Interface().(error)
+		}
+		return nil, err
+	}
 	res := outs[0].Interface()
 	var err error
 	if !outs[1].IsNil() {

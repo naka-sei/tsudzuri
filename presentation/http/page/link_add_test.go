@@ -5,13 +5,12 @@ import (
 	"errors"
 	"testing"
 
-	cmp "github.com/google/go-cmp/cmp"
 	"go.uber.org/mock/gomock"
 
 	duser "github.com/naka-sei/tsudzuri/domain/user"
 	ctxuser "github.com/naka-sei/tsudzuri/pkg/ctx/user"
 	"github.com/naka-sei/tsudzuri/pkg/testutil"
-	"github.com/naka-sei/tsudzuri/presentation/http/response"
+
 	upage "github.com/naka-sei/tsudzuri/usecase/page"
 	mocklinkadd "github.com/naka-sei/tsudzuri/usecase/page/mock/mock_link_add"
 )
@@ -25,7 +24,6 @@ func TestLinkAddService_LinkAdd(t *testing.T) {
 		req LinkAddRequest
 	}
 	type want struct {
-		res response.EmptyResponse
 		err error
 	}
 
@@ -52,7 +50,6 @@ func TestLinkAddService_LinkAdd(t *testing.T) {
 				},
 			},
 			want: want{
-				res: response.EmptyResponse{},
 				err: nil,
 			},
 		},
@@ -71,7 +68,6 @@ func TestLinkAddService_LinkAdd(t *testing.T) {
 				},
 			},
 			want: want{
-				res: response.EmptyResponse{},
 				err: errors.New("link add error"),
 			},
 		},
@@ -90,7 +86,6 @@ func TestLinkAddService_LinkAdd(t *testing.T) {
 				},
 			},
 			want: want{
-				res: response.EmptyResponse{},
 				err: duser.ErrUserNotFound,
 			},
 		},
@@ -109,10 +104,7 @@ func TestLinkAddService_LinkAdd(t *testing.T) {
 				tt.setup(m)
 			}
 			s := NewLinkAddService(m.linkAddUsecase)
-			got, err := s.LinkAdd(tt.args.ctx, tt.args.req)
-			if diff := cmp.Diff(tt.want.res, got); diff != "" {
-				t.Errorf("response mismatch (-want +got):\n%s", diff)
-			}
+			err := s.LinkAdd(tt.args.ctx, tt.args.req)
 			testutil.EqualErr(t, tt.want.err, err)
 		})
 	}

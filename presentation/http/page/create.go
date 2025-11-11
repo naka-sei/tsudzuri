@@ -7,7 +7,6 @@ import (
 	ctxuser "github.com/naka-sei/tsudzuri/pkg/ctx/user"
 	"github.com/naka-sei/tsudzuri/pkg/log"
 	"github.com/naka-sei/tsudzuri/pkg/trace"
-	"github.com/naka-sei/tsudzuri/presentation/http/response"
 	upage "github.com/naka-sei/tsudzuri/usecase/page"
 )
 
@@ -29,23 +28,23 @@ func NewCreateService(cu upage.CreateUsecase) *CreateService {
 
 // Create is a transport-agnostic presentation handler.
 // It expects a context and a request DTO; returns a response DTO or error.
-func (s *CreateService) Create(ctx context.Context, req CreateRequest) (response.EmptyResponse, error) {
+func (s *CreateService) Create(ctx context.Context, req CreateRequest) error {
 	ctx, end := trace.StartSpan(ctx, "presentation/http/page.Create")
 	defer end()
 
 	u, ok := ctxuser.UserFromContext(ctx)
 	if !ok {
-		return response.EmptyResponse{}, duser.ErrUserNotFound
+		return duser.ErrUserNotFound
 	}
 
 	l := log.LoggerFromContext(ctx)
-	l.Sugar().Infof("Page create request: title=%s user_id=%s", req.Title, u.ID())
+	l.Sugar().Infof("Page create request: title=%s user_uid=%s", req.Title, u.UID())
 
 	p, err := s.usecase.create.Create(ctx, req.Title)
 	if err != nil {
-		return response.EmptyResponse{}, err
+		return err
 	}
 
-	l.Sugar().Infof("Page created: id=%s title=%s user_id=%s", p.ID(), p.Title(), u.ID())
-	return response.EmptyResponse{}, nil
+	l.Sugar().Infof("Page created: id=%s title=%s user_uid=%s", p.ID(), p.Title(), u.UID())
+	return nil
 }

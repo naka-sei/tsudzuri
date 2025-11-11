@@ -133,8 +133,8 @@ func TestPost(t *testing.T) {
 		},
 		{
 			name: "empty_response",
-			handler: func(ctx context.Context) (presp.EmptyResponse, error) {
-				return presp.EmptyResponse{}, nil
+			handler: func(ctx context.Context) error {
+				return nil
 			},
 			args: args{
 				req: func() *http.Request {
@@ -213,8 +213,8 @@ func TestGet(t *testing.T) {
 		},
 		{
 			name: "empty_response",
-			handler: func(ctx context.Context) (presp.EmptyResponse, error) {
-				return presp.EmptyResponse{}, nil
+			handler: func(ctx context.Context) error {
+				return nil
 			},
 			args: args{
 				req: httptest.NewRequest("GET", "/test", nil),
@@ -297,8 +297,8 @@ func TestPut(t *testing.T) {
 		},
 		{
 			name: "empty_response",
-			handler: func(ctx context.Context) (presp.EmptyResponse, error) {
-				return presp.EmptyResponse{}, nil
+			handler: func(ctx context.Context) error {
+				return nil
 			},
 			args: args{
 				req: func() *http.Request {
@@ -377,8 +377,8 @@ func TestDelete(t *testing.T) {
 		},
 		{
 			name: "empty_response",
-			handler: func(ctx context.Context) (presp.EmptyResponse, error) {
-				return presp.EmptyResponse{}, nil
+			handler: func(ctx context.Context) error {
+				return nil
 			},
 			args: args{
 				req: httptest.NewRequest("DELETE", "/test", nil),

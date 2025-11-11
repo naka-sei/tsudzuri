@@ -24,7 +24,7 @@ func TestGetService_Get(t *testing.T) {
 		req GetRequest
 	}
 	type want struct {
-		res PageResponse
+		res *PageResponse
 		err error
 	}
 
@@ -50,7 +50,7 @@ func TestGetService_Get(t *testing.T) {
 				req: GetRequest{PageID: "page-1"},
 			},
 			want: want{
-				res: PageResponse{
+				res: &PageResponse{
 					ID:         "page-1",
 					Title:      "t1",
 					InviteCode: "invite",
@@ -69,7 +69,7 @@ func TestGetService_Get(t *testing.T) {
 				req: GetRequest{PageID: "page-3"},
 			},
 			want: want{
-				res: PageResponse{
+				res: &PageResponse{
 					ID:         "page-3",
 					Title:      "t3",
 					InviteCode: "invite",
@@ -90,7 +90,7 @@ func TestGetService_Get(t *testing.T) {
 				req: GetRequest{PageID: "page-1"},
 			},
 			want: want{
-				res: PageResponse{},
+				res: nil,
 				err: errors.New("get error"),
 			},
 		},
@@ -104,7 +104,7 @@ func TestGetService_Get(t *testing.T) {
 				req: GetRequest{PageID: "page-1"},
 			},
 			want: want{
-				res: PageResponse{},
+				res: nil,
 				err: duser.ErrUserNotFound,
 			},
 		},

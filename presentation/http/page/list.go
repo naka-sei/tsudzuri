@@ -3,6 +3,8 @@ package page
 import (
 	"context"
 
+	duser "github.com/naka-sei/tsudzuri/domain/user"
+	ctxuser "github.com/naka-sei/tsudzuri/pkg/ctx/user"
 	"github.com/naka-sei/tsudzuri/pkg/log"
 	"github.com/naka-sei/tsudzuri/pkg/trace"
 	upage "github.com/naka-sei/tsudzuri/usecase/page"
@@ -38,7 +40,12 @@ func (s *ListService) List(ctx context.Context, req ListRequest) ([]PageResponse
 	defer end()
 
 	l := log.LoggerFromContext(ctx)
-	l.Info("Page list request")
+	u, ok := ctxuser.UserFromContext(ctx)
+	if !ok {
+		return nil, duser.ErrUserNotFound
+	}
+	uid := u.UID()
+	l.Sugar().Infof("Page list request user_uid=%s", uid)
 
 	pages, err := s.usecase.list.List(ctx)
 	if err != nil {
@@ -46,6 +53,7 @@ func (s *ListService) List(ctx context.Context, req ListRequest) ([]PageResponse
 	}
 
 	if len(pages) == 0 {
+		l.Sugar().Infof("Page list responded: count=0 user_uid=%s", uid)
 		return nil, nil
 	}
 
@@ -67,5 +75,6 @@ func (s *ListService) List(ctx context.Context, req ListRequest) ([]PageResponse
 		res = append(res, pr)
 	}
 
+	l.Sugar().Infof("Page list responded: count=%d user_uid=%s", len(res), uid)
 	return res, nil
 }

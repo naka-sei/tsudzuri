@@ -3,9 +3,10 @@ package page
 import (
 	"context"
 
+	duser "github.com/naka-sei/tsudzuri/domain/user"
+	ctxuser "github.com/naka-sei/tsudzuri/pkg/ctx/user"
 	"github.com/naka-sei/tsudzuri/pkg/log"
 	"github.com/naka-sei/tsudzuri/pkg/trace"
-	"github.com/naka-sei/tsudzuri/presentation/http/response"
 	upage "github.com/naka-sei/tsudzuri/usecase/page"
 )
 
@@ -21,16 +22,23 @@ func NewDeleteService(du upage.DeleteUsecase) *DeleteService {
 	return &DeleteService{usecase: struct{ delete upage.DeleteUsecase }{delete: du}}
 }
 
-func (s *DeleteService) Delete(ctx context.Context, req DeleteRequest) (response.EmptyResponse, error) {
+func (s *DeleteService) Delete(ctx context.Context, req DeleteRequest) error {
 	ctx, end := trace.StartSpan(ctx, "presentation/http/page.Delete")
 	defer end()
 
 	l := log.LoggerFromContext(ctx)
-	l.Sugar().Infof("Page delete request id=%s", req.PageID)
+	u, ok := ctxuser.UserFromContext(ctx)
+	if !ok {
+		return duser.ErrUserNotFound
+	}
+	uid := u.UID()
+	l.Sugar().Infof("Page delete request id=%s user_uid=%s", req.PageID, uid)
 
 	if err := s.usecase.delete.Delete(ctx, req.PageID); err != nil {
-		return response.EmptyResponse{}, err
+		return err
 	}
 
-	return response.EmptyResponse{}, nil
+	l.Sugar().Infof("Page deleted: id=%s user_uid=%s", req.PageID, uid)
+
+	return nil
 }

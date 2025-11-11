@@ -5,13 +5,12 @@ import (
 	"errors"
 	"testing"
 
-	cmp "github.com/google/go-cmp/cmp"
 	"go.uber.org/mock/gomock"
 
 	duser "github.com/naka-sei/tsudzuri/domain/user"
 	ctxuser "github.com/naka-sei/tsudzuri/pkg/ctx/user"
 	"github.com/naka-sei/tsudzuri/pkg/testutil"
-	"github.com/naka-sei/tsudzuri/presentation/http/response"
+
 	upage "github.com/naka-sei/tsudzuri/usecase/page"
 	mocklinkremove "github.com/naka-sei/tsudzuri/usecase/page/mock/mock_link_remove"
 )
@@ -25,7 +24,6 @@ func TestLinkRemoveService_LinkRemove(t *testing.T) {
 		req LinkRemoveRequest
 	}
 	type want struct {
-		res response.EmptyResponse
 		err error
 	}
 
@@ -51,7 +49,6 @@ func TestLinkRemoveService_LinkRemove(t *testing.T) {
 				},
 			},
 			want: want{
-				res: response.EmptyResponse{},
 				err: nil,
 			},
 		},
@@ -69,7 +66,6 @@ func TestLinkRemoveService_LinkRemove(t *testing.T) {
 				},
 			},
 			want: want{
-				res: response.EmptyResponse{},
 				err: errors.New("link remove error"),
 			},
 		},
@@ -87,7 +83,6 @@ func TestLinkRemoveService_LinkRemove(t *testing.T) {
 				},
 			},
 			want: want{
-				res: response.EmptyResponse{},
 				err: duser.ErrUserNotFound,
 			},
 		},
@@ -106,10 +101,7 @@ func TestLinkRemoveService_LinkRemove(t *testing.T) {
 				tt.setup(m)
 			}
 			s := NewLinkRemoveService(m.linkRemoveUsecase)
-			got, err := s.LinkRemove(tt.args.ctx, tt.args.req)
-			if diff := cmp.Diff(tt.want.res, got); diff != "" {
-				t.Errorf("response mismatch (-want +got):\n%s", diff)
-			}
+			err := s.LinkRemove(tt.args.ctx, tt.args.req)
 			testutil.EqualErr(t, tt.want.err, err)
 		})
 	}

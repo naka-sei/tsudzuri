@@ -3,9 +3,10 @@ package page
 import (
 	"context"
 
+	duser "github.com/naka-sei/tsudzuri/domain/user"
+	ctxuser "github.com/naka-sei/tsudzuri/pkg/ctx/user"
 	"github.com/naka-sei/tsudzuri/pkg/log"
 	"github.com/naka-sei/tsudzuri/pkg/trace"
-	"github.com/naka-sei/tsudzuri/presentation/http/response"
 	upage "github.com/naka-sei/tsudzuri/usecase/page"
 )
 
@@ -21,19 +22,27 @@ func NewGetService(gu upage.GetUsecase) *GetService {
 	return &GetService{usecase: struct{ get upage.GetUsecase }{get: gu}}
 }
 
-func (s *GetService) Get(ctx context.Context, req GetRequest) (PageResponse, error) {
+func (s *GetService) Get(ctx context.Context, req GetRequest) (*PageResponse, error) {
 	ctx, end := trace.StartSpan(ctx, "presentation/http/page.Get")
 	defer end()
 
 	l := log.LoggerFromContext(ctx)
-	l.Sugar().Infof("Page get request id=%s", req.PageID)
+	u, ok := ctxuser.UserFromContext(ctx)
+	if !ok {
+		return nil, duser.ErrUserNotFound
+	}
+	uid := u.UID()
+	l.Sugar().Infof("Page get request id=%s user_uid=%s", req.PageID, uid)
 
 	p, err := s.usecase.get.Get(ctx, req.PageID)
 	if err != nil {
-		return PageResponse{}, err
+		return nil, err
+	}
+	if p == nil {
+		return nil, nil
 	}
 
-	res := PageResponse{
+	res := &PageResponse{
 		ID:         p.ID(),
 		Title:      p.Title(),
 		InviteCode: p.InviteCode(),
@@ -47,6 +56,7 @@ func (s *GetService) Get(ctx context.Context, req GetRequest) (PageResponse, err
 		res.Links = prs
 	}
 
-	_ = response.EmptyResponse{} // keep response package available for consistency with other handlers
+	l.Sugar().Infof("Page get responded: id=%s links=%d user_uid=%s", p.ID(), len(res.Links), uid)
+
 	return res, nil
 }
