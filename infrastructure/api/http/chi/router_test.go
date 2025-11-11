@@ -12,7 +12,6 @@ import (
 
 	"github.com/go-chi/chi/v5"
 	cmp "github.com/google/go-cmp/cmp"
-	presp "github.com/naka-sei/tsudzuri/presentation/http/response"
 	prouter "github.com/naka-sei/tsudzuri/presentation/router"
 )
 
@@ -712,21 +711,6 @@ func TestWriteJSON(t *testing.T) {
 	_ = json.NewDecoder(w.Body).Decode(&resp)
 	if resp["key"] != "value" {
 		t.Error("JSON not written correctly")
-	}
-}
-
-func TestWriteError(t *testing.T) {
-	w := httptest.NewRecorder()
-	err := errors.New("test error")
-	writeError(w, nil, err)
-
-	if w.Code != http.StatusInternalServerError {
-		t.Errorf("Expected 500, got %d", w.Code)
-	}
-	var resp presp.ErrResponse
-	_ = json.NewDecoder(w.Body).Decode(&resp)
-	if resp.Message != "不明なエラーが発生しました。再度お試しください。" {
-		t.Errorf("Error message not correct: %s", resp.Message)
 	}
 }
 

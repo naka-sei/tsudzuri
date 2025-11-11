@@ -9,9 +9,8 @@ import (
 	"reflect"
 
 	"github.com/go-chi/chi/v5"
+	httperr "github.com/naka-sei/tsudzuri/pkg/http/middleware/error"
 	"github.com/naka-sei/tsudzuri/pkg/trace"
-	perrcode "github.com/naka-sei/tsudzuri/presentation/http/errcode"
-	presp "github.com/naka-sei/tsudzuri/presentation/http/response"
 	prouter "github.com/naka-sei/tsudzuri/presentation/router"
 )
 
@@ -55,7 +54,7 @@ func (c *Router) wrap(handler any, method string, opts ...prouter.Option) http.H
 
 		res, err := c.invoke(ctx, r, handler)
 		if err != nil {
-			writeError(w, r, err)
+			httperr.WriteError(w, err)
 			return
 		}
 		if res == nil {
@@ -196,14 +195,6 @@ func writeJSON(w http.ResponseWriter, _ *http.Request, status int, v any) {
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
 	w.WriteHeader(status)
 	_ = json.NewEncoder(w).Encode(v)
-}
-
-func writeError(w http.ResponseWriter, r *http.Request, err error) {
-	sc := perrcode.GetStatusCode(err)
-	re := perrcode.GetErrorReason(err)
-	w.Header().Set("Content-Type", "application/json; charset=utf-8")
-	w.WriteHeader(sc)
-	_ = json.NewEncoder(w).Encode(presp.ErrResponse{Message: re.Message})
 }
 
 func defaultConfigFor(method string, opts ...prouter.Option) *prouter.RouteConfig {
