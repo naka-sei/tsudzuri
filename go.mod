@@ -8,6 +8,7 @@ require (
 	github.com/blendle/zapdriver v1.3.1
 	github.com/google/go-cmp v0.7.0
 	github.com/google/wire v0.7.0
+	github.com/grpc-ecosystem/grpc-gateway/v2 v2.27.3
 	github.com/pkg/errors v0.9.1
 	go.opentelemetry.io/contrib/detectors/gcp v1.36.0
 	go.opentelemetry.io/otel v1.38.0
@@ -88,8 +89,8 @@ require (
 	golang.org/x/net v0.44.0 // indirect
 	golang.org/x/sys v0.36.0 // indirect
 	golang.org/x/text v0.29.0 // indirect
-	google.golang.org/genproto/googleapis/api v0.0.0-20250922171735-9219d122eba9 // indirect
-	google.golang.org/genproto/googleapis/rpc v0.0.0-20250922171735-9219d122eba9 // indirect
-	google.golang.org/grpc v1.75.1 // indirect
-	google.golang.org/protobuf v1.36.9 // indirect
+	google.golang.org/genproto/googleapis/api v0.0.0-20250929231259-57b25ae835d4
+	google.golang.org/genproto/googleapis/rpc v0.0.0-20250929231259-57b25ae835d4 // indirect
+	google.golang.org/grpc v1.75.1
+	google.golang.org/protobuf v1.36.10
 )

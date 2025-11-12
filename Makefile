@@ -5,17 +5,23 @@
 GO_VERSION ?= 1.24
 
 # local tooling/.bin directory
-BIN ?= .bin
+BIN ?= $(CURDIR)/.bin
+
+# UNAME info
+UNAME_OS := $(shell uname -s)
+UNAME_ARCH := $(shell uname -m)
 
 # Tool versions (managed here)
 GOFUMPT_VERSION ?= v0.6.0
 GOLANGCI_VERSION ?= v1.64.8
 WIRE_VERSION ?= v0.7.0
+BUF_VERSION ?= v1.59.0
 
 # Tool paths
 GOFUMPT := $(BIN)/gofumpt
 GOLANGCI := $(BIN)/golangci-lint
 WIRE := $(BIN)/wire
+BUF := $(BIN)/buf
 
 # Development
 all: up dev
@@ -39,7 +45,7 @@ clean:
 # Docker
 up:
 	# pass the configured GO_VERSION into docker compose so builds use the managed version
-	GO_VERSION=$(GO_VERSION) docker compose up --build -d
+	GO_VERSION=$(GO_VERSION) docker compose up -d --build api db
 
 down:
 	docker compose down
@@ -91,6 +97,9 @@ install-tools:
 	@GOBIN=$(abspath $(BIN)) go install github.com/google/wire/cmd/wire@${WIRE_VERSION}
 	@echo "Installed: $(GOLANGCI) $(GOFUMPT)"
 	@echo "Installed: $(WIRE)"
+	@curl -sSL "https://github.com/bufbuild/buf/releases/download/$(BUF_VERSION)/buf-$(UNAME_OS)-$(UNAME_ARCH)" -o $(BUF)
+	@chmod +x $(BUF)
+	@echo "Installed: $(BUF)"
 
 # Linting
 lint:
@@ -98,11 +107,14 @@ lint:
 	@$(GOLANGCI) run ./...
 	@echo "golangci-lint completed."
 
-# Format code using gofumpt
+# Format code using gofumpt and proto formatting
 fmt:
 	@echo "Running gofumpt..."
 	@$(GOFUMPT) -w .
 	@echo "gofumpt completed."
+	@echo "Running buf format..."
+	@cd api/protobuf && $(BUF) format -w; cd -
+	@echo "buf format completed."
 
 # Dependencies
 deps:
@@ -113,10 +125,16 @@ deps:
 get-go-version:
 	@echo $(GO_VERSION)
 
+# generate/protobuf/go
+generate/protobuf/go:
+	@cd api/protobuf && $(BUF) dep update && $(BUF) build && $(BUF) generate; cd -
+	@echo "Protobuf code generation completed."
+
 # Generate code (e.g., mocks)
 generate:
 	# Generate all code (Ent + mocks, etc.) via go:generate directives
 	go generate ./...
+	make generate/protobuf/go
 
 wire:
 	@$(WIRE) ./cmd/api
