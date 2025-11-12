@@ -1,6 +1,8 @@
 package http
 
 import (
+	duser "github.com/naka-sei/tsudzuri/domain/user"
+	"github.com/naka-sei/tsudzuri/pkg/cache"
 	page "github.com/naka-sei/tsudzuri/presentation/http/page"
 	user "github.com/naka-sei/tsudzuri/presentation/http/user"
 	prouter "github.com/naka-sei/tsudzuri/presentation/router"
@@ -54,6 +56,16 @@ func NewServer(
 		pageLinkRemove: linkRemovePageService,
 		userCreate:     createUserService,
 		userLogin:      loginUserService,
+	}
+}
+
+// WithUserCache configures the shared user cache for authentication-aware components.
+func (s *Server) WithUserCache(c cache.Cache[*duser.User]) {
+	if s == nil {
+		return
+	}
+	if s.userCreate != nil {
+		s.userCreate.SetCache(c)
 	}
 }
 

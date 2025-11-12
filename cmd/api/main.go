@@ -13,8 +13,13 @@ import (
 	"go.uber.org/zap"
 
 	"github.com/naka-sei/tsudzuri/config"
+	domainuser "github.com/naka-sei/tsudzuri/domain/user"
+	"github.com/naka-sei/tsudzuri/infrastructure/api/firebase"
 	chiadapter "github.com/naka-sei/tsudzuri/infrastructure/api/http/chi"
 	"github.com/naka-sei/tsudzuri/infrastructure/db/postgres"
+	userrepo "github.com/naka-sei/tsudzuri/infrastructure/db/user"
+	"github.com/naka-sei/tsudzuri/pkg/cache"
+	"github.com/naka-sei/tsudzuri/pkg/http/middleware/authentication"
 	applog "github.com/naka-sei/tsudzuri/pkg/log"
 )
 
@@ -23,6 +28,7 @@ const (
 	databaseSchema  = "tsudzuri"
 	serverTimeout   = 10 * time.Second
 	shutdownTimeout = 5 * time.Second
+	userCacheTTL    = 5 * time.Minute
 )
 
 func main() {
@@ -54,10 +60,6 @@ func main() {
 		}()
 	}
 
-	if conf.TsudzuriDatabaseDSN == "" {
-		sugar.Fatalf("TSUDZURI_DATABASE_DSN is empty")
-	}
-
 	connOpts := []postgres.ConnectionOption{}
 	if conf.IsDebugMode {
 		connOpts = append(connOpts, postgres.WithDebug())
@@ -78,7 +80,17 @@ func main() {
 		sugar.Fatalf("failed to initialize presentation server: %v", err)
 	}
 
+	authenticator, err := firebase.NewClient(conf)
+	if err != nil {
+		sugar.Fatalf("failed to create firebase client: %v", err)
+	}
+	userRepo := userrepo.NewUserRepository(conn)
+	userCache := cache.NewMemoryCache[*domainuser.User](userCacheTTL)
+
+	server.WithUserCache(userCache)
+
 	router := chi.NewRouter()
+	router.Use(authentication.AuthHTTPMiddleware(authenticator, userRepo, userCache))
 	server.Route(chiadapter.New(router))
 
 	httpServer := &http.Server{

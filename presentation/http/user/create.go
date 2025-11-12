@@ -3,6 +3,8 @@ package user
 import (
 	"context"
 
+	duser "github.com/naka-sei/tsudzuri/domain/user"
+	"github.com/naka-sei/tsudzuri/pkg/cache"
 	"github.com/naka-sei/tsudzuri/pkg/log"
 	"github.com/naka-sei/tsudzuri/pkg/trace"
 	uuser "github.com/naka-sei/tsudzuri/usecase/user"
@@ -23,12 +25,18 @@ type CreateService struct {
 	usecase struct {
 		create uuser.CreateUsecase
 	}
+	cache cache.Cache[*duser.User]
 }
 
 func NewCreateService(cu uuser.CreateUsecase) *CreateService {
 	return &CreateService{
 		usecase: struct{ create uuser.CreateUsecase }{create: cu},
 	}
+}
+
+// SetCache configures the user cache that should be populated on successful user creation.
+func (s *CreateService) SetCache(c cache.Cache[*duser.User]) {
+	s.cache = c
 }
 
 // Create is a transport-agnostic presentation handler.
@@ -53,6 +61,10 @@ func (s *CreateService) Create(ctx context.Context, req CreateRequest) (*UserRes
 		UID:      u.UID(), // Assuming UID method exists
 		Provider: string(u.Provider()),
 		Email:    u.Email(),
+	}
+
+	if s.cache != nil {
+		s.cache.Set(ctx, u.UID(), u)
 	}
 	l.Sugar().Infof("User created: user_uid=%s", u.UID())
 	return res, nil

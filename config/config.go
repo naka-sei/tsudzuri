@@ -42,7 +42,7 @@ func Load(ctx context.Context) (*Config, error) {
 	}
 
 	// Override with environment variables
-	if onGoogleCloud() {
+	if conf.OnGoogleCloud() {
 		if err := conf.loadFromSM(ctx); err != nil {
 			return nil, err
 		}
@@ -65,9 +65,9 @@ func (c *Config) loadFromSM(ctx context.Context) error {
 	return nil
 }
 
-// onGoogleCloud determines if the application is running on Google Cloud.
+// OnGoogleCloud determines if the application is running on Google Cloud.
 // It checks for the presence of the "K_SERVICE" environment variable, which is set in Cloud Run.
-func onGoogleCloud() bool {
+func (c *Config) OnGoogleCloud() bool {
 	hasCloudRunVar := os.Getenv("K_SERVICE") != ""
 	return hasCloudRunVar
 }
