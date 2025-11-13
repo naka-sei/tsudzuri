@@ -10,6 +10,7 @@ import (
 
 	dpage "github.com/naka-sei/tsudzuri/domain/page"
 	duser "github.com/naka-sei/tsudzuri/domain/user"
+	upage "github.com/naka-sei/tsudzuri/usecase/page"
 )
 
 func TestGetErrorReason(t *testing.T) {
@@ -19,12 +20,12 @@ func TestGetErrorReason(t *testing.T) {
 		want *ErrorReason
 	}{
 		{
-			name: "nil error",
+			name: "nil_error",
 			err:  nil,
 			want: nil,
 		},
 		{
-			name: "page ErrNoTitleProvided",
+			name: "page_ErrNoTitleProvided",
 			err:  dpage.ErrNoTitleProvided,
 			want: &ErrorReason{
 				ErrorCode: CodePageInvalidParameter,
@@ -32,7 +33,7 @@ func TestGetErrorReason(t *testing.T) {
 			},
 		},
 		{
-			name: "page ErrNoUserProvided",
+			name: "page_ErrNoUserProvided",
 			err:  dpage.ErrNoUserProvided,
 			want: &ErrorReason{
 				ErrorCode: CodePageInternalError,
@@ -40,7 +41,7 @@ func TestGetErrorReason(t *testing.T) {
 			},
 		},
 		{
-			name: "page ErrInvalidLinksLength",
+			name: "page_ErrInvalidLinksLength",
 			err:  dpage.ErrInvalidLinksLength,
 			want: &ErrorReason{
 				ErrorCode: CodePageInvalidParameter,
@@ -48,7 +49,7 @@ func TestGetErrorReason(t *testing.T) {
 			},
 		},
 		{
-			name: "page ErrNotCreatedByUser",
+			name: "page_ErrNotCreatedByUser",
 			err:  dpage.ErrNotCreatedByUser,
 			want: &ErrorReason{
 				ErrorCode: CodePageAuthorizationFailed,
@@ -56,7 +57,15 @@ func TestGetErrorReason(t *testing.T) {
 			},
 		},
 		{
-			name: "page NotFoundLinkError",
+			name: "page_NotFoundError",
+			err:  upage.ErrPageNotFound,
+			want: &ErrorReason{
+				ErrorCode: CodePageInvalidParameter,
+				Message:   "指定されたページが見つかりません。ページIDを確認してください。",
+			},
+		},
+		{
+			name: "page_NotFoundLinkError",
 			err:  &dpage.NotFoundLinkError{URL: "http://example.com"},
 			want: &ErrorReason{
 				ErrorCode: CodePageInvalidParameter,
@@ -64,7 +73,7 @@ func TestGetErrorReason(t *testing.T) {
 			},
 		},
 		{
-			name: "user InvalidProviderError",
+			name: "user_InvalidProviderError",
 			err:  duser.ErrInvalidProvider(duser.Provider("invalid")),
 			want: &ErrorReason{
 				ErrorCode: CodeUserInvalidParameter,
@@ -72,7 +81,7 @@ func TestGetErrorReason(t *testing.T) {
 			},
 		},
 		{
-			name: "user AlreadyLoggedInError",
+			name: "user_AlreadyLoggedInError",
 			err:  duser.ErrAlreadyLoggedIn(duser.Provider("google")),
 			want: &ErrorReason{
 				ErrorCode: CodeUserAuthorizationFailed,
@@ -80,7 +89,7 @@ func TestGetErrorReason(t *testing.T) {
 			},
 		},
 		{
-			name: "user ErrUserNotFound",
+			name: "user_ErrUserNotFound",
 			err:  duser.ErrUserNotFound,
 			want: &ErrorReason{
 				ErrorCode: CodeUserUnauthorized,
@@ -88,7 +97,7 @@ func TestGetErrorReason(t *testing.T) {
 			},
 		},
 		{
-			name: "user ErrNoSpecifiedEmail",
+			name: "user_ErrNoSpecifiedEmail",
 			err:  duser.ErrNoSpecifiedEmail,
 			want: &ErrorReason{
 				ErrorCode: CodeUserInternalError,
@@ -96,7 +105,7 @@ func TestGetErrorReason(t *testing.T) {
 			},
 		},
 		{
-			name: "unknown error",
+			name: "unknown_error",
 			err:  errors.New("unknown error"),
 			want: &ErrorReason{
 				ErrorCode: CodeUnknownError,
@@ -122,12 +131,12 @@ func TestGetGRPCCode(t *testing.T) {
 		want codes.Code
 	}{
 		{
-			name: "invalid argument",
+			name: "invalid_argument",
 			err:  dpage.ErrNoTitleProvided,
 			want: codes.InvalidArgument,
 		},
 		{
-			name: "permission denied",
+			name: "permission_denied",
 			err:  dpage.ErrNotCreatedByUser,
 			want: codes.PermissionDenied,
 		},

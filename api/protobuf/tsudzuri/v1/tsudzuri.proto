@@ -47,6 +47,13 @@ service TsudzuriService {
     option (google.api.http) = {delete: "/api/v1/pages/{page_id}/links"};
   }
 
+  rpc JoinPage(JoinPageRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      post: "/api/v1/pages/{page_id}/join"
+      body: "*"
+    };
+  }
+
   // User management
   rpc CreateUser(CreateUserRequest) returns (User) {
     option (google.api.http) = {
@@ -115,6 +122,11 @@ message AddLinkRequest {
 message RemoveLinkRequest {
   string page_id = 1;
   string url = 2;
+}
+
+message JoinPageRequest {
+  string page_id = 1;
+  string invite_code = 2;
 }
 
 message CreateUserRequest {

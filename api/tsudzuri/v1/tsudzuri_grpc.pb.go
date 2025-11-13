@@ -27,6 +27,7 @@ const (
 	TsudzuriService_DeletePage_FullMethodName = "/tsudzuri.v1.TsudzuriService/DeletePage"
 	TsudzuriService_AddLink_FullMethodName    = "/tsudzuri.v1.TsudzuriService/AddLink"
 	TsudzuriService_RemoveLink_FullMethodName = "/tsudzuri.v1.TsudzuriService/RemoveLink"
+	TsudzuriService_JoinPage_FullMethodName   = "/tsudzuri.v1.TsudzuriService/JoinPage"
 	TsudzuriService_CreateUser_FullMethodName = "/tsudzuri.v1.TsudzuriService/CreateUser"
 	TsudzuriService_Login_FullMethodName      = "/tsudzuri.v1.TsudzuriService/Login"
 )
@@ -43,6 +44,7 @@ type TsudzuriServiceClient interface {
 	DeletePage(ctx context.Context, in *DeletePageRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	AddLink(ctx context.Context, in *AddLinkRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	RemoveLink(ctx context.Context, in *RemoveLinkRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	JoinPage(ctx context.Context, in *JoinPageRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	// User management
 	CreateUser(ctx context.Context, in *CreateUserRequest, opts ...grpc.CallOption) (*User, error)
 	Login(ctx context.Context, in *LoginRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
@@ -119,6 +121,15 @@ func (c *tsudzuriServiceClient) RemoveLink(ctx context.Context, in *RemoveLinkRe
 	return out, nil
 }
 
+func (c *tsudzuriServiceClient) JoinPage(ctx context.Context, in *JoinPageRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	out := new(emptypb.Empty)
+	err := c.cc.Invoke(ctx, TsudzuriService_JoinPage_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *tsudzuriServiceClient) CreateUser(ctx context.Context, in *CreateUserRequest, opts ...grpc.CallOption) (*User, error) {
 	out := new(User)
 	err := c.cc.Invoke(ctx, TsudzuriService_CreateUser_FullMethodName, in, out, opts...)
@@ -149,6 +160,7 @@ type TsudzuriServiceServer interface {
 	DeletePage(context.Context, *DeletePageRequest) (*emptypb.Empty, error)
 	AddLink(context.Context, *AddLinkRequest) (*emptypb.Empty, error)
 	RemoveLink(context.Context, *RemoveLinkRequest) (*emptypb.Empty, error)
+	JoinPage(context.Context, *JoinPageRequest) (*emptypb.Empty, error)
 	// User management
 	CreateUser(context.Context, *CreateUserRequest) (*User, error)
 	Login(context.Context, *LoginRequest) (*emptypb.Empty, error)
@@ -179,6 +191,9 @@ func (UnimplementedTsudzuriServiceServer) AddLink(context.Context, *AddLinkReque
 }
 func (UnimplementedTsudzuriServiceServer) RemoveLink(context.Context, *RemoveLinkRequest) (*emptypb.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method RemoveLink not implemented")
+}
+func (UnimplementedTsudzuriServiceServer) JoinPage(context.Context, *JoinPageRequest) (*emptypb.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method JoinPage not implemented")
 }
 func (UnimplementedTsudzuriServiceServer) CreateUser(context.Context, *CreateUserRequest) (*User, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CreateUser not implemented")
@@ -325,6 +340,24 @@ func _TsudzuriService_RemoveLink_Handler(srv interface{}, ctx context.Context, d
 	return interceptor(ctx, in, info, handler)
 }
 
+func _TsudzuriService_JoinPage_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(JoinPageRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(TsudzuriServiceServer).JoinPage(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: TsudzuriService_JoinPage_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(TsudzuriServiceServer).JoinPage(ctx, req.(*JoinPageRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _TsudzuriService_CreateUser_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(CreateUserRequest)
 	if err := dec(in); err != nil {
@@ -395,6 +428,10 @@ var TsudzuriService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "RemoveLink",
 			Handler:    _TsudzuriService_RemoveLink_Handler,
+		},
+		{
+			MethodName: "JoinPage",
+			Handler:    _TsudzuriService_JoinPage_Handler,
 		},
 		{
 			MethodName: "CreateUser",

@@ -29,12 +29,11 @@ func TestGetUsecase_Get(t *testing.T) {
 	}
 
 	user := duser.ReconstructUser("user-id-1", "uid-1", "anonymous", nil)
-	other := duser.ReconstructUser("user-id-2", "uid-2", "anonymous", nil)
-	invitedUser := duser.ReconstructUser("user-id-3", "uid-3", "invited", nil)
+	invitedUser := duser.ReconstructUser("user-id-2", "uid-2", "invited", nil)
+	other := duser.ReconstructUser("user-id-3", "uid-3", "anonymous", nil)
 
 	p1 := dpage.ReconstructPage("page-1", "t1", *user, "invite", dpage.Links{}, duser.Users{})
-	p2 := dpage.ReconstructPage("page-2", "t2", *other, "invite", dpage.Links{}, duser.Users{})
-	p3 := dpage.ReconstructPage("page-3", "t3", *other, "invite", dpage.Links{}, duser.Users{invitedUser})
+	p2 := dpage.ReconstructPage("page-2", "t2", *other, "invite", dpage.Links{}, duser.Users{invitedUser})
 
 	tests := []struct {
 		name  string
@@ -59,14 +58,14 @@ func TestGetUsecase_Get(t *testing.T) {
 		{
 			name: "success_by_invited_user",
 			setup: func(m *mocks) {
-				m.pageRepo.EXPECT().Get(gomock.Any(), "page-3").Return(p3, nil)
+				m.pageRepo.EXPECT().Get(gomock.Any(), "page-2").Return(p2, nil)
 			},
 			args: args{
 				ctx:    ctxuser.WithUser(context.Background(), invitedUser),
-				pageID: "page-3",
+				pageID: "page-2",
 			},
 			want: want{
-				page: p3,
+				page: p2,
 				err:  nil,
 			},
 		},
@@ -110,20 +109,6 @@ func TestGetUsecase_Get(t *testing.T) {
 			want: want{
 				page: nil,
 				err:  duser.ErrUserNotFound,
-			},
-		},
-		{
-			name: "unauthorized",
-			setup: func(m *mocks) {
-				m.pageRepo.EXPECT().Get(gomock.Any(), "page-2").Return(p2, nil)
-			},
-			args: args{
-				ctx:    ctxuser.WithUser(context.Background(), user),
-				pageID: "page-2",
-			},
-			want: want{
-				page: nil,
-				err:  dpage.ErrNotCreatedByUser,
 			},
 		},
 	}

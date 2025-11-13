@@ -6,6 +6,7 @@ import (
 
 	dpage "github.com/naka-sei/tsudzuri/domain/page"
 	duser "github.com/naka-sei/tsudzuri/domain/user"
+	upage "github.com/naka-sei/tsudzuri/usecase/page"
 	"google.golang.org/genproto/googleapis/rpc/errdetails"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
@@ -57,6 +58,11 @@ func GetErrorReason(err error) *ErrorReason {
 		return &ErrorReason{
 			ErrorCode: CodePageAuthorizationFailed,
 			Message:   "ページの作成者ではないため、操作を実行できません。",
+		}
+	case errors.Is(err, upage.ErrPageNotFound):
+		return &ErrorReason{
+			ErrorCode: CodePageInvalidParameter,
+			Message:   "指定されたページが見つかりません。ページIDを確認してください。",
 		}
 	case errors.As(err, &pageUserErr):
 		return &ErrorReason{

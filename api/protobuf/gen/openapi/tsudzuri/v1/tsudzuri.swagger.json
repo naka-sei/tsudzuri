@@ -178,6 +178,50 @@
         ]
       }
     },
+    "/api/v1/pages/{pageId}/join": {
+      "post": {
+        "operationId": "TsudzuriService_JoinPage",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "type": "object",
+              "properties": {}
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "pageId",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "inviteCode": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        ],
+        "tags": [
+          "TsudzuriService"
+        ]
+      }
+    },
     "/api/v1/pages/{pageId}/links": {
       "delete": {
         "operationId": "TsudzuriService_RemoveLink",

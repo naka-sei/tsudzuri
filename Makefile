@@ -136,5 +136,5 @@ generate:
 	go generate ./...
 	make generate/protobuf/go
 
-wire:
+generate/wire:
 	@$(WIRE) ./cmd/api

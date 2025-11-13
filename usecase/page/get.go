@@ -40,6 +40,11 @@ func (u *getUsecase) Get(ctx context.Context, pageID string) (*dpage.Page, error
 	l := log.LoggerFromContext(ctx)
 	l.Sugar().Infof("Getting page with id: %s", pageID)
 
+	_, ok := ctxuser.UserFromContext(ctx)
+	if !ok {
+		return nil, duser.ErrUserNotFound
+	}
+
 	page, err := u.repository.page.Get(ctx, pageID)
 	if err != nil {
 		return nil, err
@@ -47,15 +52,6 @@ func (u *getUsecase) Get(ctx context.Context, pageID string) (*dpage.Page, error
 
 	if page == nil {
 		return nil, ErrPageNotFound
-	}
-
-	user, ok := ctxuser.UserFromContext(ctx)
-	if !ok {
-		return nil, duser.ErrUserNotFound
-	}
-
-	if err := page.Authorize(user); err != nil {
-		return nil, err
 	}
 
 	return page, nil
