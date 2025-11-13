@@ -8,9 +8,9 @@ import (
 	pagerepo "github.com/naka-sei/tsudzuri/infrastructure/db/page"
 	ipostgres "github.com/naka-sei/tsudzuri/infrastructure/db/postgres"
 	userrepo "github.com/naka-sei/tsudzuri/infrastructure/db/user"
-	httpserver "github.com/naka-sei/tsudzuri/presentation/http"
-	pagehandler "github.com/naka-sei/tsudzuri/presentation/http/page"
-	userhandler "github.com/naka-sei/tsudzuri/presentation/http/user"
+	presentationgrpc "github.com/naka-sei/tsudzuri/presentation/grpc"
+	grpcpage "github.com/naka-sei/tsudzuri/presentation/grpc/page"
+	grpcuser "github.com/naka-sei/tsudzuri/presentation/grpc/user"
 	pageusecase "github.com/naka-sei/tsudzuri/usecase/page"
 	useservice "github.com/naka-sei/tsudzuri/usecase/service"
 	userusecase "github.com/naka-sei/tsudzuri/usecase/user"
@@ -18,7 +18,7 @@ import (
 
 func InitializePresentationServer(
 	dbConn *ipostgres.Connection,
-) (*httpserver.Server, error) {
+) (*presentationgrpc.Server, error) {
 	wire.Build(
 		presentationSet,
 		usecaseSet,
@@ -34,16 +34,18 @@ func transactionServiceProvider(dbc *ipostgres.Connection) useservice.Transactio
 
 var (
 	presentationSet = wire.NewSet(
-		pagehandler.NewCreateService,
-		pagehandler.NewGetService,
-		pagehandler.NewListService,
-		pagehandler.NewEditService,
-		pagehandler.NewDeleteService,
-		pagehandler.NewLinkAddService,
-		pagehandler.NewLinkRemoveService,
-		userhandler.NewCreateService,
-		userhandler.NewLoginService,
-		httpserver.NewServer,
+		grpcpage.NewCreateService,
+		grpcpage.NewGetService,
+		grpcpage.NewListService,
+		grpcpage.NewEditService,
+		grpcpage.NewDeleteService,
+		grpcpage.NewLinkAddService,
+		grpcpage.NewLinkRemoveService,
+		grpcpage.NewServer,
+		grpcuser.NewCreateService,
+		grpcuser.NewLoginService,
+		grpcuser.NewServer,
+		presentationgrpc.NewServer,
 	)
 	usecaseSet = wire.NewSet(
 		pageusecase.NewCreateUsecase,

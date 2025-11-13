@@ -11,9 +11,9 @@ import (
 	"github.com/naka-sei/tsudzuri/infrastructure/db/page"
 	"github.com/naka-sei/tsudzuri/infrastructure/db/postgres"
 	"github.com/naka-sei/tsudzuri/infrastructure/db/user"
-	"github.com/naka-sei/tsudzuri/presentation/http"
-	page3 "github.com/naka-sei/tsudzuri/presentation/http/page"
-	user3 "github.com/naka-sei/tsudzuri/presentation/http/user"
+	"github.com/naka-sei/tsudzuri/presentation/grpc"
+	page3 "github.com/naka-sei/tsudzuri/presentation/grpc/page"
+	user3 "github.com/naka-sei/tsudzuri/presentation/grpc/user"
 	page2 "github.com/naka-sei/tsudzuri/usecase/page"
 	"github.com/naka-sei/tsudzuri/usecase/service"
 	user2 "github.com/naka-sei/tsudzuri/usecase/user"
@@ -21,7 +21,7 @@ import (
 
 // Injectors from wire.go:
 
-func InitializePresentationServer(dbConn *postgres.Connection) (*http.Server, error) {
+func InitializePresentationServer(dbConn *postgres.Connection) (*presentationgrpc.Server, error) {
 	pageRepository := page.NewPageRepository(dbConn)
 	transactionService := transactionServiceProvider(dbConn)
 	createUsecase := page2.NewCreateUsecase(pageRepository, transactionService)
@@ -38,13 +38,15 @@ func InitializePresentationServer(dbConn *postgres.Connection) (*http.Server, er
 	linkAddService := page3.NewLinkAddService(linkAddUseCase)
 	linkRemoveUseCase := page2.NewLinkRemoveUsecase(pageRepository, transactionService)
 	linkRemoveService := page3.NewLinkRemoveService(linkRemoveUseCase)
+	server := page3.NewServer(createService, getService, listService, editService, deleteService, linkAddService, linkRemoveService)
 	userRepository := user.NewUserRepository(dbConn)
 	userCreateUsecase := user2.NewCreateUsecase(userRepository, transactionService)
 	userCreateService := user3.NewCreateService(userCreateUsecase)
 	loginUsecase := user2.NewLoginUsecase(userRepository, transactionService)
 	loginService := user3.NewLoginService(loginUsecase)
-	server := http.NewServer(createService, getService, listService, editService, deleteService, linkAddService, linkRemoveService, userCreateService, loginService)
-	return server, nil
+	userServer := user3.NewServer(userCreateService, loginService)
+	presentationgrpcServer := presentationgrpc.NewServer(server, userServer)
+	return presentationgrpcServer, nil
 }
 
 // wire.go:
@@ -54,7 +56,7 @@ func transactionServiceProvider(dbc *postgres.Connection) service.TransactionSer
 }
 
 var (
-	presentationSet = wire.NewSet(page3.NewCreateService, page3.NewGetService, page3.NewListService, page3.NewEditService, page3.NewDeleteService, page3.NewLinkAddService, page3.NewLinkRemoveService, user3.NewCreateService, user3.NewLoginService, http.NewServer)
+	presentationSet = wire.NewSet(page3.NewCreateService, page3.NewGetService, page3.NewListService, page3.NewEditService, page3.NewDeleteService, page3.NewLinkAddService, page3.NewLinkRemoveService, page3.NewServer, user3.NewCreateService, user3.NewLoginService, user3.NewServer, presentationgrpc.NewServer)
 	usecaseSet      = wire.NewSet(page2.NewCreateUsecase, page2.NewGetUsecase, page2.NewListUsecase, page2.NewEditUsecase, page2.NewDeleteUsecase, page2.NewLinkAddUsecase, page2.NewLinkRemoveUsecase, user2.NewCreateUsecase, user2.NewLoginUsecase)
 	repoSet         = wire.NewSet(page.NewPageRepository, user.NewUserRepository)
 	serviceSet      = wire.NewSet(

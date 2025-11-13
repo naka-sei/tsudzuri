@@ -16,6 +16,7 @@ require (
 	go.opentelemetry.io/otel/sdk v1.38.0
 	go.uber.org/mock v0.6.0
 	go.uber.org/zap v1.27.0
+	golang.org/x/sync v0.17.0
 )
 
 require (
@@ -67,7 +68,6 @@ require (
 	golang.org/x/crypto v0.42.0 // indirect
 	golang.org/x/mod v0.27.0 // indirect
 	golang.org/x/oauth2 v0.31.0 // indirect
-	golang.org/x/sync v0.17.0 // indirect
 	golang.org/x/time v0.13.0 // indirect
 	google.golang.org/api v0.249.0 // indirect
 	google.golang.org/appengine/v2 v2.0.6 // indirect
@@ -76,7 +76,6 @@ require (
 
 require (
 	entgo.io/ent v0.14.5
-	github.com/go-chi/chi/v5 v5.2.3
 	github.com/go-logr/logr v1.4.3 // indirect
 	github.com/go-logr/stdr v1.2.2 // indirect
 	github.com/google/uuid v1.6.0

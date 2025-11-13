@@ -8,6 +8,7 @@ import (
 	dpage "github.com/naka-sei/tsudzuri/domain/page"
 	duser "github.com/naka-sei/tsudzuri/domain/user"
 	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 )
 
 type ErrorCode struct {
@@ -101,6 +102,9 @@ func GetErrorReason(err error) *ErrorReason {
 // GetStatusCode maps error codes to HTTP status codes.
 func GetStatusCode(err error) int {
 	reason := GetErrorReason(err)
+	if reason == nil {
+		return http.StatusInternalServerError
+	}
 	switch reason.ErrorCode {
 	case CodePageInvalidParameter, CodeUserInvalidParameter:
 		return http.StatusBadRequest
@@ -129,4 +133,23 @@ func GetGRPCCode(err error) codes.Code {
 	default:
 		return codes.Unknown
 	}
+}
+
+// ToGRPCStatus converts the given error into a gRPC status error with a user-facing message.
+// If the error is already a gRPC status, it is returned as-is to preserve additional details.
+func ToGRPCStatus(err error) error {
+	if err == nil {
+		return nil
+	}
+
+	if _, ok := status.FromError(err); ok {
+		return err
+	}
+
+	reason := GetErrorReason(err)
+	if reason == nil {
+		return status.Error(codes.Internal, "不明なエラーが発生しました。再度お試しください。")
+	}
+
+	return status.Error(GetGRPCCode(err), reason.Message)
 }

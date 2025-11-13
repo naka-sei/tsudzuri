@@ -14,6 +14,9 @@ type Config struct {
 	// Port is the port number the server listens on.
 	Port uint `envconfig:"PORT" default:"8080"`
 
+	// GRPCPort is the port number the gRPC server listens on.
+	GRPCPort uint `envconfig:"GRPC_PORT" default:"9090"`
+
 	// GoogleCloudProject is the Google Cloud project name.
 	GoogleCloudProject string `envconfig:"GOOGLE_CLOUD_PROJECT" default:"tsudzuri-dev"`
 

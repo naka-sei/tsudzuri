@@ -9,6 +9,8 @@ import (
 	"github.com/naka-sei/tsudzuri/config"
 )
 
+//go:generate go run go.uber.org/mock/mockgen@v0.6.0 -destination mock/mock_authenticator/authenticator.go -source=./client.go -package=mockauthenticator
+
 type Authenticator interface {
 	VerifyIDToken(ctx context.Context, idToken string) (*auth.Token, error)
 }
