@@ -698,6 +698,7 @@ type User struct {
 	Uid           string                  `protobuf:"bytes,2,opt,name=uid,proto3" json:"uid,omitempty"`
 	Provider      string                  `protobuf:"bytes,3,opt,name=provider,proto3" json:"provider,omitempty"`
 	Email         *wrapperspb.StringValue `protobuf:"bytes,4,opt,name=email,proto3" json:"email,omitempty"`
+	JoinedPageIds []string                `protobuf:"bytes,5,rep,name=joined_page_ids,json=joinedPageIds,proto3" json:"joined_page_ids,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -756,6 +757,13 @@ func (x *User) GetProvider() string {
 func (x *User) GetEmail() *wrapperspb.StringValue {
 	if x != nil {
 		return x.Email
+	}
+	return nil
+}
+
+func (x *User) GetJoinedPageIds() []string {
+	if x != nil {
+		return x.JoinedPageIds
 	}
 	return nil
 }
@@ -856,15 +864,16 @@ const file_tsudzuri_v1_tsudzuri_proto_rawDesc = "" +
 	"\vinvite_code\x18\x02 \x01(\tR\n" +
 	"inviteCode\"%\n" +
 	"\x11CreateUserRequest\x12\x10\n" +
-	"\x03uid\x18\x01 \x01(\tR\x03uid\"x\n" +
+	"\x03uid\x18\x01 \x01(\tR\x03uid\"\xa0\x01\n" +
 	"\x04User\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x10\n" +
 	"\x03uid\x18\x02 \x01(\tR\x03uid\x12\x1a\n" +
 	"\bprovider\x18\x03 \x01(\tR\bprovider\x122\n" +
-	"\x05email\x18\x04 \x01(\v2\x1c.google.protobuf.StringValueR\x05email\"^\n" +
+	"\x05email\x18\x04 \x01(\v2\x1c.google.protobuf.StringValueR\x05email\x12&\n" +
+	"\x0fjoined_page_ids\x18\x05 \x03(\tR\rjoinedPageIds\"^\n" +
 	"\fLoginRequest\x12\x1a\n" +
 	"\bprovider\x18\x01 \x01(\tR\bprovider\x122\n" +
-	"\x05email\x18\x02 \x01(\v2\x1c.google.protobuf.StringValueR\x05email2\xf6\a\n" +
+	"\x05email\x18\x02 \x01(\v2\x1c.google.protobuf.StringValueR\x05email2\xc2\b\n" +
 	"\x0fTsudzuriService\x12^\n" +
 	"\n" +
 	"CreatePage\x12\x1e.tsudzuri.v1.CreatePageRequest\x1a\x16.google.protobuf.Empty\"\x18\x82\xd3\xe4\x93\x02\x12:\x01*\"\r/api/v1/pages\x12Z\n" +
@@ -879,7 +888,8 @@ const file_tsudzuri_v1_tsudzuri_proto_rawDesc = "" +
 	"\bJoinPage\x12\x1c.tsudzuri.v1.JoinPageRequest\x1a\x16.google.protobuf.Empty\"'\x82\xd3\xe4\x93\x02!:\x01*\"\x1c/api/v1/pages/{page_id}/join\x12Y\n" +
 	"\n" +
 	"CreateUser\x12\x1e.tsudzuri.v1.CreateUserRequest\x1a\x11.tsudzuri.v1.User\"\x18\x82\xd3\xe4\x93\x02\x12:\x01*\"\r/api/v1/users\x12Z\n" +
-	"\x05Login\x12\x19.tsudzuri.v1.LoginRequest\x1a\x16.google.protobuf.Empty\"\x1e\x82\xd3\xe4\x93\x02\x18:\x01*\"\x13/api/v1/users/loginB\xaf\x01\n" +
+	"\x05Login\x12\x19.tsudzuri.v1.LoginRequest\x1a\x16.google.protobuf.Empty\"\x1e\x82\xd3\xe4\x93\x02\x18:\x01*\"\x13/api/v1/users/login\x12J\n" +
+	"\x03Get\x12\x16.google.protobuf.Empty\x1a\x11.tsudzuri.v1.User\"\x18\x82\xd3\xe4\x93\x02\x12\x12\x10/api/v1/users/meB\xaf\x01\n" +
 	"\x0fcom.tsudzuri.v1B\rTsudzuriProtoP\x01Z@github.com/naka-sei/tsudzuri/api/protobuf/tsudzuri/v1;tsudzuriv1\xa2\x02\x03TXX\xaa\x02\vTsudzuri.V1\xca\x02\vTsudzuri\\V1\xe2\x02\x17Tsudzuri\\V1\\GPBMetadata\xea\x02\fTsudzuri::V1b\x06proto3"
 
 var (
@@ -930,18 +940,20 @@ var file_tsudzuri_v1_tsudzuri_proto_depIdxs = []int32{
 	11, // 12: tsudzuri.v1.TsudzuriService.JoinPage:input_type -> tsudzuri.v1.JoinPageRequest
 	12, // 13: tsudzuri.v1.TsudzuriService.CreateUser:input_type -> tsudzuri.v1.CreateUserRequest
 	14, // 14: tsudzuri.v1.TsudzuriService.Login:input_type -> tsudzuri.v1.LoginRequest
-	16, // 15: tsudzuri.v1.TsudzuriService.CreatePage:output_type -> google.protobuf.Empty
-	0,  // 16: tsudzuri.v1.TsudzuriService.GetPage:output_type -> tsudzuri.v1.Page
-	5,  // 17: tsudzuri.v1.TsudzuriService.ListPages:output_type -> tsudzuri.v1.ListPagesResponse
-	16, // 18: tsudzuri.v1.TsudzuriService.EditPage:output_type -> google.protobuf.Empty
-	16, // 19: tsudzuri.v1.TsudzuriService.DeletePage:output_type -> google.protobuf.Empty
-	16, // 20: tsudzuri.v1.TsudzuriService.AddLink:output_type -> google.protobuf.Empty
-	16, // 21: tsudzuri.v1.TsudzuriService.RemoveLink:output_type -> google.protobuf.Empty
-	16, // 22: tsudzuri.v1.TsudzuriService.JoinPage:output_type -> google.protobuf.Empty
-	13, // 23: tsudzuri.v1.TsudzuriService.CreateUser:output_type -> tsudzuri.v1.User
-	16, // 24: tsudzuri.v1.TsudzuriService.Login:output_type -> google.protobuf.Empty
-	15, // [15:25] is the sub-list for method output_type
-	5,  // [5:15] is the sub-list for method input_type
+	16, // 15: tsudzuri.v1.TsudzuriService.Get:input_type -> google.protobuf.Empty
+	16, // 16: tsudzuri.v1.TsudzuriService.CreatePage:output_type -> google.protobuf.Empty
+	0,  // 17: tsudzuri.v1.TsudzuriService.GetPage:output_type -> tsudzuri.v1.Page
+	5,  // 18: tsudzuri.v1.TsudzuriService.ListPages:output_type -> tsudzuri.v1.ListPagesResponse
+	16, // 19: tsudzuri.v1.TsudzuriService.EditPage:output_type -> google.protobuf.Empty
+	16, // 20: tsudzuri.v1.TsudzuriService.DeletePage:output_type -> google.protobuf.Empty
+	16, // 21: tsudzuri.v1.TsudzuriService.AddLink:output_type -> google.protobuf.Empty
+	16, // 22: tsudzuri.v1.TsudzuriService.RemoveLink:output_type -> google.protobuf.Empty
+	16, // 23: tsudzuri.v1.TsudzuriService.JoinPage:output_type -> google.protobuf.Empty
+	13, // 24: tsudzuri.v1.TsudzuriService.CreateUser:output_type -> tsudzuri.v1.User
+	16, // 25: tsudzuri.v1.TsudzuriService.Login:output_type -> google.protobuf.Empty
+	13, // 26: tsudzuri.v1.TsudzuriService.Get:output_type -> tsudzuri.v1.User
+	16, // [16:27] is the sub-list for method output_type
+	5,  // [5:16] is the sub-list for method input_type
 	5,  // [5:5] is the sub-list for extension type_name
 	5,  // [5:5] is the sub-list for extension extendee
 	0,  // [0:5] is the sub-list for field type_name

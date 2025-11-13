@@ -30,6 +30,7 @@ const (
 	TsudzuriService_JoinPage_FullMethodName   = "/tsudzuri.v1.TsudzuriService/JoinPage"
 	TsudzuriService_CreateUser_FullMethodName = "/tsudzuri.v1.TsudzuriService/CreateUser"
 	TsudzuriService_Login_FullMethodName      = "/tsudzuri.v1.TsudzuriService/Login"
+	TsudzuriService_Get_FullMethodName        = "/tsudzuri.v1.TsudzuriService/Get"
 )
 
 // TsudzuriServiceClient is the client API for TsudzuriService service.
@@ -48,6 +49,7 @@ type TsudzuriServiceClient interface {
 	// User management
 	CreateUser(ctx context.Context, in *CreateUserRequest, opts ...grpc.CallOption) (*User, error)
 	Login(ctx context.Context, in *LoginRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	Get(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*User, error)
 }
 
 type tsudzuriServiceClient struct {
@@ -148,6 +150,15 @@ func (c *tsudzuriServiceClient) Login(ctx context.Context, in *LoginRequest, opt
 	return out, nil
 }
 
+func (c *tsudzuriServiceClient) Get(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*User, error) {
+	out := new(User)
+	err := c.cc.Invoke(ctx, TsudzuriService_Get_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // TsudzuriServiceServer is the server API for TsudzuriService service.
 // All implementations must embed UnimplementedTsudzuriServiceServer
 // for forward compatibility
@@ -164,6 +175,7 @@ type TsudzuriServiceServer interface {
 	// User management
 	CreateUser(context.Context, *CreateUserRequest) (*User, error)
 	Login(context.Context, *LoginRequest) (*emptypb.Empty, error)
+	Get(context.Context, *emptypb.Empty) (*User, error)
 	mustEmbedUnimplementedTsudzuriServiceServer()
 }
 
@@ -200,6 +212,9 @@ func (UnimplementedTsudzuriServiceServer) CreateUser(context.Context, *CreateUse
 }
 func (UnimplementedTsudzuriServiceServer) Login(context.Context, *LoginRequest) (*emptypb.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Login not implemented")
+}
+func (UnimplementedTsudzuriServiceServer) Get(context.Context, *emptypb.Empty) (*User, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Get not implemented")
 }
 func (UnimplementedTsudzuriServiceServer) mustEmbedUnimplementedTsudzuriServiceServer() {}
 
@@ -394,6 +409,24 @@ func _TsudzuriService_Login_Handler(srv interface{}, ctx context.Context, dec fu
 	return interceptor(ctx, in, info, handler)
 }
 
+func _TsudzuriService_Get_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(emptypb.Empty)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(TsudzuriServiceServer).Get(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: TsudzuriService_Get_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(TsudzuriServiceServer).Get(ctx, req.(*emptypb.Empty))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // TsudzuriService_ServiceDesc is the grpc.ServiceDesc for TsudzuriService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -440,6 +473,10 @@ var TsudzuriService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "Login",
 			Handler:    _TsudzuriService_Login_Handler,
+		},
+		{
+			MethodName: "Get",
+			Handler:    _TsudzuriService_Get_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

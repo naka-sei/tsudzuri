@@ -1,10 +1,11 @@
 package user
 
 type User struct {
-	id       string
-	uid      string
-	provider Provider
-	email    *string
+	id            string
+	uid           string
+	provider      Provider
+	email         *string
+	joinedPageIDs []string
 }
 
 // NewUser creates a new User instance.
@@ -59,11 +60,23 @@ func (u *User) Login(provider string, email *string) error {
 }
 
 // ReconstructUser reconstructs a User instance from existing data.
-func ReconstructUser(id string, uid string, provider string, email *string) *User {
-	return &User{
+func ReconstructUser(id string, uid string, provider string, email *string, options ...ReconstructOption) *User {
+	u := &User{
 		id:       id,
 		uid:      uid,
 		provider: Provider(provider),
 		email:    email,
+	}
+	for _, opt := range options {
+		opt(u)
+	}
+	return u
+}
+
+type ReconstructOption func(*User)
+
+func WithJoinedPageIDs(pageIDs []string) ReconstructOption {
+	return func(u *User) {
+		u.joinedPageIDs = pageIDs
 	}
 }

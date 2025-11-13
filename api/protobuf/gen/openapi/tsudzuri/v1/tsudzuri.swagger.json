@@ -369,6 +369,28 @@
           "TsudzuriService"
         ]
       }
+    },
+    "/api/v1/users/me": {
+      "get": {
+        "operationId": "TsudzuriService_Get",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1User"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "tags": [
+          "TsudzuriService"
+        ]
+      }
     }
   },
   "definitions": {
@@ -504,6 +526,12 @@
         },
         "email": {
           "type": "string"
+        },
+        "joinedPageIds": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
         }
       }
     }
