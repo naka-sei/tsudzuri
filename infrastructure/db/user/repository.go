@@ -21,17 +21,13 @@ func NewUserRepository(conn *postgres.Connection) duser.UserRepository {
 	return &userRepository{conn: conn}
 }
 
-// Get fetches a user by ID. Returns (nil, nil) if not found or id empty.
-func (r *userRepository) Get(ctx context.Context, id string) (*duser.User, error) {
-	if id == "" {
+// Get fetches a user by UID. Returns (nil, nil) if not found or id empty.
+func (r *userRepository) Get(ctx context.Context, uid string) (*duser.User, error) {
+	if uid == "" {
 		return nil, nil
 	}
-	uid, err := uuid.Parse(id)
-	if err != nil {
-		return nil, fmt.Errorf("invalid user id: %w", err)
-	}
 	client := r.conn.ReadOnlyDB(ctx)
-	found, err := client.User.Query().Where(entuser.IDEQ(uid)).Only(ctx)
+	found, err := client.User.Query().Where(entuser.UIDEQ(uid)).Only(ctx)
 	if err != nil {
 		if ent.IsNotFound(err) {
 			return nil, nil

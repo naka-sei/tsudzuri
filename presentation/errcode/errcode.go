@@ -3,10 +3,10 @@ package errcode
 import (
 	"errors"
 	"fmt"
-	"net/http"
 
 	dpage "github.com/naka-sei/tsudzuri/domain/page"
 	duser "github.com/naka-sei/tsudzuri/domain/user"
+	"google.golang.org/genproto/googleapis/rpc/errdetails"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 )
@@ -99,36 +99,19 @@ func GetErrorReason(err error) *ErrorReason {
 	}
 }
 
-// GetStatusCode maps error codes to HTTP status codes.
-func GetStatusCode(err error) int {
-	reason := GetErrorReason(err)
-	if reason == nil {
-		return http.StatusInternalServerError
-	}
-	switch reason.ErrorCode {
-	case CodePageInvalidParameter, CodeUserInvalidParameter:
-		return http.StatusBadRequest
-	case CodePageAuthorizationFailed, CodeUserAuthorizationFailed:
-		return http.StatusForbidden
-	case CodePageInternalError, CodeUserInternalError:
-		return http.StatusInternalServerError
+// getGRPCCode maps error codes to gRPC status codes.
+func getGRPCCode(err error) codes.Code {
+	errReason := GetErrorReason(err)
+	switch errReason.ErrorCode {
 	case CodeUserUnauthorized:
-		return http.StatusUnauthorized
-	default:
-		return http.StatusInternalServerError
-	}
-}
-
-// GetGRPCCode maps error codes to gRPC status codes.
-func GetGRPCCode(err error) codes.Code {
-	switch GetStatusCode(err) {
-	case http.StatusBadRequest:
-		return codes.InvalidArgument
-	case http.StatusForbidden:
-		return codes.PermissionDenied
-	case http.StatusUnauthorized:
 		return codes.Unauthenticated
-	case http.StatusInternalServerError:
+	case CodeUserAuthorizationFailed, CodePageAuthorizationFailed:
+		return codes.PermissionDenied
+	case CodeUserInvalidParameter, CodePageInvalidParameter:
+		return codes.InvalidArgument
+	case CodeUserInternalError, CodePageInternalError:
+		return codes.Internal
+	case CodeUnknownError:
 		return codes.Internal
 	default:
 		return codes.Unknown
@@ -146,10 +129,16 @@ func ToGRPCStatus(err error) error {
 		return err
 	}
 
+	code := getGRPCCode(err)
 	reason := GetErrorReason(err)
-	if reason == nil {
-		return status.Error(codes.Internal, "不明なエラーが発生しました。再度お試しください。")
+
+	st, err := status.New(code, reason.ErrorCode.description).WithDetails(&errdetails.ErrorInfo{
+		Reason:   reason.ErrorCode.code,
+		Metadata: map[string]string{"client_message": reason.Message},
+	})
+	if err != nil {
+		return status.New(code, reason.Message).Err()
 	}
 
-	return status.Error(GetGRPCCode(err), reason.Message)
+	return st.Err()
 }

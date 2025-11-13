@@ -2,7 +2,6 @@ package errcode
 
 import (
 	"errors"
-	"net/http"
 	"testing"
 
 	cmp "github.com/google/go-cmp/cmp"
@@ -116,59 +115,6 @@ func TestGetErrorReason(t *testing.T) {
 	}
 }
 
-func TestGetStatusCode(t *testing.T) {
-	tests := []struct {
-		name string
-		err  error
-		want int
-	}{
-		{
-			name: "page invalid parameter",
-			err:  dpage.ErrNoTitleProvided,
-			want: http.StatusBadRequest,
-		},
-		{
-			name: "page authorization failed",
-			err:  dpage.ErrNotCreatedByUser,
-			want: http.StatusForbidden,
-		},
-		{
-			name: "page internal error",
-			err:  dpage.ErrNoUserProvided,
-			want: http.StatusInternalServerError,
-		},
-		{
-			name: "user invalid parameter",
-			err:  duser.ErrInvalidProvider(duser.Provider("invalid")),
-			want: http.StatusBadRequest,
-		},
-		{
-			name: "user authorization failed",
-			err:  duser.ErrAlreadyLoggedIn(duser.Provider("google")),
-			want: http.StatusForbidden,
-		},
-		{
-			name: "user unauthorized",
-			err:  duser.ErrUserNotFound,
-			want: http.StatusUnauthorized,
-		},
-		{
-			name: "unknown error",
-			err:  errors.New("unknown"),
-			want: http.StatusInternalServerError,
-		},
-	}
-
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			got := GetStatusCode(tt.err)
-			if got != tt.want {
-				t.Errorf("GetStatusCode() = %v, want %v", got, tt.want)
-			}
-		})
-	}
-}
-
 func TestGetGRPCCode(t *testing.T) {
 	tests := []struct {
 		name string
@@ -199,7 +145,7 @@ func TestGetGRPCCode(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if got := GetGRPCCode(tt.err); got != tt.want {
+			if got := getGRPCCode(tt.err); got != tt.want {
 				t.Errorf("GetGRPCCode() = %v, want %v", got, tt.want)
 			}
 		})

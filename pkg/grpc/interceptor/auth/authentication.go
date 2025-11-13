@@ -76,6 +76,24 @@ func extractAuthorization(md metadata.MD) string {
 		return ""
 	}
 
-	token := strings.TrimSpace(values[0])
-	return token
+	// Normalize whitespace and handle case-insensitive Bearer prefix.
+	authHeader := strings.TrimSpace(values[0])
+	if authHeader == "" {
+		return ""
+	}
+
+	lower := strings.ToLower(authHeader)
+	if strings.HasPrefix(lower, "bearer") {
+		// Remove the "bearer" prefix and any surrounding whitespace. This
+		// handles variations like "Bearer token", "BEARER token", and
+		// "  Bearer   token  ".
+		parts := strings.SplitN(authHeader, " ", 2)
+		if len(parts) < 2 {
+			return ""
+		}
+		return strings.TrimSpace(parts[1])
+	}
+
+	// No Bearer prefix -> return the header value as-is (trimmed).
+	return authHeader
 }

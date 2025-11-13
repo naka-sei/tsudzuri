@@ -28,7 +28,7 @@ func TestUserRepository_Get(t *testing.T) {
 	tests := []struct {
 		name    string
 		prepare func(*fixture.Fixture)
-		args    func(*fixture.Fixture) args
+		args    args
 		want    func(*fixture.Fixture) want
 	}{
 		{
@@ -37,16 +37,14 @@ func TestUserRepository_Get(t *testing.T) {
 				u := duser.ReconstructUser("", "uid-get", string(duser.ProviderGoogle), ptr.Ptr("g@example.com"))
 				fx.NewUser(u)
 			},
-			args: func(fx *fixture.Fixture) args { return args{id: fx.ID("uid-get")} },
+			args: args{id: "uid-get"},
 			want: func(fx *fixture.Fixture) want {
 				return want{user: duser.ReconstructUser(fx.ID("uid-get"), "uid-get", string(duser.ProviderGoogle), ptr.Ptr("g@example.com"))}
 			},
 		},
-		{name: "empty_id", args: func(fx *fixture.Fixture) args { return args{id: ""} }, want: func(fx *fixture.Fixture) want { return want{} }},
-		{name: "not_found", args: func(fx *fixture.Fixture) args { return args{id: uuid.NewString()} }, want: func(fx *fixture.Fixture) want { return want{} }},
-		{name: "invalid_id", args: func(fx *fixture.Fixture) args { return args{id: "invalid"} }, want: func(fx *fixture.Fixture) want {
-			return want{err: func() error { _, e := uuid.Parse("invalid"); return e }()}
-		}},
+		{name: "empty_id", args: args{id: ""}, want: func(fx *fixture.Fixture) want { return want{} }},
+		{name: "not_found", args: args{id: uuid.NewString()}, want: func(fx *fixture.Fixture) want { return want{} }},
+		{name: "invalid_id", args: args{id: "invalid"}, want: func(fx *fixture.Fixture) want { return want{} }},
 	}
 	ctx := context.Background()
 	for _, tt := range tests {
@@ -62,7 +60,7 @@ func TestUserRepository_Get(t *testing.T) {
 				t.Fatalf("fixture setup: %v", err)
 			}
 			repo := NewUserRepository(conn)
-			a := tt.args(fx)
+			a := tt.args
 			w := tt.want(fx)
 			got, err := repo.Get(ctx, a.id)
 			testutil.EqualErr(t, w.err, err)
@@ -202,7 +200,7 @@ func TestUserRepository_Save(t *testing.T) {
 			if w.err != nil {
 				return
 			}
-			got, err := repo.Get(ctx, res.ID())
+			got, err := repo.Get(ctx, res.UID())
 			if err != nil {
 				t.Fatalf("Get after save failed: %v", err)
 			}

@@ -168,7 +168,7 @@ func buildGatewayMux(ctx context.Context, conf *config.Config) (*runtime.ServeMu
 			},
 		}),
 		runtime.WithIncomingHeaderMatcher(gmiddleware.NewHeaderMatcher()),
-		runtime.WithMetadata(gmiddleware.NewAnnotator()),
+		runtime.WithErrorHandler(gmiddleware.NewErrorHandler()),
 	}
 	mux := runtime.NewServeMux(opts...)
 

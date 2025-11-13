@@ -5,7 +5,7 @@ import "context"
 //go:generate go run go.uber.org/mock/mockgen@v0.6.0 -destination mock/mock_user/user.go -source=./repository.go -package=mockuser
 
 type UserRepository interface {
-	Get(ctx context.Context, id string) (*User, error)
+	Get(ctx context.Context, uid string) (*User, error)
 	List(ctx context.Context, options ...SearchOption) (*User, error)
 	Save(ctx context.Context, user *User) (*User, error)
 }
