@@ -41,6 +41,7 @@ var (
 		grpcpage.NewDeleteService,
 		grpcpage.NewLinkAddService,
 		grpcpage.NewLinkRemoveService,
+		grpcpage.NewJoinService,
 		grpcuser.NewCreateService,
 		grpcuser.NewLoginService,
 		presentationgrpc.NewServer,
@@ -53,6 +54,7 @@ var (
 		pageusecase.NewDeleteUsecase,
 		pageusecase.NewLinkAddUsecase,
 		pageusecase.NewLinkRemoveUsecase,
+		pageusecase.NewJoinUsecase,
 		userusecase.NewCreateUsecase,
 		userusecase.NewLoginUsecase,
 	)

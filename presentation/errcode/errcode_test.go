@@ -57,6 +57,30 @@ func TestGetErrorReason(t *testing.T) {
 			},
 		},
 		{
+			name: "page_ErrInvalidInviteCode",
+			err:  dpage.ErrInvalidInviteCode,
+			want: &ErrorReason{
+				ErrorCode: CodePageInvalidParameter,
+				Message:   "招待コードが正しくないため、ページに参加できません。",
+			},
+		},
+		{
+			name: "page_ErrAlreadyJoined",
+			err:  dpage.ErrAlreadyJoined,
+			want: &ErrorReason{
+				ErrorCode: CodePageInvalidParameter,
+				Message:   "すでにこのページに参加しています。",
+			},
+		},
+		{
+			name: "page_ErrCreatorCannotJoin",
+			err:  dpage.ErrCreatorCannotJoin,
+			want: &ErrorReason{
+				ErrorCode: CodePageInvalidParameter,
+				Message:   "ページ作成者は招待コードによる参加を行う必要はありません。",
+			},
+		},
+		{
 			name: "page_NotFoundError",
 			err:  upage.ErrPageNotFound,
 			want: &ErrorReason{

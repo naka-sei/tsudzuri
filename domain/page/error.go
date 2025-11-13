@@ -7,6 +7,9 @@ var (
 	ErrNoUserProvided     = errors.New("no user provided")
 	ErrInvalidLinksLength = errors.New("invalid links length")
 	ErrNotCreatedByUser   = errors.New("page not created by the user")
+	ErrInvalidInviteCode  = errors.New("invalid invite code")
+	ErrAlreadyJoined      = errors.New("user already joined the page")
+	ErrCreatorCannotJoin  = errors.New("page creator cannot join the page")
 )
 
 type NotFoundLinkError struct {

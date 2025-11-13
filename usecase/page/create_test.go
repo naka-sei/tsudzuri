@@ -6,6 +6,7 @@ import (
 	"testing"
 
 	cmp "github.com/google/go-cmp/cmp"
+	"github.com/google/go-cmp/cmp/cmpopts"
 	"go.uber.org/mock/gomock"
 
 	dpage "github.com/naka-sei/tsudzuri/domain/page"
@@ -46,19 +47,22 @@ func TestCreateUsecase_Create(t *testing.T) {
 						return fn(ctx)
 					},
 				)
-				page, _ := dpage.NewPage("test-title", user)
-				f.pageRepo.EXPECT().Save(gomock.Any(), page).Return(page, nil)
+				f.pageRepo.EXPECT().Save(gomock.Any(), gomock.AssignableToTypeOf(&dpage.Page{})).DoAndReturn(
+					func(ctx context.Context, pg *dpage.Page) (*dpage.Page, error) {
+						if pg.Title() != "test-title" {
+							t.Fatalf("unexpected title: %s", pg.Title())
+						}
+						return pg, nil
+					},
+				)
 			},
 			args: args{
 				ctx:   ctxuser.WithUser(context.Background(), user),
 				title: "test-title",
 			},
 			want: want{
-				page: func() *dpage.Page {
-					p, _ := dpage.NewPage("test-title", user)
-					return p
-				}(),
-				err: nil,
+				page: dpage.ReconstructPage("", "test-title", *user, "", dpage.Links{}, nil),
+				err:  nil,
 			},
 		},
 		{
@@ -69,8 +73,7 @@ func TestCreateUsecase_Create(t *testing.T) {
 						return fn(ctx)
 					},
 				)
-				page, _ := dpage.NewPage("fail-title", user)
-				f.pageRepo.EXPECT().Save(gomock.Any(), page).Return(nil, errors.New("save error"))
+				f.pageRepo.EXPECT().Save(gomock.Any(), gomock.AssignableToTypeOf(&dpage.Page{})).Return(nil, errors.New("save error"))
 			},
 			args: args{
 				ctx:   ctxuser.WithUser(context.Background(), user),
@@ -112,8 +115,15 @@ func TestCreateUsecase_Create(t *testing.T) {
 			}
 			u := NewCreateUsecase(f.pageRepo, f.txnService)
 			got, err := u.Create(tt.args.ctx, tt.args.title)
-			if diff := cmp.Diff(tt.want.page, got, cmp.AllowUnexported(dpage.Page{}, duser.User{})); diff != "" {
-				t.Errorf("page mismatch (-want +got):\n%s", diff)
+			if tt.want.page != nil {
+				if got == nil {
+					t.Fatalf("expected page, got nil")
+				}
+				if diff := cmp.Diff(tt.want.page, got, cmp.AllowUnexported(dpage.Page{}, duser.User{}), cmpopts.IgnoreFields(dpage.Page{}, "inviteCode")); diff != "" {
+					t.Errorf("page mismatch (-want +got):\n%s", diff)
+				}
+			} else if got != nil {
+				t.Errorf("expected nil page, got %+v", got)
 			}
 			testutil.EqualErr(t, tt.want.err, err)
 		})

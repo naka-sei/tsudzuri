@@ -24,6 +24,7 @@ type Server struct {
 		delete     *grpcpage.DeleteService
 		linkAdd    *grpcpage.LinkAddService
 		linkRemove *grpcpage.LinkRemoveService
+		join       *grpcpage.JoinService
 	}
 
 	user struct {
@@ -40,6 +41,7 @@ func NewServer(
 	deletePage *grpcpage.DeleteService,
 	addLink *grpcpage.LinkAddService,
 	removeLink *grpcpage.LinkRemoveService,
+	joinPage *grpcpage.JoinService,
 	createUser *grpcuser.CreateService,
 	loginUser *grpcuser.LoginService,
 ) *Server {
@@ -52,6 +54,7 @@ func NewServer(
 		delete     *grpcpage.DeleteService
 		linkAdd    *grpcpage.LinkAddService
 		linkRemove *grpcpage.LinkRemoveService
+		join       *grpcpage.JoinService
 	}{
 		create:     createPage,
 		get:        getPage,
@@ -60,6 +63,7 @@ func NewServer(
 		delete:     deletePage,
 		linkAdd:    addLink,
 		linkRemove: removeLink,
+		join:       joinPage,
 	}
 	s.user = struct {
 		create *grpcuser.CreateService
@@ -106,6 +110,10 @@ func (s *Server) AddLink(ctx context.Context, req *tsudzuriv1.AddLinkRequest) (*
 
 func (s *Server) RemoveLink(ctx context.Context, req *tsudzuriv1.RemoveLinkRequest) (*emptypb.Empty, error) {
 	return errcode.WrapGRPC(s.page.linkRemove.Remove(ctx, req))
+}
+
+func (s *Server) JoinPage(ctx context.Context, req *tsudzuriv1.JoinPageRequest) (*emptypb.Empty, error) {
+	return errcode.WrapGRPC(s.page.join.Join(ctx, req))
 }
 
 func (s *Server) CreateUser(ctx context.Context, req *tsudzuriv1.CreateUserRequest) (*tsudzuriv1.User, error) {

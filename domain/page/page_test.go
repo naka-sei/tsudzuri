@@ -336,6 +336,157 @@ func TestPage_Edit(t *testing.T) {
 	}
 }
 
+func TestPage_Join(t *testing.T) {
+	creator := di.ReconstructUser("creator-id", "uid-creator", "anonymous", nil)
+	joiner := di.ReconstructUser("joiner-id", "uid-joiner", "anonymous", nil)
+
+	type fields struct {
+		page *Page
+	}
+	type args struct {
+		user       *di.User
+		inviteCode string
+	}
+	type want struct {
+		page *Page
+		err  error
+	}
+
+	tests := []struct {
+		name   string
+		fields fields
+		args   args
+		want   want
+	}{
+		{
+			name: "success",
+			fields: fields{
+				page: &Page{
+					title:      "Title",
+					createdBy:  *creator,
+					inviteCode: "INVITE01",
+				},
+			},
+			args: args{
+				user:       joiner,
+				inviteCode: "INVITE01",
+			},
+			want: want{
+				page: &Page{
+					title:        "Title",
+					createdBy:    *creator,
+					inviteCode:   "INVITE01",
+					invitedUsers: di.Users{joiner},
+				},
+			},
+		},
+		{
+			name: "invalid_invite_code",
+			fields: fields{
+				page: &Page{
+					title:      "Title",
+					createdBy:  *creator,
+					inviteCode: "INVITE01",
+				},
+			},
+			args: args{
+				user:       joiner,
+				inviteCode: "WRONG",
+			},
+			want: want{
+				page: &Page{
+					title:      "Title",
+					createdBy:  *creator,
+					inviteCode: "INVITE01",
+				},
+				err: ErrInvalidInviteCode,
+			},
+		},
+		{
+			name: "nil_user",
+			fields: fields{
+				page: &Page{
+					title:      "Title",
+					createdBy:  *creator,
+					inviteCode: "INVITE01",
+				},
+			},
+			args: args{
+				user:       nil,
+				inviteCode: "INVITE01",
+			},
+			want: want{
+				page: &Page{
+					title:      "Title",
+					createdBy:  *creator,
+					inviteCode: "INVITE01",
+				},
+				err: ErrNoUserProvided,
+			},
+		},
+		{
+			name: "creator_cannot_join",
+			fields: fields{
+				page: &Page{
+					title:      "Title",
+					createdBy:  *creator,
+					inviteCode: "INVITE01",
+				},
+			},
+			args: args{
+				user:       creator,
+				inviteCode: "INVITE01",
+			},
+			want: want{
+				page: &Page{
+					title:      "Title",
+					createdBy:  *creator,
+					inviteCode: "INVITE01",
+				},
+				err: ErrCreatorCannotJoin,
+			},
+		},
+		{
+			name: "already_joined",
+			fields: fields{
+				page: &Page{
+					title:        "Title",
+					createdBy:    *creator,
+					inviteCode:   "INVITE01",
+					invitedUsers: di.Users{joiner},
+				},
+			},
+			args: args{
+				user:       joiner,
+				inviteCode: "INVITE01",
+			},
+			want: want{
+				page: &Page{
+					title:        "Title",
+					createdBy:    *creator,
+					inviteCode:   "INVITE01",
+					invitedUsers: di.Users{joiner},
+				},
+				err: ErrAlreadyJoined,
+			},
+		},
+	}
+
+	for _, tt := range tests {
+		tt := tt
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+
+			err := tt.fields.page.Join(tt.args.user, tt.args.inviteCode)
+			testutil.EqualErr(t, tt.want.err, err)
+
+			if diff := cmp.Diff(tt.want.page, tt.fields.page, cmp.AllowUnexported(Link{}, Page{}, di.User{})); diff != "" {
+				t.Fatalf("page mismatch (-want +got):\n%s", diff)
+			}
+		})
+	}
+}
+
 func TestPage_Authorize(t *testing.T) {
 	type fields struct {
 		page *Page

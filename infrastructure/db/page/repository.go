@@ -114,6 +114,22 @@ func (r *pageRepository) Save(ctx context.Context, pg *dpage.Page) (*dpage.Page,
 	}
 	client := r.conn.WriteDB(ctx)
 
+	invitedUUIDs := make([]uuid.UUID, 0, len(pg.InvitedUsers()))
+	for _, u := range pg.InvitedUsers() {
+		if u == nil {
+			return nil, errors.New("nil invited user")
+		}
+		uid := u.ID()
+		if uid == "" {
+			return nil, errors.New("empty invited user id")
+		}
+		parsed, err := uuid.Parse(uid)
+		if err != nil {
+			return nil, fmt.Errorf("invalid invited user id: %w", err)
+		}
+		invitedUUIDs = append(invitedUUIDs, parsed)
+	}
+
 	// Upsert pattern: if ID empty -> create, else update title and sync links.
 	var pageID uuid.UUID
 	if pg.ID() == "" { // create
@@ -121,11 +137,14 @@ func (r *pageRepository) Save(ctx context.Context, pg *dpage.Page) (*dpage.Page,
 		if err != nil {
 			return nil, fmt.Errorf("invalid creator id: %w", err)
 		}
-		created, err := client.Page.Create().
+		createBuilder := client.Page.Create().
 			SetTitle(pg.Title()).
 			SetCreatorID(creatorUUID).
-			SetInviteCode(pg.InviteCode()).
-			Save(ctx)
+			SetInviteCode(pg.InviteCode())
+		if len(invitedUUIDs) > 0 {
+			createBuilder = createBuilder.AddInvitedUserIDs(invitedUUIDs...)
+		}
+		created, err := createBuilder.Save(ctx)
 		if err != nil {
 			return nil, err
 		}
@@ -136,7 +155,13 @@ func (r *pageRepository) Save(ctx context.Context, pg *dpage.Page) (*dpage.Page,
 		if err != nil {
 			return nil, fmt.Errorf("invalid page id: %w", err)
 		}
-		if _, err := client.Page.UpdateOneID(pid).SetTitle(pg.Title()).Save(ctx); err != nil {
+		update := client.Page.UpdateOneID(pid).
+			SetTitle(pg.Title()).
+			ClearInvitedUsers()
+		if len(invitedUUIDs) > 0 {
+			update = update.AddInvitedUserIDs(invitedUUIDs...)
+		}
+		if _, err := update.Save(ctx); err != nil {
 			return nil, err
 		}
 		// Sync link items: simplistic approach delete then recreate in priority order.

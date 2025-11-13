@@ -73,6 +73,7 @@ func TestPageRepository_Get(t *testing.T) {
 				}
 			},
 		},
+
 		{
 			name: "empty_id",
 			args: func(f *fixture.Fixture) args { return args{id: ""} },
@@ -344,6 +345,29 @@ func TestPageRepository_Save(t *testing.T) {
 					dpage.ReconstructLink("https://update.com/2", "u2-new", 1),
 					dpage.ReconstructLink("https://update.com/1", "u1-new", 2),
 				}, nil)
+				return want{page: expected}
+			},
+		},
+		{
+			name: "update_add_invited_user",
+			prepare: func(fx *fixture.Fixture) {
+				creator := duser.ReconstructUser("", "creator-join-uid", string(duser.ProviderGoogle), ptr.Ptr("creator-join@example.com"))
+				joiner := duser.ReconstructUser("", "joiner-uid", string(duser.ProviderGoogle), ptr.Ptr("joiner@example.com"))
+				page := dpage.ReconstructPage("", "save-join-source", *creator, "INVJOIN1", nil, nil)
+				fx.NewUser(creator)
+				fx.NewUser(joiner)
+				fx.NewPage(page)
+			},
+			args: func(fx *fixture.Fixture) args {
+				creator := duser.ReconstructUser(fx.ID("creator-join-uid"), "creator-join-uid", string(duser.ProviderGoogle), ptr.Ptr("creator-join@example.com"))
+				joiner := duser.ReconstructUser(fx.ID("joiner-uid"), "joiner-uid", string(duser.ProviderGoogle), ptr.Ptr("joiner@example.com"))
+				updated := dpage.ReconstructPage(fx.ID("save-join-source"), "save-join-source", *creator, "INVJOIN1", nil, duser.Users{joiner})
+				return args{page: updated}
+			},
+			want: func(fx *fixture.Fixture) want {
+				creator := duser.ReconstructUser(fx.ID("creator-join-uid"), "creator-join-uid", string(duser.ProviderGoogle), ptr.Ptr("creator-join@example.com"))
+				joiner := duser.ReconstructUser(fx.ID("joiner-uid"), "joiner-uid", string(duser.ProviderGoogle), ptr.Ptr("joiner@example.com"))
+				expected := dpage.ReconstructPage(fx.ID("save-join-source"), "save-join-source", *creator, "INVJOIN1", nil, duser.Users{joiner})
 				return want{page: expected}
 			},
 		},

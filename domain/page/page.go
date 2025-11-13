@@ -70,6 +70,30 @@ func (p *Page) InvitedUsers() duser.Users {
 	return p.invitedUsers
 }
 
+// Join adds the user to the invited users if the invite code matches.
+func (p *Page) Join(user *duser.User, inviteCode string) error {
+	if user == nil {
+		return ErrNoUserProvided
+	}
+
+	if inviteCode == "" || inviteCode != p.inviteCode {
+		return ErrInvalidInviteCode
+	}
+
+	if p.createdBy.ID() == user.ID() {
+		return ErrCreatorCannotJoin
+	}
+
+	if slices.ContainsFunc(p.invitedUsers, func(u *duser.User) bool {
+		return u.ID() == user.ID()
+	}) {
+		return ErrAlreadyJoined
+	}
+
+	p.invitedUsers = append(p.invitedUsers, user)
+	return nil
+}
+
 // Edit edits the page.
 func (p *Page) Edit(user *duser.User, title string, links Links) error {
 	if err := p.Authorize(user); err != nil {
@@ -154,8 +178,10 @@ func ReconstructPage(id string, title string, createdBy duser.User, inviteCode s
 
 var inviteCodeGenerator = defaultInviteCodeGenerator
 
-const inviteCodeLength = 8
-const inviteCodeAlphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
+const (
+	inviteCodeLength   = 8
+	inviteCodeAlphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
+)
 
 func defaultInviteCodeGenerator() (string, error) {
 	buf := make([]byte, inviteCodeLength)

@@ -59,6 +59,21 @@ func GetErrorReason(err error) *ErrorReason {
 			ErrorCode: CodePageAuthorizationFailed,
 			Message:   "ページの作成者ではないため、操作を実行できません。",
 		}
+	case errors.Is(err, dpage.ErrInvalidInviteCode):
+		return &ErrorReason{
+			ErrorCode: CodePageInvalidParameter,
+			Message:   "招待コードが正しくないため、ページに参加できません。",
+		}
+	case errors.Is(err, dpage.ErrAlreadyJoined):
+		return &ErrorReason{
+			ErrorCode: CodePageInvalidParameter,
+			Message:   "すでにこのページに参加しています。",
+		}
+	case errors.Is(err, dpage.ErrCreatorCannotJoin):
+		return &ErrorReason{
+			ErrorCode: CodePageInvalidParameter,
+			Message:   "ページ作成者は招待コードによる参加を行う必要はありません。",
+		}
 	case errors.Is(err, upage.ErrPageNotFound):
 		return &ErrorReason{
 			ErrorCode: CodePageInvalidParameter,
