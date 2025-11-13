@@ -16,6 +16,7 @@ import (
 	"golang.org/x/sync/errgroup"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
+	"google.golang.org/protobuf/encoding/protojson"
 
 	tsudzuriv1 "github.com/naka-sei/tsudzuri/api/tsudzuri/v1"
 	"github.com/naka-sei/tsudzuri/config"
@@ -26,7 +27,9 @@ import (
 	"github.com/naka-sei/tsudzuri/pkg/cache"
 	authinterceptor "github.com/naka-sei/tsudzuri/pkg/grpc/interceptor/auth"
 	loggerinterceptor "github.com/naka-sei/tsudzuri/pkg/grpc/interceptor/logger"
+	gmiddleware "github.com/naka-sei/tsudzuri/pkg/grpc/middleware"
 	applog "github.com/naka-sei/tsudzuri/pkg/log"
+	presentationgrpc "github.com/naka-sei/tsudzuri/presentation/grpc"
 )
 
 const (
@@ -96,9 +99,48 @@ func main() {
 	server.WithUserCache(userCache)
 
 	grpcAddr := fmt.Sprintf(":%d", conf.GRPCPort)
-	grpcListener, err := net.Listen("tcp", grpcAddr)
+	grpcServer, grpcListener, err := buildGRPCServer(grpcAddr, logger, conf, server, authenticator, userRepo, userCache)
 	if err != nil {
-		sugar.Fatalf("failed to listen on gRPC address: %v", err)
+		sugar.Fatalf("failed to set up gRPC server: %v", err)
+	}
+	defer func() {
+		if err := grpcListener.Close(); err != nil && !errors.Is(err, net.ErrClosed) {
+			sugar.Warnf("failed to close gRPC listener: %v", err)
+		}
+	}()
+
+	gatewayCtx, gatewayCancel := context.WithCancel(context.Background())
+	defer gatewayCancel()
+
+	mux, err := buildGatewayMux(gatewayCtx, conf)
+	if err != nil {
+		sugar.Fatalf("failed to build HTTP gateway: %v", err)
+	}
+
+	httpServer := buildHTTPServer(conf, mux)
+
+	signalCtx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
+	defer stop()
+
+	if err := runServers(signalCtx, sugar, grpcAddr, grpcServer, grpcListener, httpServer, gatewayCancel); err != nil {
+		sugar.Fatalf("server error: %v", err)
+	}
+
+	sugar.Info("servers stopped")
+}
+
+func buildGRPCServer(
+	addr string,
+	logger *zap.Logger,
+	conf *config.Config,
+	server *presentationgrpc.Server,
+	authenticator firebase.Authenticator,
+	userRepo domainuser.UserRepository,
+	userCache cache.Cache[*domainuser.User],
+) (*grpc.Server, net.Listener, error) {
+	listener, err := net.Listen("tcp", addr)
+	if err != nil {
+		return nil, nil, fmt.Errorf("failed to listen on gRPC address: %w", err)
 	}
 
 	grpcServer := grpc.NewServer(
@@ -109,65 +151,106 @@ func main() {
 	)
 	server.RegisterGRPC(grpcServer)
 
-	signalCtx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
-	defer stop()
+	return grpcServer, listener, nil
+}
 
-	group, groupCtx := errgroup.WithContext(signalCtx)
-
-	group.Go(func() error {
-		sugar.Infow("gRPC server starting", zap.String("addr", grpcAddr))
-		if err := grpcServer.Serve(grpcListener); err != nil && !errors.Is(err, grpc.ErrServerStopped) {
-			return err
-		}
-		return nil
-	})
-
-	gatewayCtx, gatewayCancel := context.WithCancel(context.Background())
-	defer gatewayCancel()
+func buildGatewayMux(ctx context.Context, conf *config.Config) (*runtime.ServeMux, error) {
+	opts := []runtime.ServeMuxOption{
+		runtime.WithMarshalerOption(runtime.MIMEWildcard, &runtime.HTTPBodyMarshaler{
+			Marshaler: &runtime.JSONPb{
+				MarshalOptions: protojson.MarshalOptions{
+					UseProtoNames:   true,
+					EmitUnpopulated: false,
+				},
+				UnmarshalOptions: protojson.UnmarshalOptions{
+					DiscardUnknown: true,
+				},
+			},
+		}),
+		runtime.WithIncomingHeaderMatcher(gmiddleware.NewHeaderMatcher()),
+		runtime.WithMetadata(gmiddleware.NewAnnotator()),
+	}
+	mux := runtime.NewServeMux(opts...)
 
 	grpcEndpoint := fmt.Sprintf("localhost:%d", conf.GRPCPort)
 	dialOpts := []grpc.DialOption{grpc.WithTransportCredentials(insecure.NewCredentials())}
 
-	mux := runtime.NewServeMux()
-	if err := tsudzuriv1.RegisterPageServiceHandlerFromEndpoint(gatewayCtx, mux, grpcEndpoint, dialOpts); err != nil {
-		sugar.Fatalf("failed to register page service gateway: %v", err)
+	if err := tsudzuriv1.RegisterPageServiceHandlerFromEndpoint(ctx, mux, grpcEndpoint, dialOpts); err != nil {
+		return nil, fmt.Errorf("failed to register page service gateway: %w", err)
 	}
-	if err := tsudzuriv1.RegisterUserServiceHandlerFromEndpoint(gatewayCtx, mux, grpcEndpoint, dialOpts); err != nil {
-		sugar.Fatalf("failed to register user service gateway: %v", err)
+	if err := tsudzuriv1.RegisterUserServiceHandlerFromEndpoint(ctx, mux, grpcEndpoint, dialOpts); err != nil {
+		return nil, fmt.Errorf("failed to register user service gateway: %w", err)
 	}
 
-	httpServer := &http.Server{
+	return mux, nil
+}
+
+func buildHTTPServer(conf *config.Config, handler http.Handler) *http.Server {
+	return &http.Server{
 		Addr:         fmt.Sprintf(":%d", conf.Port),
-		Handler:      mux,
+		Handler:      handler,
 		ReadTimeout:  serverTimeout,
 		WriteTimeout: serverTimeout,
 		IdleTimeout:  30 * time.Second,
 	}
+}
 
+func runServers(
+	ctx context.Context,
+	sugar *zap.SugaredLogger,
+	grpcAddr string,
+	grpcServer *grpc.Server,
+	grpcListener net.Listener,
+	httpServer *http.Server,
+	gatewayCancel context.CancelFunc,
+) error {
+	group, groupCtx := errgroup.WithContext(ctx)
+
+	runGRPCServer(group, sugar, grpcAddr, grpcServer, grpcListener)
+	runHTTPServer(group, sugar, httpServer)
 	group.Go(func() error {
-		sugar.Infow("HTTP gateway server starting", zap.String("addr", httpServer.Addr))
-		if err := httpServer.ListenAndServe(); err != nil && !errors.Is(err, http.ErrServerClosed) {
+		<-groupCtx.Done()
+		shutdownServers(sugar, grpcServer, httpServer, gatewayCancel)
+		return nil
+	})
+
+	return group.Wait()
+}
+
+func runGRPCServer(group *errgroup.Group, sugar *zap.SugaredLogger, addr string, server *grpc.Server, listener net.Listener) {
+	group.Go(func() error {
+		sugar.Infow("gRPC server starting", zap.String("addr", addr))
+		if err := server.Serve(listener); err != nil && !errors.Is(err, grpc.ErrServerStopped) {
 			return err
 		}
 		return nil
 	})
+}
 
+func runHTTPServer(group *errgroup.Group, sugar *zap.SugaredLogger, server *http.Server) {
 	group.Go(func() error {
-		<-groupCtx.Done()
-		sugar.Info("shutdown initiated")
-		grpcServer.GracefulStop()
-		gatewayCancel()
-		shutdownCtx, cancel := context.WithTimeout(context.Background(), shutdownTimeout)
-		defer cancel()
-		if err := httpServer.Shutdown(shutdownCtx); err != nil && !errors.Is(err, http.ErrServerClosed) {
-			sugar.Errorf("HTTP server shutdown error: %v", err)
+		sugar.Infow("HTTP gateway server starting", zap.String("addr", server.Addr))
+		if err := server.ListenAndServe(); err != nil && !errors.Is(err, http.ErrServerClosed) {
+			return err
 		}
 		return nil
 	})
+}
 
-	if err := group.Wait(); err != nil {
-		sugar.Fatalf("server error: %v", err)
+func shutdownServers(
+	sugar *zap.SugaredLogger,
+	grpcServer *grpc.Server,
+	httpServer *http.Server,
+	gatewayCancel context.CancelFunc,
+) {
+	sugar.Info("shutdown initiated")
+	grpcServer.GracefulStop()
+	gatewayCancel()
+
+	shutdownCtx, cancel := context.WithTimeout(context.Background(), shutdownTimeout)
+	defer cancel()
+
+	if err := httpServer.Shutdown(shutdownCtx); err != nil && !errors.Is(err, http.ErrServerClosed) {
+		sugar.Errorf("HTTP server shutdown error: %v", err)
 	}
-
-	sugar.Info("servers stopped")
 }
