@@ -41,10 +41,8 @@ var (
 		grpcpage.NewDeleteService,
 		grpcpage.NewLinkAddService,
 		grpcpage.NewLinkRemoveService,
-		grpcpage.NewServer,
 		grpcuser.NewCreateService,
 		grpcuser.NewLoginService,
-		grpcuser.NewServer,
 		presentationgrpc.NewServer,
 	)
 	usecaseSet = wire.NewSet(

@@ -20,19 +20,22 @@ import (
 const _ = grpc.SupportPackageIsVersion7
 
 const (
-	PageService_CreatePage_FullMethodName = "/tsudzuri.v1.PageService/CreatePage"
-	PageService_GetPage_FullMethodName    = "/tsudzuri.v1.PageService/GetPage"
-	PageService_ListPages_FullMethodName  = "/tsudzuri.v1.PageService/ListPages"
-	PageService_EditPage_FullMethodName   = "/tsudzuri.v1.PageService/EditPage"
-	PageService_DeletePage_FullMethodName = "/tsudzuri.v1.PageService/DeletePage"
-	PageService_AddLink_FullMethodName    = "/tsudzuri.v1.PageService/AddLink"
-	PageService_RemoveLink_FullMethodName = "/tsudzuri.v1.PageService/RemoveLink"
+	TsudzuriService_CreatePage_FullMethodName = "/tsudzuri.v1.TsudzuriService/CreatePage"
+	TsudzuriService_GetPage_FullMethodName    = "/tsudzuri.v1.TsudzuriService/GetPage"
+	TsudzuriService_ListPages_FullMethodName  = "/tsudzuri.v1.TsudzuriService/ListPages"
+	TsudzuriService_EditPage_FullMethodName   = "/tsudzuri.v1.TsudzuriService/EditPage"
+	TsudzuriService_DeletePage_FullMethodName = "/tsudzuri.v1.TsudzuriService/DeletePage"
+	TsudzuriService_AddLink_FullMethodName    = "/tsudzuri.v1.TsudzuriService/AddLink"
+	TsudzuriService_RemoveLink_FullMethodName = "/tsudzuri.v1.TsudzuriService/RemoveLink"
+	TsudzuriService_CreateUser_FullMethodName = "/tsudzuri.v1.TsudzuriService/CreateUser"
+	TsudzuriService_Login_FullMethodName      = "/tsudzuri.v1.TsudzuriService/Login"
 )
 
-// PageServiceClient is the client API for PageService service.
+// TsudzuriServiceClient is the client API for TsudzuriService service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
-type PageServiceClient interface {
+type TsudzuriServiceClient interface {
+	// Page management
 	CreatePage(ctx context.Context, in *CreatePageRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	GetPage(ctx context.Context, in *GetPageRequest, opts ...grpc.CallOption) (*Page, error)
 	ListPages(ctx context.Context, in *ListPagesRequest, opts ...grpc.CallOption) (*ListPagesResponse, error)
@@ -40,83 +43,105 @@ type PageServiceClient interface {
 	DeletePage(ctx context.Context, in *DeletePageRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	AddLink(ctx context.Context, in *AddLinkRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	RemoveLink(ctx context.Context, in *RemoveLinkRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	// User management
+	CreateUser(ctx context.Context, in *CreateUserRequest, opts ...grpc.CallOption) (*User, error)
+	Login(ctx context.Context, in *LoginRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
 }
 
-type pageServiceClient struct {
+type tsudzuriServiceClient struct {
 	cc grpc.ClientConnInterface
 }
 
-func NewPageServiceClient(cc grpc.ClientConnInterface) PageServiceClient {
-	return &pageServiceClient{cc}
+func NewTsudzuriServiceClient(cc grpc.ClientConnInterface) TsudzuriServiceClient {
+	return &tsudzuriServiceClient{cc}
 }
 
-func (c *pageServiceClient) CreatePage(ctx context.Context, in *CreatePageRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+func (c *tsudzuriServiceClient) CreatePage(ctx context.Context, in *CreatePageRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
 	out := new(emptypb.Empty)
-	err := c.cc.Invoke(ctx, PageService_CreatePage_FullMethodName, in, out, opts...)
+	err := c.cc.Invoke(ctx, TsudzuriService_CreatePage_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *pageServiceClient) GetPage(ctx context.Context, in *GetPageRequest, opts ...grpc.CallOption) (*Page, error) {
+func (c *tsudzuriServiceClient) GetPage(ctx context.Context, in *GetPageRequest, opts ...grpc.CallOption) (*Page, error) {
 	out := new(Page)
-	err := c.cc.Invoke(ctx, PageService_GetPage_FullMethodName, in, out, opts...)
+	err := c.cc.Invoke(ctx, TsudzuriService_GetPage_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *pageServiceClient) ListPages(ctx context.Context, in *ListPagesRequest, opts ...grpc.CallOption) (*ListPagesResponse, error) {
+func (c *tsudzuriServiceClient) ListPages(ctx context.Context, in *ListPagesRequest, opts ...grpc.CallOption) (*ListPagesResponse, error) {
 	out := new(ListPagesResponse)
-	err := c.cc.Invoke(ctx, PageService_ListPages_FullMethodName, in, out, opts...)
+	err := c.cc.Invoke(ctx, TsudzuriService_ListPages_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *pageServiceClient) EditPage(ctx context.Context, in *EditPageRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+func (c *tsudzuriServiceClient) EditPage(ctx context.Context, in *EditPageRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
 	out := new(emptypb.Empty)
-	err := c.cc.Invoke(ctx, PageService_EditPage_FullMethodName, in, out, opts...)
+	err := c.cc.Invoke(ctx, TsudzuriService_EditPage_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *pageServiceClient) DeletePage(ctx context.Context, in *DeletePageRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+func (c *tsudzuriServiceClient) DeletePage(ctx context.Context, in *DeletePageRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
 	out := new(emptypb.Empty)
-	err := c.cc.Invoke(ctx, PageService_DeletePage_FullMethodName, in, out, opts...)
+	err := c.cc.Invoke(ctx, TsudzuriService_DeletePage_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *pageServiceClient) AddLink(ctx context.Context, in *AddLinkRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+func (c *tsudzuriServiceClient) AddLink(ctx context.Context, in *AddLinkRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
 	out := new(emptypb.Empty)
-	err := c.cc.Invoke(ctx, PageService_AddLink_FullMethodName, in, out, opts...)
+	err := c.cc.Invoke(ctx, TsudzuriService_AddLink_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *pageServiceClient) RemoveLink(ctx context.Context, in *RemoveLinkRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+func (c *tsudzuriServiceClient) RemoveLink(ctx context.Context, in *RemoveLinkRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
 	out := new(emptypb.Empty)
-	err := c.cc.Invoke(ctx, PageService_RemoveLink_FullMethodName, in, out, opts...)
+	err := c.cc.Invoke(ctx, TsudzuriService_RemoveLink_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-// PageServiceServer is the server API for PageService service.
-// All implementations must embed UnimplementedPageServiceServer
+func (c *tsudzuriServiceClient) CreateUser(ctx context.Context, in *CreateUserRequest, opts ...grpc.CallOption) (*User, error) {
+	out := new(User)
+	err := c.cc.Invoke(ctx, TsudzuriService_CreateUser_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *tsudzuriServiceClient) Login(ctx context.Context, in *LoginRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	out := new(emptypb.Empty)
+	err := c.cc.Invoke(ctx, TsudzuriService_Login_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+// TsudzuriServiceServer is the server API for TsudzuriService service.
+// All implementations must embed UnimplementedTsudzuriServiceServer
 // for forward compatibility
-type PageServiceServer interface {
+type TsudzuriServiceServer interface {
+	// Page management
 	CreatePage(context.Context, *CreatePageRequest) (*emptypb.Empty, error)
 	GetPage(context.Context, *GetPageRequest) (*Page, error)
 	ListPages(context.Context, *ListPagesRequest) (*ListPagesResponse, error)
@@ -124,334 +149,260 @@ type PageServiceServer interface {
 	DeletePage(context.Context, *DeletePageRequest) (*emptypb.Empty, error)
 	AddLink(context.Context, *AddLinkRequest) (*emptypb.Empty, error)
 	RemoveLink(context.Context, *RemoveLinkRequest) (*emptypb.Empty, error)
-	mustEmbedUnimplementedPageServiceServer()
+	// User management
+	CreateUser(context.Context, *CreateUserRequest) (*User, error)
+	Login(context.Context, *LoginRequest) (*emptypb.Empty, error)
+	mustEmbedUnimplementedTsudzuriServiceServer()
 }
 
-// UnimplementedPageServiceServer must be embedded to have forward compatible implementations.
-type UnimplementedPageServiceServer struct {
+// UnimplementedTsudzuriServiceServer must be embedded to have forward compatible implementations.
+type UnimplementedTsudzuriServiceServer struct {
 }
 
-func (UnimplementedPageServiceServer) CreatePage(context.Context, *CreatePageRequest) (*emptypb.Empty, error) {
+func (UnimplementedTsudzuriServiceServer) CreatePage(context.Context, *CreatePageRequest) (*emptypb.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CreatePage not implemented")
 }
-func (UnimplementedPageServiceServer) GetPage(context.Context, *GetPageRequest) (*Page, error) {
+func (UnimplementedTsudzuriServiceServer) GetPage(context.Context, *GetPageRequest) (*Page, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetPage not implemented")
 }
-func (UnimplementedPageServiceServer) ListPages(context.Context, *ListPagesRequest) (*ListPagesResponse, error) {
+func (UnimplementedTsudzuriServiceServer) ListPages(context.Context, *ListPagesRequest) (*ListPagesResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ListPages not implemented")
 }
-func (UnimplementedPageServiceServer) EditPage(context.Context, *EditPageRequest) (*emptypb.Empty, error) {
+func (UnimplementedTsudzuriServiceServer) EditPage(context.Context, *EditPageRequest) (*emptypb.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method EditPage not implemented")
 }
-func (UnimplementedPageServiceServer) DeletePage(context.Context, *DeletePageRequest) (*emptypb.Empty, error) {
+func (UnimplementedTsudzuriServiceServer) DeletePage(context.Context, *DeletePageRequest) (*emptypb.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method DeletePage not implemented")
 }
-func (UnimplementedPageServiceServer) AddLink(context.Context, *AddLinkRequest) (*emptypb.Empty, error) {
+func (UnimplementedTsudzuriServiceServer) AddLink(context.Context, *AddLinkRequest) (*emptypb.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method AddLink not implemented")
 }
-func (UnimplementedPageServiceServer) RemoveLink(context.Context, *RemoveLinkRequest) (*emptypb.Empty, error) {
+func (UnimplementedTsudzuriServiceServer) RemoveLink(context.Context, *RemoveLinkRequest) (*emptypb.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method RemoveLink not implemented")
 }
-func (UnimplementedPageServiceServer) mustEmbedUnimplementedPageServiceServer() {}
+func (UnimplementedTsudzuriServiceServer) CreateUser(context.Context, *CreateUserRequest) (*User, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method CreateUser not implemented")
+}
+func (UnimplementedTsudzuriServiceServer) Login(context.Context, *LoginRequest) (*emptypb.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Login not implemented")
+}
+func (UnimplementedTsudzuriServiceServer) mustEmbedUnimplementedTsudzuriServiceServer() {}
 
-// UnsafePageServiceServer may be embedded to opt out of forward compatibility for this service.
-// Use of this interface is not recommended, as added methods to PageServiceServer will
+// UnsafeTsudzuriServiceServer may be embedded to opt out of forward compatibility for this service.
+// Use of this interface is not recommended, as added methods to TsudzuriServiceServer will
 // result in compilation errors.
-type UnsafePageServiceServer interface {
-	mustEmbedUnimplementedPageServiceServer()
+type UnsafeTsudzuriServiceServer interface {
+	mustEmbedUnimplementedTsudzuriServiceServer()
 }
 
-func RegisterPageServiceServer(s grpc.ServiceRegistrar, srv PageServiceServer) {
-	s.RegisterService(&PageService_ServiceDesc, srv)
+func RegisterTsudzuriServiceServer(s grpc.ServiceRegistrar, srv TsudzuriServiceServer) {
+	s.RegisterService(&TsudzuriService_ServiceDesc, srv)
 }
 
-func _PageService_CreatePage_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _TsudzuriService_CreatePage_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(CreatePageRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(PageServiceServer).CreatePage(ctx, in)
+		return srv.(TsudzuriServiceServer).CreatePage(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: PageService_CreatePage_FullMethodName,
+		FullMethod: TsudzuriService_CreatePage_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(PageServiceServer).CreatePage(ctx, req.(*CreatePageRequest))
+		return srv.(TsudzuriServiceServer).CreatePage(ctx, req.(*CreatePageRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _PageService_GetPage_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _TsudzuriService_GetPage_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(GetPageRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(PageServiceServer).GetPage(ctx, in)
+		return srv.(TsudzuriServiceServer).GetPage(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: PageService_GetPage_FullMethodName,
+		FullMethod: TsudzuriService_GetPage_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(PageServiceServer).GetPage(ctx, req.(*GetPageRequest))
+		return srv.(TsudzuriServiceServer).GetPage(ctx, req.(*GetPageRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _PageService_ListPages_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _TsudzuriService_ListPages_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(ListPagesRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(PageServiceServer).ListPages(ctx, in)
+		return srv.(TsudzuriServiceServer).ListPages(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: PageService_ListPages_FullMethodName,
+		FullMethod: TsudzuriService_ListPages_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(PageServiceServer).ListPages(ctx, req.(*ListPagesRequest))
+		return srv.(TsudzuriServiceServer).ListPages(ctx, req.(*ListPagesRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _PageService_EditPage_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _TsudzuriService_EditPage_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(EditPageRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(PageServiceServer).EditPage(ctx, in)
+		return srv.(TsudzuriServiceServer).EditPage(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: PageService_EditPage_FullMethodName,
+		FullMethod: TsudzuriService_EditPage_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(PageServiceServer).EditPage(ctx, req.(*EditPageRequest))
+		return srv.(TsudzuriServiceServer).EditPage(ctx, req.(*EditPageRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _PageService_DeletePage_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _TsudzuriService_DeletePage_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(DeletePageRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(PageServiceServer).DeletePage(ctx, in)
+		return srv.(TsudzuriServiceServer).DeletePage(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: PageService_DeletePage_FullMethodName,
+		FullMethod: TsudzuriService_DeletePage_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(PageServiceServer).DeletePage(ctx, req.(*DeletePageRequest))
+		return srv.(TsudzuriServiceServer).DeletePage(ctx, req.(*DeletePageRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _PageService_AddLink_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _TsudzuriService_AddLink_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(AddLinkRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(PageServiceServer).AddLink(ctx, in)
+		return srv.(TsudzuriServiceServer).AddLink(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: PageService_AddLink_FullMethodName,
+		FullMethod: TsudzuriService_AddLink_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(PageServiceServer).AddLink(ctx, req.(*AddLinkRequest))
+		return srv.(TsudzuriServiceServer).AddLink(ctx, req.(*AddLinkRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _PageService_RemoveLink_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _TsudzuriService_RemoveLink_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(RemoveLinkRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(PageServiceServer).RemoveLink(ctx, in)
+		return srv.(TsudzuriServiceServer).RemoveLink(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: PageService_RemoveLink_FullMethodName,
+		FullMethod: TsudzuriService_RemoveLink_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(PageServiceServer).RemoveLink(ctx, req.(*RemoveLinkRequest))
+		return srv.(TsudzuriServiceServer).RemoveLink(ctx, req.(*RemoveLinkRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-// PageService_ServiceDesc is the grpc.ServiceDesc for PageService service.
-// It's only intended for direct use with grpc.RegisterService,
-// and not to be introspected or modified (even as a copy)
-var PageService_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "tsudzuri.v1.PageService",
-	HandlerType: (*PageServiceServer)(nil),
-	Methods: []grpc.MethodDesc{
-		{
-			MethodName: "CreatePage",
-			Handler:    _PageService_CreatePage_Handler,
-		},
-		{
-			MethodName: "GetPage",
-			Handler:    _PageService_GetPage_Handler,
-		},
-		{
-			MethodName: "ListPages",
-			Handler:    _PageService_ListPages_Handler,
-		},
-		{
-			MethodName: "EditPage",
-			Handler:    _PageService_EditPage_Handler,
-		},
-		{
-			MethodName: "DeletePage",
-			Handler:    _PageService_DeletePage_Handler,
-		},
-		{
-			MethodName: "AddLink",
-			Handler:    _PageService_AddLink_Handler,
-		},
-		{
-			MethodName: "RemoveLink",
-			Handler:    _PageService_RemoveLink_Handler,
-		},
-	},
-	Streams:  []grpc.StreamDesc{},
-	Metadata: "tsudzuri/v1/tsudzuri.proto",
-}
-
-const (
-	UserService_CreateUser_FullMethodName = "/tsudzuri.v1.UserService/CreateUser"
-	UserService_Login_FullMethodName      = "/tsudzuri.v1.UserService/Login"
-)
-
-// UserServiceClient is the client API for UserService service.
-//
-// For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
-type UserServiceClient interface {
-	CreateUser(ctx context.Context, in *CreateUserRequest, opts ...grpc.CallOption) (*User, error)
-	Login(ctx context.Context, in *LoginRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
-}
-
-type userServiceClient struct {
-	cc grpc.ClientConnInterface
-}
-
-func NewUserServiceClient(cc grpc.ClientConnInterface) UserServiceClient {
-	return &userServiceClient{cc}
-}
-
-func (c *userServiceClient) CreateUser(ctx context.Context, in *CreateUserRequest, opts ...grpc.CallOption) (*User, error) {
-	out := new(User)
-	err := c.cc.Invoke(ctx, UserService_CreateUser_FullMethodName, in, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *userServiceClient) Login(ctx context.Context, in *LoginRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
-	out := new(emptypb.Empty)
-	err := c.cc.Invoke(ctx, UserService_Login_FullMethodName, in, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-// UserServiceServer is the server API for UserService service.
-// All implementations must embed UnimplementedUserServiceServer
-// for forward compatibility
-type UserServiceServer interface {
-	CreateUser(context.Context, *CreateUserRequest) (*User, error)
-	Login(context.Context, *LoginRequest) (*emptypb.Empty, error)
-	mustEmbedUnimplementedUserServiceServer()
-}
-
-// UnimplementedUserServiceServer must be embedded to have forward compatible implementations.
-type UnimplementedUserServiceServer struct {
-}
-
-func (UnimplementedUserServiceServer) CreateUser(context.Context, *CreateUserRequest) (*User, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method CreateUser not implemented")
-}
-func (UnimplementedUserServiceServer) Login(context.Context, *LoginRequest) (*emptypb.Empty, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method Login not implemented")
-}
-func (UnimplementedUserServiceServer) mustEmbedUnimplementedUserServiceServer() {}
-
-// UnsafeUserServiceServer may be embedded to opt out of forward compatibility for this service.
-// Use of this interface is not recommended, as added methods to UserServiceServer will
-// result in compilation errors.
-type UnsafeUserServiceServer interface {
-	mustEmbedUnimplementedUserServiceServer()
-}
-
-func RegisterUserServiceServer(s grpc.ServiceRegistrar, srv UserServiceServer) {
-	s.RegisterService(&UserService_ServiceDesc, srv)
-}
-
-func _UserService_CreateUser_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _TsudzuriService_CreateUser_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(CreateUserRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(UserServiceServer).CreateUser(ctx, in)
+		return srv.(TsudzuriServiceServer).CreateUser(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: UserService_CreateUser_FullMethodName,
+		FullMethod: TsudzuriService_CreateUser_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(UserServiceServer).CreateUser(ctx, req.(*CreateUserRequest))
+		return srv.(TsudzuriServiceServer).CreateUser(ctx, req.(*CreateUserRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _UserService_Login_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _TsudzuriService_Login_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(LoginRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(UserServiceServer).Login(ctx, in)
+		return srv.(TsudzuriServiceServer).Login(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: UserService_Login_FullMethodName,
+		FullMethod: TsudzuriService_Login_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(UserServiceServer).Login(ctx, req.(*LoginRequest))
+		return srv.(TsudzuriServiceServer).Login(ctx, req.(*LoginRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-// UserService_ServiceDesc is the grpc.ServiceDesc for UserService service.
+// TsudzuriService_ServiceDesc is the grpc.ServiceDesc for TsudzuriService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
-var UserService_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "tsudzuri.v1.UserService",
-	HandlerType: (*UserServiceServer)(nil),
+var TsudzuriService_ServiceDesc = grpc.ServiceDesc{
+	ServiceName: "tsudzuri.v1.TsudzuriService",
+	HandlerType: (*TsudzuriServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
+			MethodName: "CreatePage",
+			Handler:    _TsudzuriService_CreatePage_Handler,
+		},
+		{
+			MethodName: "GetPage",
+			Handler:    _TsudzuriService_GetPage_Handler,
+		},
+		{
+			MethodName: "ListPages",
+			Handler:    _TsudzuriService_ListPages_Handler,
+		},
+		{
+			MethodName: "EditPage",
+			Handler:    _TsudzuriService_EditPage_Handler,
+		},
+		{
+			MethodName: "DeletePage",
+			Handler:    _TsudzuriService_DeletePage_Handler,
+		},
+		{
+			MethodName: "AddLink",
+			Handler:    _TsudzuriService_AddLink_Handler,
+		},
+		{
+			MethodName: "RemoveLink",
+			Handler:    _TsudzuriService_RemoveLink_Handler,
+		},
+		{
 			MethodName: "CreateUser",
-			Handler:    _UserService_CreateUser_Handler,
+			Handler:    _TsudzuriService_CreateUser_Handler,
 		},
 		{
 			MethodName: "Login",
-			Handler:    _UserService_Login_Handler,
+			Handler:    _TsudzuriService_Login_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

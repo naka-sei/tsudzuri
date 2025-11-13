@@ -8,7 +8,8 @@ import "google/protobuf/wrappers.proto";
 
 option go_package = "github.com/naka-sei/tsudzuri/api/protobuf/tsudzuri/v1;tsudzuriv1";
 
-service PageService {
+service TsudzuriService {
+  // Page management
   rpc CreatePage(CreatePageRequest) returns (google.protobuf.Empty) {
     option (google.api.http) = {
       post: "/api/v1/pages"
@@ -45,9 +46,8 @@ service PageService {
   rpc RemoveLink(RemoveLinkRequest) returns (google.protobuf.Empty) {
     option (google.api.http) = {delete: "/api/v1/pages/{page_id}/links"};
   }
-}
 
-service UserService {
+  // User management
   rpc CreateUser(CreateUserRequest) returns (User) {
     option (google.api.http) = {
       post: "/api/v1/users"

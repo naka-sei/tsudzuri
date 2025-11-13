@@ -808,8 +808,8 @@ const file_tsudzuri_v1_tsudzuri_proto_rawDesc = "" +
 	"\x05email\x18\x04 \x01(\v2\x1c.google.protobuf.StringValueR\x05email\"^\n" +
 	"\fLoginRequest\x12\x1a\n" +
 	"\bprovider\x18\x01 \x01(\tR\bprovider\x122\n" +
-	"\x05email\x18\x02 \x01(\v2\x1c.google.protobuf.StringValueR\x05email2\xd0\x05\n" +
-	"\vPageService\x12^\n" +
+	"\x05email\x18\x02 \x01(\v2\x1c.google.protobuf.StringValueR\x05email2\x8b\a\n" +
+	"\x0fTsudzuriService\x12^\n" +
 	"\n" +
 	"CreatePage\x12\x1e.tsudzuri.v1.CreatePageRequest\x1a\x16.google.protobuf.Empty\"\x18\x82\xd3\xe4\x93\x02\x12:\x01*\"\r/api/v1/pages\x12Z\n" +
 	"\aGetPage\x12\x1b.tsudzuri.v1.GetPageRequest\x1a\x11.tsudzuri.v1.Page\"\x1f\x82\xd3\xe4\x93\x02\x19\x12\x17/api/v1/pages/{page_id}\x12a\n" +
@@ -819,8 +819,7 @@ const file_tsudzuri_v1_tsudzuri_proto_rawDesc = "" +
 	"DeletePage\x12\x1e.tsudzuri.v1.DeletePageRequest\x1a\x16.google.protobuf.Empty\"\x1f\x82\xd3\xe4\x93\x02\x19*\x17/api/v1/pages/{page_id}\x12h\n" +
 	"\aAddLink\x12\x1b.tsudzuri.v1.AddLinkRequest\x1a\x16.google.protobuf.Empty\"(\x82\xd3\xe4\x93\x02\":\x01*\"\x1d/api/v1/pages/{page_id}/links\x12k\n" +
 	"\n" +
-	"RemoveLink\x12\x1e.tsudzuri.v1.RemoveLinkRequest\x1a\x16.google.protobuf.Empty\"%\x82\xd3\xe4\x93\x02\x1f*\x1d/api/v1/pages/{page_id}/links2\xc4\x01\n" +
-	"\vUserService\x12Y\n" +
+	"RemoveLink\x12\x1e.tsudzuri.v1.RemoveLinkRequest\x1a\x16.google.protobuf.Empty\"%\x82\xd3\xe4\x93\x02\x1f*\x1d/api/v1/pages/{page_id}/links\x12Y\n" +
 	"\n" +
 	"CreateUser\x12\x1e.tsudzuri.v1.CreateUserRequest\x1a\x11.tsudzuri.v1.User\"\x18\x82\xd3\xe4\x93\x02\x12:\x01*\"\r/api/v1/users\x12Z\n" +
 	"\x05Login\x12\x19.tsudzuri.v1.LoginRequest\x1a\x16.google.protobuf.Empty\"\x1e\x82\xd3\xe4\x93\x02\x18:\x01*\"\x13/api/v1/users/loginB\xaf\x01\n" +
@@ -863,24 +862,24 @@ var file_tsudzuri_v1_tsudzuri_proto_depIdxs = []int32{
 	7,  // 2: tsudzuri.v1.EditPageRequest.links:type_name -> tsudzuri.v1.LinkInput
 	14, // 3: tsudzuri.v1.User.email:type_name -> google.protobuf.StringValue
 	14, // 4: tsudzuri.v1.LoginRequest.email:type_name -> google.protobuf.StringValue
-	2,  // 5: tsudzuri.v1.PageService.CreatePage:input_type -> tsudzuri.v1.CreatePageRequest
-	3,  // 6: tsudzuri.v1.PageService.GetPage:input_type -> tsudzuri.v1.GetPageRequest
-	4,  // 7: tsudzuri.v1.PageService.ListPages:input_type -> tsudzuri.v1.ListPagesRequest
-	6,  // 8: tsudzuri.v1.PageService.EditPage:input_type -> tsudzuri.v1.EditPageRequest
-	8,  // 9: tsudzuri.v1.PageService.DeletePage:input_type -> tsudzuri.v1.DeletePageRequest
-	9,  // 10: tsudzuri.v1.PageService.AddLink:input_type -> tsudzuri.v1.AddLinkRequest
-	10, // 11: tsudzuri.v1.PageService.RemoveLink:input_type -> tsudzuri.v1.RemoveLinkRequest
-	11, // 12: tsudzuri.v1.UserService.CreateUser:input_type -> tsudzuri.v1.CreateUserRequest
-	13, // 13: tsudzuri.v1.UserService.Login:input_type -> tsudzuri.v1.LoginRequest
-	15, // 14: tsudzuri.v1.PageService.CreatePage:output_type -> google.protobuf.Empty
-	0,  // 15: tsudzuri.v1.PageService.GetPage:output_type -> tsudzuri.v1.Page
-	5,  // 16: tsudzuri.v1.PageService.ListPages:output_type -> tsudzuri.v1.ListPagesResponse
-	15, // 17: tsudzuri.v1.PageService.EditPage:output_type -> google.protobuf.Empty
-	15, // 18: tsudzuri.v1.PageService.DeletePage:output_type -> google.protobuf.Empty
-	15, // 19: tsudzuri.v1.PageService.AddLink:output_type -> google.protobuf.Empty
-	15, // 20: tsudzuri.v1.PageService.RemoveLink:output_type -> google.protobuf.Empty
-	12, // 21: tsudzuri.v1.UserService.CreateUser:output_type -> tsudzuri.v1.User
-	15, // 22: tsudzuri.v1.UserService.Login:output_type -> google.protobuf.Empty
+	2,  // 5: tsudzuri.v1.TsudzuriService.CreatePage:input_type -> tsudzuri.v1.CreatePageRequest
+	3,  // 6: tsudzuri.v1.TsudzuriService.GetPage:input_type -> tsudzuri.v1.GetPageRequest
+	4,  // 7: tsudzuri.v1.TsudzuriService.ListPages:input_type -> tsudzuri.v1.ListPagesRequest
+	6,  // 8: tsudzuri.v1.TsudzuriService.EditPage:input_type -> tsudzuri.v1.EditPageRequest
+	8,  // 9: tsudzuri.v1.TsudzuriService.DeletePage:input_type -> tsudzuri.v1.DeletePageRequest
+	9,  // 10: tsudzuri.v1.TsudzuriService.AddLink:input_type -> tsudzuri.v1.AddLinkRequest
+	10, // 11: tsudzuri.v1.TsudzuriService.RemoveLink:input_type -> tsudzuri.v1.RemoveLinkRequest
+	11, // 12: tsudzuri.v1.TsudzuriService.CreateUser:input_type -> tsudzuri.v1.CreateUserRequest
+	13, // 13: tsudzuri.v1.TsudzuriService.Login:input_type -> tsudzuri.v1.LoginRequest
+	15, // 14: tsudzuri.v1.TsudzuriService.CreatePage:output_type -> google.protobuf.Empty
+	0,  // 15: tsudzuri.v1.TsudzuriService.GetPage:output_type -> tsudzuri.v1.Page
+	5,  // 16: tsudzuri.v1.TsudzuriService.ListPages:output_type -> tsudzuri.v1.ListPagesResponse
+	15, // 17: tsudzuri.v1.TsudzuriService.EditPage:output_type -> google.protobuf.Empty
+	15, // 18: tsudzuri.v1.TsudzuriService.DeletePage:output_type -> google.protobuf.Empty
+	15, // 19: tsudzuri.v1.TsudzuriService.AddLink:output_type -> google.protobuf.Empty
+	15, // 20: tsudzuri.v1.TsudzuriService.RemoveLink:output_type -> google.protobuf.Empty
+	12, // 21: tsudzuri.v1.TsudzuriService.CreateUser:output_type -> tsudzuri.v1.User
+	15, // 22: tsudzuri.v1.TsudzuriService.Login:output_type -> google.protobuf.Empty
 	14, // [14:23] is the sub-list for method output_type
 	5,  // [5:14] is the sub-list for method input_type
 	5,  // [5:5] is the sub-list for extension type_name
@@ -901,7 +900,7 @@ func file_tsudzuri_v1_tsudzuri_proto_init() {
 			NumEnums:      0,
 			NumMessages:   14,
 			NumExtensions: 0,
-			NumServices:   2,
+			NumServices:   1,
 		},
 		GoTypes:           file_tsudzuri_v1_tsudzuri_proto_goTypes,
 		DependencyIndexes: file_tsudzuri_v1_tsudzuri_proto_depIdxs,

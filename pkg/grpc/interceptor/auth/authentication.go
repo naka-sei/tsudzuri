@@ -16,7 +16,7 @@ import (
 )
 
 var publicMethods = []string{
-	tsudzuriv1.UserService_CreateUser_FullMethodName,
+	tsudzuriv1.TsudzuriService_CreateUser_FullMethodName,
 }
 
 // NewAuthenticationUnaryServerInterceptor creates a new gRPC unary server interceptor for authentication.

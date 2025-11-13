@@ -6,10 +6,7 @@
   },
   "tags": [
     {
-      "name": "PageService"
-    },
-    {
-      "name": "UserService"
+      "name": "TsudzuriService"
     }
   ],
   "consumes": [
@@ -21,7 +18,7 @@
   "paths": {
     "/api/v1/pages": {
       "get": {
-        "operationId": "PageService_ListPages",
+        "operationId": "TsudzuriService_ListPages",
         "responses": {
           "200": {
             "description": "A successful response.",
@@ -37,11 +34,12 @@
           }
         },
         "tags": [
-          "PageService"
+          "TsudzuriService"
         ]
       },
       "post": {
-        "operationId": "PageService_CreatePage",
+        "summary": "Page management",
+        "operationId": "TsudzuriService_CreatePage",
         "responses": {
           "200": {
             "description": "A successful response.",
@@ -68,13 +66,13 @@
           }
         ],
         "tags": [
-          "PageService"
+          "TsudzuriService"
         ]
       }
     },
     "/api/v1/pages/{pageId}": {
       "get": {
-        "operationId": "PageService_GetPage",
+        "operationId": "TsudzuriService_GetPage",
         "responses": {
           "200": {
             "description": "A successful response.",
@@ -98,11 +96,11 @@
           }
         ],
         "tags": [
-          "PageService"
+          "TsudzuriService"
         ]
       },
       "delete": {
-        "operationId": "PageService_DeletePage",
+        "operationId": "TsudzuriService_DeletePage",
         "responses": {
           "200": {
             "description": "A successful response.",
@@ -127,11 +125,11 @@
           }
         ],
         "tags": [
-          "PageService"
+          "TsudzuriService"
         ]
       },
       "put": {
-        "operationId": "PageService_EditPage",
+        "operationId": "TsudzuriService_EditPage",
         "responses": {
           "200": {
             "description": "A successful response.",
@@ -176,13 +174,13 @@
           }
         ],
         "tags": [
-          "PageService"
+          "TsudzuriService"
         ]
       }
     },
     "/api/v1/pages/{pageId}/links": {
       "delete": {
-        "operationId": "PageService_RemoveLink",
+        "operationId": "TsudzuriService_RemoveLink",
         "responses": {
           "200": {
             "description": "A successful response.",
@@ -213,11 +211,11 @@
           }
         ],
         "tags": [
-          "PageService"
+          "TsudzuriService"
         ]
       },
       "post": {
-        "operationId": "PageService_AddLink",
+        "operationId": "TsudzuriService_AddLink",
         "responses": {
           "200": {
             "description": "A successful response.",
@@ -258,13 +256,14 @@
           }
         ],
         "tags": [
-          "PageService"
+          "TsudzuriService"
         ]
       }
     },
     "/api/v1/users": {
       "post": {
-        "operationId": "UserService_CreateUser",
+        "summary": "User management",
+        "operationId": "TsudzuriService_CreateUser",
         "responses": {
           "200": {
             "description": "A successful response.",
@@ -290,13 +289,13 @@
           }
         ],
         "tags": [
-          "UserService"
+          "TsudzuriService"
         ]
       }
     },
     "/api/v1/users/login": {
       "post": {
-        "operationId": "UserService_Login",
+        "operationId": "TsudzuriService_Login",
         "responses": {
           "200": {
             "description": "A successful response.",
@@ -323,7 +322,7 @@
           }
         ],
         "tags": [
-          "UserService"
+          "TsudzuriService"
         ]
       }
     }

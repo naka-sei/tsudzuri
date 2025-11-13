@@ -56,7 +56,7 @@ func TestNewAuthenticationUnaryServerInterceptor(t *testing.T) {
 			args: args{
 				ctx:      context.Background(),
 				req:      struct{}{},
-				info:     &grpc.UnaryServerInfo{FullMethod: "/tsudzuri.v1.UserService/CreateUser"},
+				info:     &grpc.UnaryServerInfo{FullMethod: "/tsudzuri.v1.TsudzuriService/CreateUser"},
 				useCache: true,
 			},
 			want: want{
@@ -70,7 +70,7 @@ func TestNewAuthenticationUnaryServerInterceptor(t *testing.T) {
 			args: args{
 				ctx:      context.Background(),
 				req:      struct{}{},
-				info:     &grpc.UnaryServerInfo{FullMethod: "/tsudzuri.v1.PageService/GetPage"},
+				info:     &grpc.UnaryServerInfo{FullMethod: "/tsudzuri.v1.TsudzuriService/GetPage"},
 				useCache: true,
 			},
 			want: want{
@@ -84,7 +84,7 @@ func TestNewAuthenticationUnaryServerInterceptor(t *testing.T) {
 			args: args{
 				ctx:      metadata.NewIncomingContext(context.Background(), metadata.New(map[string]string{})),
 				req:      struct{}{},
-				info:     &grpc.UnaryServerInfo{FullMethod: "/tsudzuri.v1.PageService/GetPage"},
+				info:     &grpc.UnaryServerInfo{FullMethod: "/tsudzuri.v1.TsudzuriService/GetPage"},
 				useCache: true,
 			},
 			want: want{
@@ -104,7 +104,7 @@ func TestNewAuthenticationUnaryServerInterceptor(t *testing.T) {
 					"authorization": "Bearer invalid-token",
 				})),
 				req:      struct{}{},
-				info:     &grpc.UnaryServerInfo{FullMethod: "/tsudzuri.v1.PageService/GetPage"},
+				info:     &grpc.UnaryServerInfo{FullMethod: "/tsudzuri.v1.TsudzuriService/GetPage"},
 				useCache: true,
 			},
 			want: want{
@@ -130,7 +130,7 @@ func TestNewAuthenticationUnaryServerInterceptor(t *testing.T) {
 					"authorization": "Bearer valid-token",
 				})),
 				req:      struct{}{},
-				info:     &grpc.UnaryServerInfo{FullMethod: "/tsudzuri.v1.PageService/GetPage"},
+				info:     &grpc.UnaryServerInfo{FullMethod: "/tsudzuri.v1.TsudzuriService/GetPage"},
 				useCache: true,
 			},
 			want: want{
@@ -156,7 +156,7 @@ func TestNewAuthenticationUnaryServerInterceptor(t *testing.T) {
 					"authorization": "Bearer valid-token",
 				})),
 				req:      struct{}{},
-				info:     &grpc.UnaryServerInfo{FullMethod: "/tsudzuri.v1.PageService/GetPage"},
+				info:     &grpc.UnaryServerInfo{FullMethod: "/tsudzuri.v1.TsudzuriService/GetPage"},
 				useCache: true,
 			},
 			want: want{
@@ -184,7 +184,7 @@ func TestNewAuthenticationUnaryServerInterceptor(t *testing.T) {
 					"authorization": "Bearer valid-token",
 				})),
 				req:      struct{}{},
-				info:     &grpc.UnaryServerInfo{FullMethod: "/tsudzuri.v1.PageService/GetPage"},
+				info:     &grpc.UnaryServerInfo{FullMethod: "/tsudzuri.v1.TsudzuriService/GetPage"},
 				useCache: true,
 			},
 			want: want{
@@ -207,7 +207,7 @@ func TestNewAuthenticationUnaryServerInterceptor(t *testing.T) {
 					"authorization": "Bearer valid-token",
 				})),
 				req:      struct{}{},
-				info:     &grpc.UnaryServerInfo{FullMethod: "/tsudzuri.v1.PageService/GetPage"},
+				info:     &grpc.UnaryServerInfo{FullMethod: "/tsudzuri.v1.TsudzuriService/GetPage"},
 				useCache: true,
 			},
 			want: want{
@@ -230,7 +230,7 @@ func TestNewAuthenticationUnaryServerInterceptor(t *testing.T) {
 					"authorization": "Bearer valid-token",
 				})),
 				req:      struct{}{},
-				info:     &grpc.UnaryServerInfo{FullMethod: "/tsudzuri.v1.PageService/GetPage"},
+				info:     &grpc.UnaryServerInfo{FullMethod: "/tsudzuri.v1.TsudzuriService/GetPage"},
 				useCache: false,
 			},
 			want: want{

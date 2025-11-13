@@ -149,7 +149,7 @@ func buildGRPCServer(
 			authinterceptor.NewAuthenticationUnaryServerInterceptor(authenticator, userRepo, userCache),
 		),
 	)
-	server.RegisterGRPC(grpcServer)
+	tsudzuriv1.RegisterTsudzuriServiceServer(grpcServer, server)
 
 	return grpcServer, listener, nil
 }
@@ -175,11 +175,8 @@ func buildGatewayMux(ctx context.Context, conf *config.Config) (*runtime.ServeMu
 	grpcEndpoint := fmt.Sprintf("localhost:%d", conf.GRPCPort)
 	dialOpts := []grpc.DialOption{grpc.WithTransportCredentials(insecure.NewCredentials())}
 
-	if err := tsudzuriv1.RegisterPageServiceHandlerFromEndpoint(ctx, mux, grpcEndpoint, dialOpts); err != nil {
-		return nil, fmt.Errorf("failed to register page service gateway: %w", err)
-	}
-	if err := tsudzuriv1.RegisterUserServiceHandlerFromEndpoint(ctx, mux, grpcEndpoint, dialOpts); err != nil {
-		return nil, fmt.Errorf("failed to register user service gateway: %w", err)
+	if err := tsudzuriv1.RegisterTsudzuriServiceHandlerFromEndpoint(ctx, mux, grpcEndpoint, dialOpts); err != nil {
+		return nil, fmt.Errorf("failed to register tsudzuri service gateway: %w", err)
 	}
 
 	return mux, nil

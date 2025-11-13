@@ -1,45 +1,117 @@
 package presentationgrpc
 
 import (
-	"google.golang.org/grpc"
+	"context"
+
+	"google.golang.org/protobuf/types/known/emptypb"
 
 	tsudzuriv1 "github.com/naka-sei/tsudzuri/api/tsudzuri/v1"
 	duser "github.com/naka-sei/tsudzuri/domain/user"
 	"github.com/naka-sei/tsudzuri/pkg/cache"
+	"github.com/naka-sei/tsudzuri/presentation/errcode"
 	grpcpage "github.com/naka-sei/tsudzuri/presentation/grpc/page"
 	grpcuser "github.com/naka-sei/tsudzuri/presentation/grpc/user"
 )
 
 type Server struct {
-	page *grpcpage.Server
-	user *grpcuser.Server
-}
+	tsudzuriv1.UnimplementedTsudzuriServiceServer
 
-func NewServer(page *grpcpage.Server, user *grpcuser.Server) *Server {
-	return &Server{
-		page: page,
-		user: user,
+	page struct {
+		create     *grpcpage.CreateService
+		get        *grpcpage.GetService
+		list       *grpcpage.ListService
+		edit       *grpcpage.EditService
+		delete     *grpcpage.DeleteService
+		linkAdd    *grpcpage.LinkAddService
+		linkRemove *grpcpage.LinkRemoveService
+	}
+
+	user struct {
+		create *grpcuser.CreateService
+		login  *grpcuser.LoginService
 	}
 }
 
-func (s *Server) RegisterGRPC(registrar grpc.ServiceRegistrar) {
-	tsudzuriv1.RegisterPageServiceServer(registrar, s.page)
-	tsudzuriv1.RegisterUserServiceServer(registrar, s.user)
+func NewServer(
+	createPage *grpcpage.CreateService,
+	getPage *grpcpage.GetService,
+	listPages *grpcpage.ListService,
+	editPage *grpcpage.EditService,
+	deletePage *grpcpage.DeleteService,
+	addLink *grpcpage.LinkAddService,
+	removeLink *grpcpage.LinkRemoveService,
+	createUser *grpcuser.CreateService,
+	loginUser *grpcuser.LoginService,
+) *Server {
+	s := &Server{}
+	s.page = struct {
+		create     *grpcpage.CreateService
+		get        *grpcpage.GetService
+		list       *grpcpage.ListService
+		edit       *grpcpage.EditService
+		delete     *grpcpage.DeleteService
+		linkAdd    *grpcpage.LinkAddService
+		linkRemove *grpcpage.LinkRemoveService
+	}{
+		create:     createPage,
+		get:        getPage,
+		list:       listPages,
+		edit:       editPage,
+		delete:     deletePage,
+		linkAdd:    addLink,
+		linkRemove: removeLink,
+	}
+	s.user = struct {
+		create *grpcuser.CreateService
+		login  *grpcuser.LoginService
+	}{
+		create: createUser,
+		login:  loginUser,
+	}
+	return s
 }
 
 func (s *Server) WithUserCache(c cache.Cache[*duser.User]) {
 	if s == nil {
 		return
 	}
-	if s.user != nil {
-		s.user.WithUserCache(c)
+	if s.user.create != nil {
+		s.user.create.SetCache(c)
 	}
 }
 
-func (s *Server) PageServer() *grpcpage.Server {
-	return s.page
+func (s *Server) CreatePage(ctx context.Context, req *tsudzuriv1.CreatePageRequest) (*emptypb.Empty, error) {
+	return errcode.WrapGRPC(s.page.create.Create(ctx, req))
 }
 
-func (s *Server) UserServer() *grpcuser.Server {
-	return s.user
+func (s *Server) GetPage(ctx context.Context, req *tsudzuriv1.GetPageRequest) (*tsudzuriv1.Page, error) {
+	return errcode.WrapGRPC(s.page.get.Get(ctx, req))
+}
+
+func (s *Server) ListPages(ctx context.Context, req *tsudzuriv1.ListPagesRequest) (*tsudzuriv1.ListPagesResponse, error) {
+	return errcode.WrapGRPC(s.page.list.List(ctx, req))
+}
+
+func (s *Server) EditPage(ctx context.Context, req *tsudzuriv1.EditPageRequest) (*emptypb.Empty, error) {
+	return errcode.WrapGRPC(s.page.edit.Edit(ctx, req))
+}
+
+func (s *Server) DeletePage(ctx context.Context, req *tsudzuriv1.DeletePageRequest) (*emptypb.Empty, error) {
+	return errcode.WrapGRPC(s.page.delete.Delete(ctx, req))
+}
+
+func (s *Server) AddLink(ctx context.Context, req *tsudzuriv1.AddLinkRequest) (*emptypb.Empty, error) {
+	return errcode.WrapGRPC(s.page.linkAdd.Add(ctx, req))
+}
+
+func (s *Server) RemoveLink(ctx context.Context, req *tsudzuriv1.RemoveLinkRequest) (*emptypb.Empty, error) {
+	return errcode.WrapGRPC(s.page.linkRemove.Remove(ctx, req))
+}
+
+func (s *Server) CreateUser(ctx context.Context, req *tsudzuriv1.CreateUserRequest) (*tsudzuriv1.User, error) {
+	return errcode.WrapGRPC(s.user.create.Create(ctx, req))
+}
+
+func (s *Server) Login(ctx context.Context, req *tsudzuriv1.LoginRequest) (*emptypb.Empty, error) {
+	return errcode.WrapGRPC(s.user.login.Login(ctx, req))
 }
