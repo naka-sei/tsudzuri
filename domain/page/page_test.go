@@ -1,6 +1,7 @@
 package page
 
 import (
+	"errors"
 	"testing"
 
 	"github.com/google/go-cmp/cmp"
@@ -18,10 +19,16 @@ func TestPage_NewPage(t *testing.T) {
 		err  error
 	}
 
+	originalGenerator := inviteCodeGenerator
+	t.Cleanup(func() { inviteCodeGenerator = originalGenerator })
+
+	errBoom := errors.New("boom")
+
 	tests := []struct {
 		name string
 		args args
 		want want
+		stub func()
 	}{
 		{
 			name: "new_empty_page",
@@ -33,9 +40,14 @@ func TestPage_NewPage(t *testing.T) {
 				page: &Page{
 					title:      "Title",
 					createdBy:  di.User{},
-					inviteCode: "sample",
+					inviteCode: "INVITE01",
 					links:      Links{},
 				},
+			},
+			stub: func() {
+				inviteCodeGenerator = func() (string, error) {
+					return "INVITE01", nil
+				}
 			},
 		},
 		{
@@ -58,6 +70,21 @@ func TestPage_NewPage(t *testing.T) {
 				err: ErrNoUserProvided,
 			},
 		},
+		{
+			name: "failed_to_generate_invite_code",
+			args: args{
+				title:     "Title",
+				createdBy: &di.User{},
+			},
+			want: want{
+				err: errBoom,
+			},
+			stub: func() {
+				inviteCodeGenerator = func() (string, error) {
+					return "", errBoom
+				}
+			},
+		},
 	}
 
 	for _, tt := range tests {
@@ -65,13 +92,40 @@ func TestPage_NewPage(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 
+			if tt.stub != nil {
+				tt.stub()
+			}
+
 			got, err := NewPage(tt.args.title, tt.args.createdBy)
+			if tt.want.err != nil {
+				testutil.EqualErr(t, tt.want.err, err)
+				return
+			}
+
 			testutil.EqualErr(t, tt.want.err, err)
 
 			if diff := cmp.Diff(tt.want.page, got, cmp.AllowUnexported(Link{}, Page{}, di.User{})); diff != "" {
 				t.Fatalf("page mismatch (-want +got):\n%s", diff)
 			}
 		})
+	}
+}
+
+func TestDefaultInviteCodeGenerator(t *testing.T) {
+	const iterations = 32
+	for i := 0; i < iterations; i++ {
+		code, err := defaultInviteCodeGenerator()
+		if err != nil {
+			t.Fatalf("unexpected error: %v", err)
+		}
+		if len(code) != inviteCodeLength {
+			t.Fatalf("unexpected length: got %d", len(code))
+		}
+		for _, r := range code {
+			if r < '0' || (r > '9' && r < 'A') || r > 'Z' {
+				t.Fatalf("unexpected character: %q", r)
+			}
+		}
 	}
 }
 

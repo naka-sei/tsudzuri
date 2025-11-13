@@ -1,6 +1,8 @@
 package page
 
 import (
+	"crypto/rand"
+	"fmt"
 	"slices"
 
 	duser "github.com/naka-sei/tsudzuri/domain/user"
@@ -25,11 +27,15 @@ func NewPage(title string, createdBy *duser.User) (*Page, error) {
 		return nil, ErrNoUserProvided
 	}
 
+	code, err := inviteCodeGenerator()
+	if err != nil {
+		return nil, fmt.Errorf("generate invite code: %w", err)
+	}
+
 	return &Page{
-		title:     title,
-		createdBy: *createdBy,
-		// TODO: Generate a unique invite code
-		inviteCode: "sample",
+		title:      title,
+		createdBy:  *createdBy,
+		inviteCode: code,
 		links:      Links{},
 	}, nil
 }
@@ -144,4 +150,21 @@ func ReconstructPage(id string, title string, createdBy duser.User, inviteCode s
 		links:        links,
 		invitedUsers: invitedUsers,
 	}
+}
+
+var inviteCodeGenerator = defaultInviteCodeGenerator
+
+const inviteCodeLength = 8
+const inviteCodeAlphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
+
+func defaultInviteCodeGenerator() (string, error) {
+	buf := make([]byte, inviteCodeLength)
+	max := byte(len(inviteCodeAlphabet))
+	if _, err := rand.Read(buf); err != nil {
+		return "", err
+	}
+	for i, b := range buf {
+		buf[i] = inviteCodeAlphabet[b%max]
+	}
+	return string(buf), nil
 }
