@@ -1,0 +1,22 @@
+name: Dev Precheck Deploy
+
+on:
+  push:
+    branches:
+      - precheck
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: dev-precheck-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  deploy-dev:
+    uses: ./.github/workflows/ci.yaml
+    with:
+      environment: dev
+      env_var_file: .github/env/dev.yaml
+    secrets: inherit

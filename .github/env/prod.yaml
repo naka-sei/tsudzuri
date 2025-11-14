@@ -1,4 +1,2 @@
 # Production environment variables for Cloud Run
-DATABASE_URL=postgresql://user:pass@host:5432/db
-FIREBASE_PROJECT_ID=tsudzuri-prod
-NODE_ENV=production
+GOOGLE_CLOUD_PROJECT=tsudzuri-prod
