@@ -7,6 +7,7 @@ import (
 	dpage "github.com/naka-sei/tsudzuri/domain/page"
 	duser "github.com/naka-sei/tsudzuri/domain/user"
 	upage "github.com/naka-sei/tsudzuri/usecase/page"
+	uuser "github.com/naka-sei/tsudzuri/usecase/user"
 	"google.golang.org/genproto/googleapis/rpc/errdetails"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
@@ -111,6 +112,11 @@ func GetErrorReason(err error) *ErrorReason {
 		return &ErrorReason{
 			ErrorCode: CodeUserInternalError,
 			Message:   "メールアドレスが取得できませんでした。再度お試しください。",
+		}
+	case errors.Is(err, uuser.ErrExistingUser):
+		return &ErrorReason{
+			ErrorCode: CodeUserInvalidParameter,
+			Message:   "指定されたユーザーは既に存在しています。",
 		}
 	}
 

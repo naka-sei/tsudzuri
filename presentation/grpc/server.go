@@ -120,7 +120,7 @@ func (s *Server) JoinPage(ctx context.Context, req *tsudzuriv1.JoinPageRequest) 
 	return errcode.WrapGRPC(s.page.join.Join(ctx, req))
 }
 
-func (s *Server) CreateUser(ctx context.Context, req *tsudzuriv1.CreateUserRequest) (*tsudzuriv1.User, error) {
+func (s *Server) CreateUser(ctx context.Context, req *emptypb.Empty) (*tsudzuriv1.User, error) {
 	return errcode.WrapGRPC(s.user.create.Create(ctx, req))
 }
 

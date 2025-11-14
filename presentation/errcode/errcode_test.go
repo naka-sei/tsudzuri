@@ -11,6 +11,7 @@ import (
 	dpage "github.com/naka-sei/tsudzuri/domain/page"
 	duser "github.com/naka-sei/tsudzuri/domain/user"
 	upage "github.com/naka-sei/tsudzuri/usecase/page"
+	uuser "github.com/naka-sei/tsudzuri/usecase/user"
 )
 
 func TestGetErrorReason(t *testing.T) {
@@ -126,6 +127,14 @@ func TestGetErrorReason(t *testing.T) {
 			want: &ErrorReason{
 				ErrorCode: CodeUserInternalError,
 				Message:   "メールアドレスが取得できませんでした。再度お試しください。",
+			},
+		},
+		{
+			name: "user_ExistingUserError",
+			err:  uuser.ErrExistingUser,
+			want: &ErrorReason{
+				ErrorCode: CodeUserInvalidParameter,
+				Message:   "指定されたユーザーは既に存在しています。",
 			},
 		},
 		{

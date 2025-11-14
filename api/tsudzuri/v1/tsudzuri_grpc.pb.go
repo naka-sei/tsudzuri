@@ -47,7 +47,7 @@ type TsudzuriServiceClient interface {
 	RemoveLink(ctx context.Context, in *RemoveLinkRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	JoinPage(ctx context.Context, in *JoinPageRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	// User management
-	CreateUser(ctx context.Context, in *CreateUserRequest, opts ...grpc.CallOption) (*User, error)
+	CreateUser(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*User, error)
 	Login(ctx context.Context, in *LoginRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	Get(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*User, error)
 }
@@ -132,7 +132,7 @@ func (c *tsudzuriServiceClient) JoinPage(ctx context.Context, in *JoinPageReques
 	return out, nil
 }
 
-func (c *tsudzuriServiceClient) CreateUser(ctx context.Context, in *CreateUserRequest, opts ...grpc.CallOption) (*User, error) {
+func (c *tsudzuriServiceClient) CreateUser(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*User, error) {
 	out := new(User)
 	err := c.cc.Invoke(ctx, TsudzuriService_CreateUser_FullMethodName, in, out, opts...)
 	if err != nil {
@@ -173,7 +173,7 @@ type TsudzuriServiceServer interface {
 	RemoveLink(context.Context, *RemoveLinkRequest) (*emptypb.Empty, error)
 	JoinPage(context.Context, *JoinPageRequest) (*emptypb.Empty, error)
 	// User management
-	CreateUser(context.Context, *CreateUserRequest) (*User, error)
+	CreateUser(context.Context, *emptypb.Empty) (*User, error)
 	Login(context.Context, *LoginRequest) (*emptypb.Empty, error)
 	Get(context.Context, *emptypb.Empty) (*User, error)
 	mustEmbedUnimplementedTsudzuriServiceServer()
@@ -207,7 +207,7 @@ func (UnimplementedTsudzuriServiceServer) RemoveLink(context.Context, *RemoveLin
 func (UnimplementedTsudzuriServiceServer) JoinPage(context.Context, *JoinPageRequest) (*emptypb.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method JoinPage not implemented")
 }
-func (UnimplementedTsudzuriServiceServer) CreateUser(context.Context, *CreateUserRequest) (*User, error) {
+func (UnimplementedTsudzuriServiceServer) CreateUser(context.Context, *emptypb.Empty) (*User, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CreateUser not implemented")
 }
 func (UnimplementedTsudzuriServiceServer) Login(context.Context, *LoginRequest) (*emptypb.Empty, error) {
@@ -374,7 +374,7 @@ func _TsudzuriService_JoinPage_Handler(srv interface{}, ctx context.Context, dec
 }
 
 func _TsudzuriService_CreateUser_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(CreateUserRequest)
+	in := new(emptypb.Empty)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -386,7 +386,7 @@ func _TsudzuriService_CreateUser_Handler(srv interface{}, ctx context.Context, d
 		FullMethod: TsudzuriService_CreateUser_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(TsudzuriServiceServer).CreateUser(ctx, req.(*CreateUserRequest))
+		return srv.(TsudzuriServiceServer).CreateUser(ctx, req.(*emptypb.Empty))
 	}
 	return interceptor(ctx, in, info, handler)
 }

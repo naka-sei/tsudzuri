@@ -55,11 +55,8 @@ service TsudzuriService {
   }
 
   // User management
-  rpc CreateUser(CreateUserRequest) returns (User) {
-    option (google.api.http) = {
-      post: "/api/v1/users"
-      body: "*"
-    };
+  rpc CreateUser(google.protobuf.Empty) returns (User) {
+    option (google.api.http) = {post: "/api/v1/users"};
   }
 
   rpc Login(LoginRequest) returns (google.protobuf.Empty) {
@@ -131,10 +128,6 @@ message RemoveLinkRequest {
 message JoinPageRequest {
   string page_id = 1;
   string invite_code = 2;
-}
-
-message CreateUserRequest {
-  string uid = 1;
 }
 
 message User {

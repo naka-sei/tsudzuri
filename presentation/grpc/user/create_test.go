@@ -9,10 +9,12 @@ import (
 	cmp "github.com/google/go-cmp/cmp"
 	"go.uber.org/mock/gomock"
 	"google.golang.org/protobuf/testing/protocmp"
+	"google.golang.org/protobuf/types/known/emptypb"
 
 	tsudzuriv1 "github.com/naka-sei/tsudzuri/api/tsudzuri/v1"
 	duser "github.com/naka-sei/tsudzuri/domain/user"
 	"github.com/naka-sei/tsudzuri/pkg/cache"
+	ctxuser "github.com/naka-sei/tsudzuri/pkg/ctx/user"
 	"github.com/naka-sei/tsudzuri/pkg/testutil"
 	mockcreate "github.com/naka-sei/tsudzuri/usecase/user/mock/mock_create"
 )
@@ -20,7 +22,7 @@ import (
 func TestCreateService_Create(t *testing.T) {
 	type args struct {
 		ctx context.Context
-		req *tsudzuriv1.CreateUserRequest
+		req *emptypb.Empty
 	}
 	type want struct {
 		res *tsudzuriv1.User
@@ -42,8 +44,8 @@ func TestCreateService_Create(t *testing.T) {
 				m.EXPECT().Create(gomock.Any(), "uid-1").Return(u, nil)
 			},
 			args: args{
-				ctx: context.Background(),
-				req: &tsudzuriv1.CreateUserRequest{Uid: "uid-1"},
+				ctx: ctxuser.WithUser(context.Background(), duser.NewUser("uid-1")),
+				req: &emptypb.Empty{},
 			},
 			want: want{
 				res: &tsudzuriv1.User{Id: "id-1", Uid: "uid-1", Provider: "anonymous", JoinedPageIds: []string{}},
@@ -66,8 +68,8 @@ func TestCreateService_Create(t *testing.T) {
 				m.EXPECT().Create(gomock.Any(), "uid-err").Return(nil, errors.New("usecase error"))
 			},
 			args: args{
-				ctx: context.Background(),
-				req: &tsudzuriv1.CreateUserRequest{Uid: "uid-err"},
+				ctx: ctxuser.WithUser(context.Background(), duser.NewUser("uid-err")),
+				req: &emptypb.Empty{},
 			},
 			want: want{
 				res: nil,
@@ -80,12 +82,23 @@ func TestCreateService_Create(t *testing.T) {
 				m.EXPECT().Create(gomock.Any(), "uid-nil").Return(nil, nil)
 			},
 			args: args{
-				ctx: context.Background(),
-				req: &tsudzuriv1.CreateUserRequest{Uid: "uid-nil"},
+				ctx: ctxuser.WithUser(context.Background(), duser.NewUser("uid-nil")),
+				req: &emptypb.Empty{},
 			},
 			want: want{
 				res: nil,
 				err: nil,
+			},
+		},
+		{
+			name: "missing_user_in_context",
+			args: args{
+				ctx: context.Background(),
+				req: &emptypb.Empty{},
+			},
+			want: want{
+				res: nil,
+				err: duser.ErrUserNotFound,
 			},
 		},
 	}

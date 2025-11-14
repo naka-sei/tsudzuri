@@ -51,7 +51,7 @@ func TestNewAuthenticationUnaryServerInterceptor(t *testing.T) {
 		want  want
 	}{
 		{
-			name:  "public_method_should_allow_access_without_authentication",
+			name:  "create_user_without_authentication_should_return_error",
 			setup: nil,
 			args: args{
 				ctx:      context.Background(),
@@ -60,8 +60,8 @@ func TestNewAuthenticationUnaryServerInterceptor(t *testing.T) {
 				useCache: true,
 			},
 			want: want{
-				hasErr:          false,
-				expectUserInCtx: false,
+				hasErr:  true,
+				errCode: codes.Unauthenticated,
 			},
 		},
 		{
@@ -232,6 +232,26 @@ func TestNewAuthenticationUnaryServerInterceptor(t *testing.T) {
 				req:      struct{}{},
 				info:     &grpc.UnaryServerInfo{FullMethod: "/tsudzuri.v1.TsudzuriService/GetPage"},
 				useCache: false,
+			},
+			want: want{
+				hasErr:          false,
+				expectUserInCtx: true,
+			},
+		},
+		{
+			name: "create_user_with_valid_token_should_succeed_without_repository_access",
+			setup: func(f *fields) {
+				f.authenticator.EXPECT().
+					VerifyIDToken(gomock.Any(), "valid-token").
+					Return(testToken, nil)
+			},
+			args: args{
+				ctx: metadata.NewIncomingContext(context.Background(), metadata.New(map[string]string{
+					"authorization": "Bearer valid-token",
+				})),
+				req:      struct{}{},
+				info:     &grpc.UnaryServerInfo{FullMethod: "/tsudzuri.v1.TsudzuriService/CreateUser"},
+				useCache: true,
 			},
 			want: want{
 				hasErr:          false,

@@ -2,7 +2,6 @@ package auth
 
 import (
 	"context"
-	"slices"
 	"strings"
 
 	tsudzuriv1 "github.com/naka-sei/tsudzuri/api/tsudzuri/v1"
@@ -15,10 +14,6 @@ import (
 	"google.golang.org/grpc/metadata"
 )
 
-var publicMethods = []string{
-	tsudzuriv1.TsudzuriService_CreateUser_FullMethodName,
-}
-
 // NewAuthenticationUnaryServerInterceptor creates a new gRPC unary server interceptor for authentication.
 func NewAuthenticationUnaryServerInterceptor(
 	authenticator firebase.Authenticator,
@@ -26,10 +21,6 @@ func NewAuthenticationUnaryServerInterceptor(
 	userCache cache.Cache[*duser.User],
 ) grpc.UnaryServerInterceptor {
 	return func(ctx context.Context, req any, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (any, error) {
-		if slices.Contains(publicMethods, info.FullMethod) {
-			return handler(ctx, req)
-		}
-
 		md, ok := metadata.FromIncomingContext(ctx)
 		if !ok {
 			return nil, errcode.ToGRPCStatus(duser.ErrUserNotFound)
@@ -43,6 +34,10 @@ func NewAuthenticationUnaryServerInterceptor(
 		token, err := authenticator.VerifyIDToken(ctx, idToken)
 		if err != nil {
 			return nil, errcode.ToGRPCStatus(duser.ErrUserNotFound)
+		}
+
+		if info.FullMethod == tsudzuriv1.TsudzuriService_CreateUser_FullMethodName {
+			return handler(ctxuser.WithUser(ctx, duser.NewUser(token.UID)), req)
 		}
 
 		if userCache != nil {

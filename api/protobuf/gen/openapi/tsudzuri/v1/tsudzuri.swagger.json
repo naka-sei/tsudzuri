@@ -322,16 +322,6 @@
             }
           }
         },
-        "parameters": [
-          {
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "$ref": "#/definitions/v1CreateUserRequest"
-            }
-          }
-        ],
         "tags": [
           "TsudzuriService"
         ]
@@ -426,14 +416,6 @@
       "type": "object",
       "properties": {
         "title": {
-          "type": "string"
-        }
-      }
-    },
-    "v1CreateUserRequest": {
-      "type": "object",
-      "properties": {
-        "uid": {
           "type": "string"
         }
       }

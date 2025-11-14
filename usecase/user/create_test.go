@@ -36,36 +36,34 @@ func TestCreateUsecase_Create(t *testing.T) {
 		{
 			name: "success",
 			setup: func(f *fields) {
+				saved := duser.ReconstructUser("id-uid-1", "uid-1", "anonymous", nil)
+				f.userRepo.EXPECT().Get(gomock.Any(), "uid-1").Return(nil, nil)
 				f.txnService.EXPECT().RunInTransaction(gomock.Any(), gomock.Any()).DoAndReturn(
 					func(ctx context.Context, fn func(context.Context) error) error {
 						return fn(ctx)
 					},
 				)
-				user := duser.NewUser("uid-1")
-				f.userRepo.EXPECT().Save(gomock.Any(), user).Return(user, nil)
+				f.userRepo.EXPECT().Save(gomock.Any(), gomock.AssignableToTypeOf(&duser.User{})).Return(saved, nil)
 			},
 			args: args{
 				ctx: context.Background(),
 				uid: "uid-1",
 			},
 			want: want{
-				user: func() *duser.User {
-					u := duser.NewUser("uid-1")
-					return u
-				}(),
-				err: nil,
+				user: duser.ReconstructUser("id-uid-1", "uid-1", "anonymous", nil),
+				err:  nil,
 			},
 		},
 		{
 			name: "user_save_error",
 			setup: func(f *fields) {
+				f.userRepo.EXPECT().Get(gomock.Any(), "fail-uid").Return(nil, nil)
 				f.txnService.EXPECT().RunInTransaction(gomock.Any(), gomock.Any()).DoAndReturn(
 					func(ctx context.Context, fn func(context.Context) error) error {
 						return fn(ctx)
 					},
 				)
-				user := duser.NewUser("fail-uid")
-				f.userRepo.EXPECT().Save(gomock.Any(), user).Return(nil, errors.New("save error"))
+				f.userRepo.EXPECT().Save(gomock.Any(), gomock.AssignableToTypeOf(&duser.User{})).Return(nil, errors.New("save error"))
 			},
 			args: args{
 				ctx: context.Background(),
@@ -79,6 +77,7 @@ func TestCreateUsecase_Create(t *testing.T) {
 		{
 			name: "transaction_error",
 			setup: func(f *fields) {
+				f.userRepo.EXPECT().Get(gomock.Any(), "txn-uid").Return(nil, nil)
 				f.txnService.EXPECT().RunInTransaction(gomock.Any(), gomock.Any()).Return(errors.New("txn error"))
 			},
 			args: args{
@@ -88,6 +87,35 @@ func TestCreateUsecase_Create(t *testing.T) {
 			want: want{
 				user: nil,
 				err:  errors.New("txn error"),
+			},
+		},
+		{
+			name: "user_repository_get_error",
+			setup: func(f *fields) {
+				f.userRepo.EXPECT().Get(gomock.Any(), "get-err").Return(nil, errors.New("get error"))
+			},
+			args: args{
+				ctx: context.Background(),
+				uid: "get-err",
+			},
+			want: want{
+				user: nil,
+				err:  errors.New("get error"),
+			},
+		},
+		{
+			name: "existing_user_error",
+			setup: func(f *fields) {
+				existing := duser.ReconstructUser("existing-id", "existing-uid", "anonymous", nil)
+				f.userRepo.EXPECT().Get(gomock.Any(), "existing-uid").Return(existing, nil)
+			},
+			args: args{
+				ctx: context.Background(),
+				uid: "existing-uid",
+			},
+			want: want{
+				user: nil,
+				err:  ErrExistingUser,
 			},
 		},
 	}

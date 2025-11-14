@@ -17,7 +17,6 @@ require (
 	go.uber.org/mock v0.6.0
 	go.uber.org/zap v1.27.0
 	golang.org/x/sync v0.17.0
-	google.golang.org/genproto v0.0.0-20250922171735-9219d122eba9
 )
 
 require (
@@ -72,6 +71,7 @@ require (
 	golang.org/x/time v0.13.0 // indirect
 	google.golang.org/api v0.249.0 // indirect
 	google.golang.org/appengine/v2 v2.0.6 // indirect
+	google.golang.org/genproto v0.0.0-20250922171735-9219d122eba9 // indirect
 )
 
 require (

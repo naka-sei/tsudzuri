@@ -55,6 +55,13 @@ func (u *createUsecase) Create(ctx context.Context, uid string) (*duser.User, er
 	l := log.LoggerFromContext(ctx)
 	l.Sugar().Infof("Creating user uid: %s", uid)
 
+	if existingUser, err := u.repository.user.Get(ctx, uid); err != nil {
+		return nil, err
+	} else if existingUser != nil {
+		l.Sugar().Infof("User already exists uid: %s", uid)
+		return nil, ErrExistingUser
+	}
+
 	newUser := duser.NewUser(uid)
 	err := u.service.txn.RunInTransaction(ctx, func(ctx context.Context) error {
 		var err error

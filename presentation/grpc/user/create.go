@@ -3,9 +3,12 @@ package user
 import (
 	"context"
 
+	"google.golang.org/protobuf/types/known/emptypb"
+
 	tsudzuriv1 "github.com/naka-sei/tsudzuri/api/tsudzuri/v1"
 	duser "github.com/naka-sei/tsudzuri/domain/user"
 	"github.com/naka-sei/tsudzuri/pkg/cache"
+	ctxuser "github.com/naka-sei/tsudzuri/pkg/ctx/user"
 	"github.com/naka-sei/tsudzuri/pkg/log"
 	"github.com/naka-sei/tsudzuri/pkg/trace"
 	uuser "github.com/naka-sei/tsudzuri/usecase/user"
@@ -28,14 +31,20 @@ func (s *CreateService) SetCache(c cache.Cache[*duser.User]) {
 	s.cache = c
 }
 
-func (s *CreateService) Create(ctx context.Context, req *tsudzuriv1.CreateUserRequest) (*tsudzuriv1.User, error) {
+func (s *CreateService) Create(ctx context.Context, _ *emptypb.Empty) (*tsudzuriv1.User, error) {
 	ctx, end := trace.StartSpan(ctx, "presentation/grpc/user.Create")
 	defer end()
 
 	logger := log.LoggerFromContext(ctx)
-	logger.Sugar().Infof("User create request: uid=%s", req.GetUid())
 
-	u, err := s.usecase.create.Create(ctx, req.GetUid())
+	u, ok := ctxuser.UserFromContext(ctx)
+	if !ok {
+		logger.Sugar().Error("User not found in context")
+		return nil, duser.ErrUserNotFound
+	}
+	logger.Sugar().Infof("User create request: uid=%s", u.UID())
+
+	u, err := s.usecase.create.Create(ctx, u.UID())
 	if err != nil {
 		return nil, err
 	}

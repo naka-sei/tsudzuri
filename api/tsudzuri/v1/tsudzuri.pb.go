@@ -648,50 +648,6 @@ func (x *JoinPageRequest) GetInviteCode() string {
 	return ""
 }
 
-type CreateUserRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Uid           string                 `protobuf:"bytes,1,opt,name=uid,proto3" json:"uid,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *CreateUserRequest) Reset() {
-	*x = CreateUserRequest{}
-	mi := &file_tsudzuri_v1_tsudzuri_proto_msgTypes[12]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *CreateUserRequest) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*CreateUserRequest) ProtoMessage() {}
-
-func (x *CreateUserRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_tsudzuri_v1_tsudzuri_proto_msgTypes[12]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use CreateUserRequest.ProtoReflect.Descriptor instead.
-func (*CreateUserRequest) Descriptor() ([]byte, []int) {
-	return file_tsudzuri_v1_tsudzuri_proto_rawDescGZIP(), []int{12}
-}
-
-func (x *CreateUserRequest) GetUid() string {
-	if x != nil {
-		return x.Uid
-	}
-	return ""
-}
-
 type User struct {
 	state         protoimpl.MessageState  `protogen:"open.v1"`
 	Id            string                  `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
@@ -705,7 +661,7 @@ type User struct {
 
 func (x *User) Reset() {
 	*x = User{}
-	mi := &file_tsudzuri_v1_tsudzuri_proto_msgTypes[13]
+	mi := &file_tsudzuri_v1_tsudzuri_proto_msgTypes[12]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -717,7 +673,7 @@ func (x *User) String() string {
 func (*User) ProtoMessage() {}
 
 func (x *User) ProtoReflect() protoreflect.Message {
-	mi := &file_tsudzuri_v1_tsudzuri_proto_msgTypes[13]
+	mi := &file_tsudzuri_v1_tsudzuri_proto_msgTypes[12]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -730,7 +686,7 @@ func (x *User) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use User.ProtoReflect.Descriptor instead.
 func (*User) Descriptor() ([]byte, []int) {
-	return file_tsudzuri_v1_tsudzuri_proto_rawDescGZIP(), []int{13}
+	return file_tsudzuri_v1_tsudzuri_proto_rawDescGZIP(), []int{12}
 }
 
 func (x *User) GetId() string {
@@ -778,7 +734,7 @@ type LoginRequest struct {
 
 func (x *LoginRequest) Reset() {
 	*x = LoginRequest{}
-	mi := &file_tsudzuri_v1_tsudzuri_proto_msgTypes[14]
+	mi := &file_tsudzuri_v1_tsudzuri_proto_msgTypes[13]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -790,7 +746,7 @@ func (x *LoginRequest) String() string {
 func (*LoginRequest) ProtoMessage() {}
 
 func (x *LoginRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_tsudzuri_v1_tsudzuri_proto_msgTypes[14]
+	mi := &file_tsudzuri_v1_tsudzuri_proto_msgTypes[13]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -803,7 +759,7 @@ func (x *LoginRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use LoginRequest.ProtoReflect.Descriptor instead.
 func (*LoginRequest) Descriptor() ([]byte, []int) {
-	return file_tsudzuri_v1_tsudzuri_proto_rawDescGZIP(), []int{14}
+	return file_tsudzuri_v1_tsudzuri_proto_rawDescGZIP(), []int{13}
 }
 
 func (x *LoginRequest) GetProvider() string {
@@ -862,9 +818,7 @@ const file_tsudzuri_v1_tsudzuri_proto_rawDesc = "" +
 	"\x0fJoinPageRequest\x12\x17\n" +
 	"\apage_id\x18\x01 \x01(\tR\x06pageId\x12\x1f\n" +
 	"\vinvite_code\x18\x02 \x01(\tR\n" +
-	"inviteCode\"%\n" +
-	"\x11CreateUserRequest\x12\x10\n" +
-	"\x03uid\x18\x01 \x01(\tR\x03uid\"\xa0\x01\n" +
+	"inviteCode\"\xa0\x01\n" +
 	"\x04User\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x10\n" +
 	"\x03uid\x18\x02 \x01(\tR\x03uid\x12\x1a\n" +
@@ -873,7 +827,7 @@ const file_tsudzuri_v1_tsudzuri_proto_rawDesc = "" +
 	"\x0fjoined_page_ids\x18\x05 \x03(\tR\rjoinedPageIds\"^\n" +
 	"\fLoginRequest\x12\x1a\n" +
 	"\bprovider\x18\x01 \x01(\tR\bprovider\x122\n" +
-	"\x05email\x18\x02 \x01(\v2\x1c.google.protobuf.StringValueR\x05email2\xc2\b\n" +
+	"\x05email\x18\x02 \x01(\v2\x1c.google.protobuf.StringValueR\x05email2\xb7\b\n" +
 	"\x0fTsudzuriService\x12^\n" +
 	"\n" +
 	"CreatePage\x12\x1e.tsudzuri.v1.CreatePageRequest\x1a\x16.google.protobuf.Empty\"\x18\x82\xd3\xe4\x93\x02\x12:\x01*\"\r/api/v1/pages\x12Z\n" +
@@ -885,9 +839,9 @@ const file_tsudzuri_v1_tsudzuri_proto_rawDesc = "" +
 	"\aAddLink\x12\x1b.tsudzuri.v1.AddLinkRequest\x1a\x16.google.protobuf.Empty\"(\x82\xd3\xe4\x93\x02\":\x01*\"\x1d/api/v1/pages/{page_id}/links\x12k\n" +
 	"\n" +
 	"RemoveLink\x12\x1e.tsudzuri.v1.RemoveLinkRequest\x1a\x16.google.protobuf.Empty\"%\x82\xd3\xe4\x93\x02\x1f*\x1d/api/v1/pages/{page_id}/links\x12i\n" +
-	"\bJoinPage\x12\x1c.tsudzuri.v1.JoinPageRequest\x1a\x16.google.protobuf.Empty\"'\x82\xd3\xe4\x93\x02!:\x01*\"\x1c/api/v1/pages/{page_id}/join\x12Y\n" +
+	"\bJoinPage\x12\x1c.tsudzuri.v1.JoinPageRequest\x1a\x16.google.protobuf.Empty\"'\x82\xd3\xe4\x93\x02!:\x01*\"\x1c/api/v1/pages/{page_id}/join\x12N\n" +
 	"\n" +
-	"CreateUser\x12\x1e.tsudzuri.v1.CreateUserRequest\x1a\x11.tsudzuri.v1.User\"\x18\x82\xd3\xe4\x93\x02\x12:\x01*\"\r/api/v1/users\x12Z\n" +
+	"CreateUser\x12\x16.google.protobuf.Empty\x1a\x11.tsudzuri.v1.User\"\x15\x82\xd3\xe4\x93\x02\x0f\"\r/api/v1/users\x12Z\n" +
 	"\x05Login\x12\x19.tsudzuri.v1.LoginRequest\x1a\x16.google.protobuf.Empty\"\x1e\x82\xd3\xe4\x93\x02\x18:\x01*\"\x13/api/v1/users/login\x12J\n" +
 	"\x03Get\x12\x16.google.protobuf.Empty\x1a\x11.tsudzuri.v1.User\"\x18\x82\xd3\xe4\x93\x02\x12\x12\x10/api/v1/users/meB\xaf\x01\n" +
 	"\x0fcom.tsudzuri.v1B\rTsudzuriProtoP\x01Z@github.com/naka-sei/tsudzuri/api/protobuf/tsudzuri/v1;tsudzuriv1\xa2\x02\x03TXX\xaa\x02\vTsudzuri.V1\xca\x02\vTsudzuri\\V1\xe2\x02\x17Tsudzuri\\V1\\GPBMetadata\xea\x02\fTsudzuri::V1b\x06proto3"
@@ -904,7 +858,7 @@ func file_tsudzuri_v1_tsudzuri_proto_rawDescGZIP() []byte {
 	return file_tsudzuri_v1_tsudzuri_proto_rawDescData
 }
 
-var file_tsudzuri_v1_tsudzuri_proto_msgTypes = make([]protoimpl.MessageInfo, 15)
+var file_tsudzuri_v1_tsudzuri_proto_msgTypes = make([]protoimpl.MessageInfo, 14)
 var file_tsudzuri_v1_tsudzuri_proto_goTypes = []any{
 	(*Page)(nil),                   // 0: tsudzuri.v1.Page
 	(*Link)(nil),                   // 1: tsudzuri.v1.Link
@@ -918,18 +872,17 @@ var file_tsudzuri_v1_tsudzuri_proto_goTypes = []any{
 	(*AddLinkRequest)(nil),         // 9: tsudzuri.v1.AddLinkRequest
 	(*RemoveLinkRequest)(nil),      // 10: tsudzuri.v1.RemoveLinkRequest
 	(*JoinPageRequest)(nil),        // 11: tsudzuri.v1.JoinPageRequest
-	(*CreateUserRequest)(nil),      // 12: tsudzuri.v1.CreateUserRequest
-	(*User)(nil),                   // 13: tsudzuri.v1.User
-	(*LoginRequest)(nil),           // 14: tsudzuri.v1.LoginRequest
-	(*wrapperspb.StringValue)(nil), // 15: google.protobuf.StringValue
-	(*emptypb.Empty)(nil),          // 16: google.protobuf.Empty
+	(*User)(nil),                   // 12: tsudzuri.v1.User
+	(*LoginRequest)(nil),           // 13: tsudzuri.v1.LoginRequest
+	(*wrapperspb.StringValue)(nil), // 14: google.protobuf.StringValue
+	(*emptypb.Empty)(nil),          // 15: google.protobuf.Empty
 }
 var file_tsudzuri_v1_tsudzuri_proto_depIdxs = []int32{
 	1,  // 0: tsudzuri.v1.Page.links:type_name -> tsudzuri.v1.Link
 	0,  // 1: tsudzuri.v1.ListPagesResponse.pages:type_name -> tsudzuri.v1.Page
 	7,  // 2: tsudzuri.v1.EditPageRequest.links:type_name -> tsudzuri.v1.LinkInput
-	15, // 3: tsudzuri.v1.User.email:type_name -> google.protobuf.StringValue
-	15, // 4: tsudzuri.v1.LoginRequest.email:type_name -> google.protobuf.StringValue
+	14, // 3: tsudzuri.v1.User.email:type_name -> google.protobuf.StringValue
+	14, // 4: tsudzuri.v1.LoginRequest.email:type_name -> google.protobuf.StringValue
 	2,  // 5: tsudzuri.v1.TsudzuriService.CreatePage:input_type -> tsudzuri.v1.CreatePageRequest
 	3,  // 6: tsudzuri.v1.TsudzuriService.GetPage:input_type -> tsudzuri.v1.GetPageRequest
 	4,  // 7: tsudzuri.v1.TsudzuriService.ListPages:input_type -> tsudzuri.v1.ListPagesRequest
@@ -938,20 +891,20 @@ var file_tsudzuri_v1_tsudzuri_proto_depIdxs = []int32{
 	9,  // 10: tsudzuri.v1.TsudzuriService.AddLink:input_type -> tsudzuri.v1.AddLinkRequest
 	10, // 11: tsudzuri.v1.TsudzuriService.RemoveLink:input_type -> tsudzuri.v1.RemoveLinkRequest
 	11, // 12: tsudzuri.v1.TsudzuriService.JoinPage:input_type -> tsudzuri.v1.JoinPageRequest
-	12, // 13: tsudzuri.v1.TsudzuriService.CreateUser:input_type -> tsudzuri.v1.CreateUserRequest
-	14, // 14: tsudzuri.v1.TsudzuriService.Login:input_type -> tsudzuri.v1.LoginRequest
-	16, // 15: tsudzuri.v1.TsudzuriService.Get:input_type -> google.protobuf.Empty
-	16, // 16: tsudzuri.v1.TsudzuriService.CreatePage:output_type -> google.protobuf.Empty
+	15, // 13: tsudzuri.v1.TsudzuriService.CreateUser:input_type -> google.protobuf.Empty
+	13, // 14: tsudzuri.v1.TsudzuriService.Login:input_type -> tsudzuri.v1.LoginRequest
+	15, // 15: tsudzuri.v1.TsudzuriService.Get:input_type -> google.protobuf.Empty
+	15, // 16: tsudzuri.v1.TsudzuriService.CreatePage:output_type -> google.protobuf.Empty
 	0,  // 17: tsudzuri.v1.TsudzuriService.GetPage:output_type -> tsudzuri.v1.Page
 	5,  // 18: tsudzuri.v1.TsudzuriService.ListPages:output_type -> tsudzuri.v1.ListPagesResponse
-	16, // 19: tsudzuri.v1.TsudzuriService.EditPage:output_type -> google.protobuf.Empty
-	16, // 20: tsudzuri.v1.TsudzuriService.DeletePage:output_type -> google.protobuf.Empty
-	16, // 21: tsudzuri.v1.TsudzuriService.AddLink:output_type -> google.protobuf.Empty
-	16, // 22: tsudzuri.v1.TsudzuriService.RemoveLink:output_type -> google.protobuf.Empty
-	16, // 23: tsudzuri.v1.TsudzuriService.JoinPage:output_type -> google.protobuf.Empty
-	13, // 24: tsudzuri.v1.TsudzuriService.CreateUser:output_type -> tsudzuri.v1.User
-	16, // 25: tsudzuri.v1.TsudzuriService.Login:output_type -> google.protobuf.Empty
-	13, // 26: tsudzuri.v1.TsudzuriService.Get:output_type -> tsudzuri.v1.User
+	15, // 19: tsudzuri.v1.TsudzuriService.EditPage:output_type -> google.protobuf.Empty
+	15, // 20: tsudzuri.v1.TsudzuriService.DeletePage:output_type -> google.protobuf.Empty
+	15, // 21: tsudzuri.v1.TsudzuriService.AddLink:output_type -> google.protobuf.Empty
+	15, // 22: tsudzuri.v1.TsudzuriService.RemoveLink:output_type -> google.protobuf.Empty
+	15, // 23: tsudzuri.v1.TsudzuriService.JoinPage:output_type -> google.protobuf.Empty
+	12, // 24: tsudzuri.v1.TsudzuriService.CreateUser:output_type -> tsudzuri.v1.User
+	15, // 25: tsudzuri.v1.TsudzuriService.Login:output_type -> google.protobuf.Empty
+	12, // 26: tsudzuri.v1.TsudzuriService.Get:output_type -> tsudzuri.v1.User
 	16, // [16:27] is the sub-list for method output_type
 	5,  // [5:16] is the sub-list for method input_type
 	5,  // [5:5] is the sub-list for extension type_name
@@ -970,7 +923,7 @@ func file_tsudzuri_v1_tsudzuri_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_tsudzuri_v1_tsudzuri_proto_rawDesc), len(file_tsudzuri_v1_tsudzuri_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   15,
+			NumMessages:   14,
 			NumExtensions: 0,
 			NumServices:   1,
 		},
