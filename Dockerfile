@@ -28,7 +28,6 @@ WORKDIR /app
 RUN apk add --no-cache ca-certificates
 
 COPY --from=builder /app/.bin/api /app/api
-COPY --from=builder /app/migrations /app/migrations
 
 EXPOSE 8080
 CMD ["/app/api"]

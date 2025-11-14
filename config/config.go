@@ -2,8 +2,12 @@ package config
 
 import (
 	"context"
+	"fmt"
 	"os"
+	"strings"
 
+	secretmanager "cloud.google.com/go/secretmanager/apiv1"
+	secretmanagerpb "cloud.google.com/go/secretmanager/apiv1/secretmanagerpb"
 	"github.com/kelseyhightower/envconfig"
 )
 
@@ -64,8 +68,65 @@ func (c *Config) loadFromEnv() error {
 
 // loadFromSM loads the configuration from Secret Manager.
 func (c *Config) loadFromSM(ctx context.Context) error {
-	// Implement loading from Secret Manager here.
+	// Determine project to read secrets from. Prefer explicit config value,
+	// but allow environment variable override.
+	project := c.GoogleCloudProject
+	if p := os.Getenv("GOOGLE_CLOUD_PROJECT"); p != "" {
+		project = p
+	}
+
+	if project == "" {
+		return fmt.Errorf("google cloud project is not set")
+	}
+
+	// If no secret key is configured, nothing to do.
+	smKey := strings.TrimSpace(c.TsuzduriDatabaseDSNSMKey)
+	if smKey == "" {
+		return nil
+	}
+
+	// Use shared helper to fetch secret value
+	val, err := FetchSMSecret(ctx, project, smKey)
+	if err != nil {
+		return err
+	}
+	c.TsudzuriDatabaseDSN = strings.TrimSpace(val)
 	return nil
+}
+
+// FetchSMSecret reads the secret payload for the given project and secret key from
+// Secret Manager and returns it as a string. Caller should trim or parse the value
+// as needed.
+func FetchSMSecret(ctx context.Context, project, key string) (string, error) {
+	if project == "" {
+		return "", fmt.Errorf("google cloud project is not set")
+	}
+	if strings.TrimSpace(key) == "" {
+		return "", fmt.Errorf("secret key is empty")
+	}
+
+	client, err := secretmanager.NewClient(ctx)
+	if err != nil {
+		return "", fmt.Errorf("creating secretmanager client: %w", err)
+	}
+	defer func() {
+		if err := client.Close(); err != nil {
+			fmt.Fprintf(os.Stderr, "warning: closing secretmanager client: %v\n", err)
+		}
+	}()
+
+	name := fmt.Sprintf("projects/%s/secrets/%s/versions/latest", project, key)
+	req := &secretmanagerpb.AccessSecretVersionRequest{Name: name}
+	resp, err := client.AccessSecretVersion(ctx, req)
+	if err != nil {
+		return "", fmt.Errorf("accessing secret %s: %w", name, err)
+	}
+
+	if resp.Payload == nil || len(resp.Payload.Data) == 0 {
+		return "", fmt.Errorf("secret %s has empty payload", name)
+	}
+
+	return string(resp.Payload.Data), nil
 }
 
 // OnGoogleCloud determines if the application is running on Google Cloud.

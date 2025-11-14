@@ -10,22 +10,50 @@ on:
         required: true
         type: string
         description: "Path to the environment variables file"
-    secrets:
-      GCP_SA_KEY:
-        required: true
-      GCP_PROJECT_ID:
-        required: true
-
-env:
-  REGION: asia-northeast1
-  IMAGE_NAME: tsudzuri
+      region:
+        required: false
+        type: string
+        default: asia-northeast1
+        description: "GCP region for build/deploy"
+      service_name:
+        required: false
+        type: string
+        default: tsudzuri
+        description: "Cloud Run service name"
+      repository:
+        required: false
+        type: string
+        default: tsudzuri
+        description: "Artifact Registry repository name"
+      image_name:
+        required: false
+        type: string
+        default: tsudzuri
+        description: "Container image name"
+      image_tag:
+        required: false
+        type: string
+        default: ""
+        description: "Optional image tag override"
+      enable_deploy:
+        required: false
+        type: boolean
+        default: true
+        description: "Skip Cloud Run deploy when false"
+      enable_traffic_update:
+        required: false
+        type: boolean
+        default: true
+        description: "Skip traffic shifting when false"
 
 jobs:
   build-and-push:
     runs-on: ubuntu-latest
+    environment: ${{ inputs.environment }}
     outputs:
-      image_ref: ${{ steps.set-output.outputs.image_ref }}
-      version: ${{ steps.set-output.outputs.version }}
+      image_ref: ${{ steps.image-meta.outputs.image_ref }}
+      version: ${{ steps.image-meta.outputs.version }}
+      revision_tag: ${{ steps.image-meta.outputs.revision_tag }}
     steps:
       - uses: actions/checkout@v4
 
@@ -45,52 +73,98 @@ jobs:
         with:
           credentials_json: ${{ secrets.GCP_SA_KEY }}
 
+      - name: Set up gcloud CLI
+        uses: google-github-actions/setup-gcloud@v2
+        with:
+          project_id: ${{ secrets.GCP_PROJECT_ID }}
+
       - name: Configure docker for Artifact Registry
         run: |
-          gcloud auth configure-docker ${{ env.REGION }}-docker.pkg.dev --quiet
+          gcloud auth configure-docker ${{ inputs.region }}-docker.pkg.dev --quiet
 
-      - name: Extract version
+      - name: Prepare image and version
         run: |
-          # refs/tags/v1.0.0 から v1.0.0 を抽出
-          VERSION=$(basename $GITHUB_REF)
-          IMAGE_REF=${{ secrets.GCP_PROJECT_ID }}-${{ env.REGION }}-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/tsudzuri/${{ env.IMAGE_NAME }}:${VERSION}
+          # Use image_tag if provided, otherwise use Git SHA for dev or tag name for prod
+          VERSION="${{ inputs.image_tag }}"
+          if [ -z "$VERSION" ]; then
+            VERSION=${GITHUB_SHA::7}
+          fi
+          
+          # For non-dev environments, extract revision tag from Git refs
+          REVISION_TAG=""
+          if [ "${{ inputs.environment }}" != "dev" ] && [[ "$GITHUB_REF" == refs/tags/* ]]; then
+            # Convert v1.2.3 to v1-2-3 for Cloud Run tag format
+            REVISION_TAG=$(basename "$GITHUB_REF" | tr '.' '-')
+          fi
+          
+          IMAGE_REF=${{ inputs.region }}-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/${{ inputs.repository }}/${{ inputs.image_name }}:${VERSION}
           docker build --build-arg GO_VERSION=${{ steps.get-go-version.outputs.version }} --target runtime -t $IMAGE_REF .
           echo "image_ref=$IMAGE_REF" >> $GITHUB_OUTPUT
           echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "revision_tag=$REVISION_TAG" >> $GITHUB_OUTPUT
         shell: bash
-        id: set-output
+        id: image-meta
 
       - name: Push image
         run: |
-          docker push ${{ steps.set-output.outputs.image_ref }}
+          docker push ${{ steps.image-meta.outputs.image_ref }}
 
   deploy:
     needs: build-and-push
     runs-on: ubuntu-latest
+    if: inputs.enable_deploy == true
     environment: ${{ inputs.environment }}
     outputs:
       service_url: ${{ steps.deploy.outputs.url }}
     steps:
+      - uses: actions/checkout@v4
+
       - name: Authenticate to GCP
         uses: google-github-actions/auth@v2
         with:
           credentials_json: ${{ secrets.GCP_SA_KEY }}
 
-      - name: Deploy to Cloud Run
-        id: deploy
+      - name: Set up gcloud CLI
+        uses: google-github-actions/setup-gcloud@v2
+        with:
+          project_id: ${{ secrets.GCP_PROJECT_ID }}
+
+      - name: Deploy to Cloud Run (with tag)
+        if: needs.build-and-push.outputs.revision_tag != ''
+        id: deploy-with-tag
         uses: google-github-actions/deploy-cloudrun@v2
         with:
-          service: tsudzuri
-          region: ${{ env.REGION }}
-          image: ${{ needs.build-and-push.outputs.image_ref }}
-          tag: ${{ needs.build-and-push.outputs.version }}
+          service: ${{ inputs.service_name }}
+          region: ${{ inputs.region }}
+          image: ${{ inputs.region }}-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/${{ inputs.repository }}/${{ inputs.image_name }}:${{ needs.build-and-push.outputs.version }}
+          tag: ${{ needs.build-and-push.outputs.revision_tag }}
           env_vars_file: ${{ inputs.env_var_file }}
+
+      - name: Deploy to Cloud Run (without tag)
+        if: needs.build-and-push.outputs.revision_tag == ''
+        id: deploy-without-tag
+        uses: google-github-actions/deploy-cloudrun@v2
+        with:
+          service: ${{ inputs.service_name }}
+          region: ${{ inputs.region }}
+          image: ${{ inputs.region }}-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/${{ inputs.repository }}/${{ inputs.image_name }}:${{ needs.build-and-push.outputs.version }}
+          env_vars_file: ${{ inputs.env_var_file }}
+
+      - name: Set deploy output
+        id: deploy
+        run: |
+          if [ -n "${{ steps.deploy-with-tag.outputs.url }}" ]; then
+            echo "url=${{ steps.deploy-with-tag.outputs.url }}" >> $GITHUB_OUTPUT
+          else
+            echo "url=${{ steps.deploy-without-tag.outputs.url }}" >> $GITHUB_OUTPUT
+          fi
 
   update-traffic:
     needs: [deploy, build-and-push]
     runs-on: ubuntu-latest
-    environment: 
-      name: ${{ inputs.environment }}-traffic
+    if: inputs.enable_traffic_update == true && needs.deploy.result == 'success'
+    environment:
+      name: ${{ inputs.environment }}
       url: ${{ needs.deploy.outputs.service_url }}
     steps:
       - name: Authenticate to GCP
@@ -103,8 +177,16 @@ jobs:
           echo "新しいリビジョン: ${{ needs.deploy.outputs.service_url }}"
           echo "バージョン: ${{ needs.build-and-push.outputs.version }}"
 
-      - name: Update traffic
+      - name: Update traffic (dev - to latest)
+        if: needs.build-and-push.outputs.revision_tag == ''
         run: |
-          gcloud run services update-traffic tsudzuri \
-            --region=${{ env.REGION }} \
-            --to-tags=${{ needs.build-and-push.outputs.version }}=100
+          gcloud run services update-traffic ${{ inputs.service_name }} \
+            --region=${{ inputs.region }} \
+            --to-latest
+
+      - name: Update traffic (prod - to tag)
+        if: needs.build-and-push.outputs.revision_tag != ''
+        run: |
+          gcloud run services update-traffic ${{ inputs.service_name }} \
+            --region=${{ inputs.region }} \
+            --to-tags "${{ needs.build-and-push.outputs.revision_tag }}=100"

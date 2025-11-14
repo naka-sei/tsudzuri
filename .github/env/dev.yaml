@@ -1,0 +1,2 @@
+# Development environment variables for Cloud Run
+GOOGLE_CLOUD_PROJECT: "tsudzuri-dev"
