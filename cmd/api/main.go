@@ -12,6 +12,7 @@ import (
 	"time"
 
 	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
+	"go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc"
 	"go.uber.org/zap"
 	"golang.org/x/sync/errgroup"
 	"google.golang.org/grpc"
@@ -145,6 +146,7 @@ func buildGRPCServer(
 
 	grpcServer := grpc.NewServer(
 		grpc.ChainUnaryInterceptor(
+			otelgrpc.UnaryServerInterceptor(),
 			loggerinterceptor.NewLoggerUnaryServerInterceptor(logger, conf.GoogleCloudProject),
 			authinterceptor.NewAuthenticationUnaryServerInterceptor(authenticator, userRepo, userCache),
 		),
