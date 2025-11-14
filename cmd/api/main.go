@@ -12,6 +12,8 @@ import (
 	"time"
 
 	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
+	otelgrpc "go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc"
+	"go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp"
 	"go.uber.org/zap"
 	"golang.org/x/sync/errgroup"
 	"google.golang.org/grpc"
@@ -144,6 +146,7 @@ func buildGRPCServer(
 	}
 
 	grpcServer := grpc.NewServer(
+		grpc.StatsHandler(otelgrpc.NewServerHandler()),
 		grpc.ChainUnaryInterceptor(
 			loggerinterceptor.NewLoggerUnaryServerInterceptor(logger, conf.GoogleCloudProject),
 			authinterceptor.NewAuthenticationUnaryServerInterceptor(authenticator, userRepo, userCache),
@@ -173,7 +176,10 @@ func buildGatewayMux(ctx context.Context, conf *config.Config) (*runtime.ServeMu
 	mux := runtime.NewServeMux(opts...)
 
 	grpcEndpoint := fmt.Sprintf("localhost:%d", conf.GRPCPort)
-	dialOpts := []grpc.DialOption{grpc.WithTransportCredentials(insecure.NewCredentials())}
+	dialOpts := []grpc.DialOption{
+		grpc.WithTransportCredentials(insecure.NewCredentials()),
+		grpc.WithStatsHandler(otelgrpc.NewClientHandler()),
+	}
 
 	if err := tsudzuriv1.RegisterTsudzuriServiceHandlerFromEndpoint(ctx, mux, grpcEndpoint, dialOpts); err != nil {
 		return nil, fmt.Errorf("failed to register tsudzuri service gateway: %w", err)
@@ -185,7 +191,7 @@ func buildGatewayMux(ctx context.Context, conf *config.Config) (*runtime.ServeMu
 func buildHTTPServer(conf *config.Config, handler http.Handler) *http.Server {
 	return &http.Server{
 		Addr:         fmt.Sprintf(":%d", conf.Port),
-		Handler:      handler,
+		Handler:      otelhttp.NewHandler(handler, "tsudzuri-http-gateway"),
 		ReadTimeout:  serverTimeout,
 		WriteTimeout: serverTimeout,
 		IdleTimeout:  30 * time.Second,
