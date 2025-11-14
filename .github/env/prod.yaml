@@ -1,2 +1,2 @@
 # Production environment variables for Cloud Run
-GOOGLE_CLOUD_PROJECT=tsudzuri-prod
+GOOGLE_CLOUD_PROJECT: "tsudzuri-prod"

@@ -18,5 +18,5 @@ jobs:
     uses: ./.github/workflows/ci.yaml
     with:
       environment: dev
-      env_var_file: .github/env/dev.yaml
+      env_var_file: ./.github/env/dev.yaml
     secrets: inherit
