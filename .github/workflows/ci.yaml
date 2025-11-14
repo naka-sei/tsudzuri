@@ -55,15 +55,11 @@ on:
         type: string
         default: ""
         description: "Override tag used for traffic update"
-    secrets:
-      GCP_SA_KEY:
-        required: true
-      GCP_PROJECT_ID:
-        required: true
 
 jobs:
   build-and-push:
     runs-on: ubuntu-latest
+    environment: ${{ inputs.environment }}
     outputs:
       image_ref: ${{ steps.set-output.outputs.image_ref }}
       version: ${{ steps.set-output.outputs.version }}
@@ -148,8 +144,8 @@ jobs:
     needs: [deploy, build-and-push]
     runs-on: ubuntu-latest
     if: inputs.enable_traffic_update == true && needs.deploy.result == 'success'
-    environment: 
-      name: ${{ inputs.environment }}-traffic
+    environment:
+      name: ${{ inputs.environment }}
       url: ${{ needs.deploy.outputs.service_url }}
     steps:
       - name: Authenticate to GCP
