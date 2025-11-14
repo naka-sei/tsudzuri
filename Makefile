@@ -1,4 +1,4 @@
-.PHONY: all build dev test clean lint up down db/up db/down get-go-version install-tools fmt check-fmt wire
+.PHONY: all build dev test clean lint up down db/up db/down get-go-version install-tools fmt check-fmt wire swagger swagger/down
 
 # central Go version
 # Default to the stable project version. Change here to pin Go for CI/dev.
@@ -45,7 +45,7 @@ clean:
 # Docker
 up:
 	# pass the configured GO_VERSION into docker compose so builds use the managed version
-	GO_VERSION=$(GO_VERSION) docker compose up -d --build api db
+	GO_VERSION=$(GO_VERSION) docker compose up -d --build api db swagger-ui
 
 down:
 	docker compose down
@@ -140,3 +140,13 @@ generate:
 
 generate/wire:
 	@$(WIRE) ./cmd/api
+
+# Swagger UI
+swagger:
+	# Start only the swagger-ui service to browse the generated OpenAPI spec
+	GO_VERSION=$(GO_VERSION) docker compose up -d --build swagger-ui
+
+swagger/down:
+	# Stop and remove the swagger-ui service
+	docker compose stop swagger-ui || true
+	docker compose rm -f -v swagger-ui || true
