@@ -79,4 +79,18 @@ func (f *Fixture) NewPage(page *dpage.Page) {
 		}
 		return rows
 	}()...)
+
+	for _, invited := range page.InvitedUsers() {
+		if invited == nil {
+			panic("cannot add nil invited user")
+		}
+		key := invited.ID()
+		if key == "" {
+			key = invited.UID()
+		}
+		if key == "" {
+			panic("invited user must have id or uid")
+		}
+		f.pageUsers = append(f.pageUsers, pageUserRow{pageKey: title, userKey: key})
+	}
 }

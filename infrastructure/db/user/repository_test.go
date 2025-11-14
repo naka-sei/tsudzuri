@@ -8,6 +8,7 @@ import (
 	"github.com/google/go-cmp/cmp"
 	"github.com/google/go-cmp/cmp/cmpopts"
 	"github.com/google/uuid"
+	dpage "github.com/naka-sei/tsudzuri/domain/page"
 	duser "github.com/naka-sei/tsudzuri/domain/user"
 	"github.com/naka-sei/tsudzuri/infrastructure/db/fixture"
 	"github.com/naka-sei/tsudzuri/infrastructure/db/postgres"
@@ -40,6 +41,30 @@ func TestUserRepository_Get(t *testing.T) {
 			args: args{id: "uid-get"},
 			want: func(fx *fixture.Fixture) want {
 				return want{user: duser.ReconstructUser(fx.ID("uid-get"), "uid-get", string(duser.ProviderGoogle), ptr.Ptr("g@example.com"))}
+			},
+		},
+		{
+			name: "success_with_joined_pages",
+			prepare: func(fx *fixture.Fixture) {
+				invited := duser.ReconstructUser("", "uid-join", string(duser.ProviderGoogle), ptr.Ptr("join@example.com"))
+				fx.NewUser(invited)
+				creator := duser.ReconstructUser("", "creator", string(duser.ProviderGoogle), ptr.Ptr("creator@example.com"))
+				fx.NewUser(creator)
+				page := dpage.ReconstructPage("", "page-join", *creator, "joincode", nil, nil)
+				fx.NewPage(page)
+				fx.AddPageUser("page-join", "uid-join")
+			},
+			args: args{id: "uid-join"},
+			want: func(fx *fixture.Fixture) want {
+				return want{
+					user: duser.ReconstructUser(
+						fx.ID("uid-join"),
+						"uid-join",
+						string(duser.ProviderGoogle),
+						ptr.Ptr("join@example.com"),
+						duser.WithJoinedPageIDs([]string{fx.ID("page-join")}),
+					),
+				}
 			},
 		},
 		{name: "empty_id", args: args{id: ""}, want: func(fx *fixture.Fixture) want { return want{} }},
@@ -94,6 +119,30 @@ func TestUserRepository_List(t *testing.T) {
 			},
 			want: func(fx *fixture.Fixture) want {
 				return want{user: duser.ReconstructUser(fx.ID("uid-list-2"), "uid-list-2", string(duser.ProviderGoogle), ptr.Ptr("l2@example.com"))}
+			},
+		},
+		{
+			name: "success_with_joined_pages",
+			prepare: func(fx *fixture.Fixture) {
+				invited := duser.ReconstructUser("", "uid-list-join", string(duser.ProviderGoogle), ptr.Ptr("join@example.com"))
+				fx.NewUser(invited)
+				creator := duser.ReconstructUser("", "creator-list", string(duser.ProviderGoogle), ptr.Ptr("creator@example.com"))
+				fx.NewUser(creator)
+				page := dpage.ReconstructPage("", "page-list-join", *creator, "listcode", nil, nil)
+				fx.NewPage(page)
+				fx.AddPageUser("page-list-join", "uid-list-join")
+			},
+			args: func(fx *fixture.Fixture) args {
+				return args{opts: []duser.SearchOption{duser.WithIDs([]string{fx.ID("uid-list-join")})}}
+			},
+			want: func(fx *fixture.Fixture) want {
+				return want{user: duser.ReconstructUser(
+					fx.ID("uid-list-join"),
+					"uid-list-join",
+					string(duser.ProviderGoogle),
+					ptr.Ptr("join@example.com"),
+					duser.WithJoinedPageIDs([]string{fx.ID("page-list-join")}),
+				)}
 			},
 		},
 		{

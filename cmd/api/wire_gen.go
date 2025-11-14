@@ -11,7 +11,7 @@ import (
 	"github.com/naka-sei/tsudzuri/infrastructure/db/page"
 	"github.com/naka-sei/tsudzuri/infrastructure/db/postgres"
 	"github.com/naka-sei/tsudzuri/infrastructure/db/user"
-	"github.com/naka-sei/tsudzuri/presentation/grpc"
+	presentationgrpc "github.com/naka-sei/tsudzuri/presentation/grpc"
 	page3 "github.com/naka-sei/tsudzuri/presentation/grpc/page"
 	user3 "github.com/naka-sei/tsudzuri/presentation/grpc/user"
 	page2 "github.com/naka-sei/tsudzuri/usecase/page"
@@ -45,7 +45,9 @@ func InitializePresentationServer(dbConn *postgres.Connection) (*presentationgrp
 	userCreateService := user3.NewCreateService(userCreateUsecase)
 	loginUsecase := user2.NewLoginUsecase(userRepository, transactionService)
 	loginService := user3.NewLoginService(loginUsecase)
-	server := presentationgrpc.NewServer(createService, getService, listService, editService, deleteService, linkAddService, linkRemoveService, joinService, userCreateService, loginService)
+	userGetUsecase := user2.NewGetUsecase(userRepository)
+	userGetService := user3.NewGetService(userGetUsecase)
+	server := presentationgrpc.NewServer(createService, getService, listService, editService, deleteService, linkAddService, linkRemoveService, joinService, userCreateService, loginService, userGetService)
 	return server, nil
 }
 
@@ -56,8 +58,8 @@ func transactionServiceProvider(dbc *postgres.Connection) service.TransactionSer
 }
 
 var (
-	presentationSet = wire.NewSet(page3.NewCreateService, page3.NewGetService, page3.NewListService, page3.NewEditService, page3.NewDeleteService, page3.NewLinkAddService, page3.NewLinkRemoveService, page3.NewJoinService, user3.NewCreateService, user3.NewLoginService, presentationgrpc.NewServer)
-	usecaseSet      = wire.NewSet(page2.NewCreateUsecase, page2.NewGetUsecase, page2.NewListUsecase, page2.NewEditUsecase, page2.NewDeleteUsecase, page2.NewLinkAddUsecase, page2.NewLinkRemoveUsecase, page2.NewJoinUsecase, user2.NewCreateUsecase, user2.NewLoginUsecase)
+	presentationSet = wire.NewSet(page3.NewCreateService, page3.NewGetService, page3.NewListService, page3.NewEditService, page3.NewDeleteService, page3.NewLinkAddService, page3.NewLinkRemoveService, page3.NewJoinService, user3.NewCreateService, user3.NewLoginService, user3.NewGetService, presentationgrpc.NewServer)
+	usecaseSet      = wire.NewSet(page2.NewCreateUsecase, page2.NewGetUsecase, page2.NewListUsecase, page2.NewEditUsecase, page2.NewDeleteUsecase, page2.NewLinkAddUsecase, page2.NewLinkRemoveUsecase, page2.NewJoinUsecase, user2.NewCreateUsecase, user2.NewLoginUsecase, user2.NewGetUsecase)
 	repoSet         = wire.NewSet(page.NewPageRepository, user.NewUserRepository)
 	serviceSet      = wire.NewSet(
 		transactionServiceProvider,

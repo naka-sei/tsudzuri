@@ -2,6 +2,7 @@ package fixture
 
 import (
 	"context"
+	"fmt"
 	"testing"
 
 	guuid "github.com/google/uuid"
@@ -15,6 +16,7 @@ type Fixture struct {
 	users     []userRow
 	pages     []pageRow
 	linkItems []linkItemRow
+	pageUsers []pageUserRow
 
 	// alias to generated UUID mapping (after Setup)
 	idMap map[string]guuid.UUID
@@ -22,6 +24,19 @@ type Fixture struct {
 
 // New creates an empty Fixture.
 func New() *Fixture { return &Fixture{idMap: map[string]guuid.UUID{}} }
+
+type pageUserRow struct {
+	pageKey string
+	userKey string
+}
+
+// AddPageUser registers a relation between a page and a user using either alias or UUID.
+func (f *Fixture) AddPageUser(pageAliasOrID, userAliasOrID string) {
+	if pageAliasOrID == "" || userAliasOrID == "" {
+		panic("pageAliasOrID and userAliasOrID must be non-empty")
+	}
+	f.pageUsers = append(f.pageUsers, pageUserRow{pageKey: pageAliasOrID, userKey: userAliasOrID})
+}
 
 func (f *Fixture) Setup(ctx context.Context, t *testing.T, client *ent.Client) error {
 	t.Helper()
@@ -78,6 +93,28 @@ func (f *Fixture) Setup(ctx context.Context, t *testing.T, client *ent.Client) e
 		_, err := client.LinkItem.CreateBulk(builders...).Save(ctx)
 		if err != nil {
 			return err
+		}
+	}
+
+	if len(f.pageUsers) > 0 {
+		grouped := make(map[guuid.UUID][]guuid.UUID)
+		for _, pu := range f.pageUsers {
+			pageIDStr := f.resolveID(pu.pageKey)
+			pageUUID, err := guuid.Parse(pageIDStr)
+			if err != nil {
+				return fmt.Errorf("invalid page reference %q: %w", pu.pageKey, err)
+			}
+			userIDStr := f.resolveID(pu.userKey)
+			userUUID, err := guuid.Parse(userIDStr)
+			if err != nil {
+				return fmt.Errorf("invalid user reference %q: %w", pu.userKey, err)
+			}
+			grouped[pageUUID] = append(grouped[pageUUID], userUUID)
+		}
+		for pageUUID, userUUIDs := range grouped {
+			if err := client.Page.UpdateOneID(pageUUID).AddInvitedUserIDs(userUUIDs...).Exec(ctx); err != nil {
+				return fmt.Errorf("failed to insert page_users: %w", err)
+			}
 		}
 	}
 

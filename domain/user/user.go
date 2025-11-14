@@ -36,6 +36,13 @@ func (u *User) Email() *string {
 	return u.email
 }
 
+// JoinedPageIDs returns the identifiers of pages the user has joined.
+func (u *User) JoinedPageIDs() []string {
+	ids := make([]string, len(u.joinedPageIDs))
+	copy(ids, u.joinedPageIDs)
+	return ids
+}
+
 type Users []*User
 
 // Login logins the user with the given uid, provider, and email.
@@ -77,6 +84,12 @@ type ReconstructOption func(*User)
 
 func WithJoinedPageIDs(pageIDs []string) ReconstructOption {
 	return func(u *User) {
-		u.joinedPageIDs = pageIDs
+		if len(pageIDs) == 0 {
+			u.joinedPageIDs = nil
+			return
+		}
+		ids := make([]string, len(pageIDs))
+		copy(ids, pageIDs)
+		u.joinedPageIDs = ids
 	}
 }

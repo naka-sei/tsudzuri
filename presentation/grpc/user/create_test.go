@@ -46,7 +46,7 @@ func TestCreateService_Create(t *testing.T) {
 				req: &tsudzuriv1.CreateUserRequest{Uid: "uid-1"},
 			},
 			want: want{
-				res: &tsudzuriv1.User{Id: "id-1", Uid: "uid-1", Provider: "anonymous"},
+				res: &tsudzuriv1.User{Id: "id-1", Uid: "uid-1", Provider: "anonymous", JoinedPageIds: []string{}},
 				err: nil,
 			},
 			do: func(t *testing.T, c cache.Cache[*duser.User]) {

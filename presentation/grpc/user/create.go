@@ -9,7 +9,6 @@ import (
 	"github.com/naka-sei/tsudzuri/pkg/log"
 	"github.com/naka-sei/tsudzuri/pkg/trace"
 	uuser "github.com/naka-sei/tsudzuri/usecase/user"
-	"google.golang.org/protobuf/types/known/wrapperspb"
 )
 
 type CreateService struct {
@@ -44,14 +43,7 @@ func (s *CreateService) Create(ctx context.Context, req *tsudzuriv1.CreateUserRe
 		return nil, nil
 	}
 
-	resp := &tsudzuriv1.User{
-		Id:       u.ID(),
-		Uid:      u.UID(),
-		Provider: string(u.Provider()),
-	}
-	if email := u.Email(); email != nil {
-		resp.Email = wrapperspb.String(*email)
-	}
+	resp := toProtoUser(u)
 
 	if s.cache != nil {
 		s.cache.Set(ctx, u.UID(), u)

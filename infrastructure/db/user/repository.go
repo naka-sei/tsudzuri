@@ -27,7 +27,7 @@ func (r *userRepository) Get(ctx context.Context, uid string) (*duser.User, erro
 		return nil, nil
 	}
 	client := r.conn.ReadOnlyDB(ctx)
-	found, err := client.User.Query().Where(entuser.UIDEQ(uid)).Only(ctx)
+	found, err := client.User.Query().Where(entuser.UIDEQ(uid)).WithInvitedPages().Only(ctx)
 	if err != nil {
 		if ent.IsNotFound(err) {
 			return nil, nil
@@ -55,7 +55,7 @@ func (r *userRepository) List(ctx context.Context, options ...duser.SearchOption
 			if err != nil { // ignore invalid id
 				continue
 			}
-			u, err := client.User.Query().Where(entuser.IDEQ(uid)).Only(ctx)
+			u, err := client.User.Query().Where(entuser.IDEQ(uid)).WithInvitedPages().Only(ctx)
 			if err != nil {
 				if ent.IsNotFound(err) {
 					continue
@@ -110,10 +110,17 @@ func (r *userRepository) entToDomain(u *ent.User) *duser.User {
 	if u == nil {
 		return nil
 	}
-	return duser.ReconstructUser(u.ID.String(), u.UID, string(u.Provider), u.Email)
+	var joinedIDs []string
+	if pages, err := u.Edges.InvitedPagesOrErr(); err == nil {
+		joinedIDs = make([]string, 0, len(pages))
+		for _, p := range pages {
+			joinedIDs = append(joinedIDs, p.ID.String())
+		}
+	}
+	return duser.ReconstructUser(u.ID.String(), u.UID, string(u.Provider), u.Email, duser.WithJoinedPageIDs(joinedIDs))
 }
 
 // setUserID reconstructs user with new ID.
 func (r *userRepository) setUserID(u *duser.User, id string) {
-	*u = *duser.ReconstructUser(id, u.UID(), string(u.Provider()), u.Email())
+	*u = *duser.ReconstructUser(id, u.UID(), string(u.Provider()), u.Email(), duser.WithJoinedPageIDs(u.JoinedPageIDs()))
 }

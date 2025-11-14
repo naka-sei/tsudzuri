@@ -120,6 +120,7 @@ fmt:
 deps:
 	go mod tidy
 	go mod verify
+	go mod vendor
 
 # Print the configured Go version (for CI to consume)
 get-go-version:
@@ -135,6 +136,7 @@ generate:
 	# Generate all code (Ent + mocks, etc.) via go:generate directives
 	go generate ./...
 	make generate/protobuf/go
+	make deps
 
 generate/wire:
 	@$(WIRE) ./cmd/api

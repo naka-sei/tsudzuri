@@ -44,6 +44,7 @@ var (
 		grpcpage.NewJoinService,
 		grpcuser.NewCreateService,
 		grpcuser.NewLoginService,
+		grpcuser.NewGetService,
 		presentationgrpc.NewServer,
 	)
 	usecaseSet = wire.NewSet(
@@ -57,6 +58,7 @@ var (
 		pageusecase.NewJoinUsecase,
 		userusecase.NewCreateUsecase,
 		userusecase.NewLoginUsecase,
+		userusecase.NewGetUsecase,
 	)
 	repoSet = wire.NewSet(
 		pagerepo.NewPageRepository,

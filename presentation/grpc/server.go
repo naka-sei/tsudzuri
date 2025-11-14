@@ -30,6 +30,7 @@ type Server struct {
 	user struct {
 		create *grpcuser.CreateService
 		login  *grpcuser.LoginService
+		get    *grpcuser.GetService
 	}
 }
 
@@ -44,6 +45,7 @@ func NewServer(
 	joinPage *grpcpage.JoinService,
 	createUser *grpcuser.CreateService,
 	loginUser *grpcuser.LoginService,
+	getUser *grpcuser.GetService,
 ) *Server {
 	s := &Server{}
 	s.page = struct {
@@ -68,9 +70,11 @@ func NewServer(
 	s.user = struct {
 		create *grpcuser.CreateService
 		login  *grpcuser.LoginService
+		get    *grpcuser.GetService
 	}{
 		create: createUser,
 		login:  loginUser,
+		get:    getUser,
 	}
 	return s
 }
@@ -122,4 +126,8 @@ func (s *Server) CreateUser(ctx context.Context, req *tsudzuriv1.CreateUserReque
 
 func (s *Server) Login(ctx context.Context, req *tsudzuriv1.LoginRequest) (*emptypb.Empty, error) {
 	return errcode.WrapGRPC(s.user.login.Login(ctx, req))
+}
+
+func (s *Server) Get(ctx context.Context, req *emptypb.Empty) (*tsudzuriv1.User, error) {
+	return errcode.WrapGRPC(s.user.get.Get(ctx, req))
 }
