@@ -10,5 +10,6 @@ jobs:
     uses: ./.github/workflows/ci.yaml
     with:
       environment: prod
-      env_var_file: .github/env/prod.yaml
+      env_var_file: ./.github/env/prod.yaml
+      enable_traffic_update: false
     secrets: inherit
