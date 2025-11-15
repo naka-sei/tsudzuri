@@ -213,6 +213,62 @@ buf generate
 
 詳細は `api/protobuf/buf.gen.yaml` をご確認ください。
 
+## Front-end TypeScript 型生成 (OpenAPI → TS)
+
+このリポジトリでは、`proto` → `OpenAPI(JSON)` の生成は既に行われており、`api/protobuf/gen/openapi/tsudzuri/v1/tsudzuri.swagger.json` が出力されています。
+
+フロントエンドで使う型定義は `OpenAPI(JSON) -> TypeScript` に変換して共有します。本リポジトリにはそのためのスクリプトと Makefile ターゲットを用意しています。
+
+出力先 (デフォルト)
+
+- `api/protobuf/gen/openapi/tsudzuri/v1/types.ts`
+
+使い方（ローカル）
+
+1. まず OpenAPI (Swagger) を生成する（必要に応じて）:
+
+```bash
+# proto から OpenAPI を生成（buf を使う例）
+make generate/protobuf/go
+# またはプロジェクトの buf 設定に従って生成
+```
+
+2. TypeScript 型を生成する（Makefile から実行）:
+
+```bash
+make generate/typescript
+```
+
+内部で行っていること
+
+- `swagger (OpenAPI v2)` を `swagger2openapi` で OpenAPI v3 に変換します。
+- 変換後の OpenAPI v3 を `openapi-typescript` で TypeScript 型に変換します。
+
+代替: npm スクリプトから実行する
+
+```bash
+npm install        # package.json に devDependencies を追加済み
+npm run generate:api-types
+```
+
+利用方法（フロント取り込み）
+
+- monorepo なら直接 `import` して利用できます。
+- 別リポジトリのフロントなら、生成された `types.ts` をフロントへコピーするか、別途パッケージ化して配布してください。
+
+CI での自動化案
+
+- プロト定義を変更する PR のチェックで `make generate/protobuf/go` → `make generate/typescript` を走らせ、生成物をアーティファクトやサブmodule に保存する。\
+- もしくは生成結果をコミット（自動コミット）するワークフローを用意すれば、フロント側は常に最新の型を参照できます。
+
+注意点
+
+- 現在生成元の OpenAPI は Swagger v2（`tsudzuri.swagger.json`）です。Makefile の `generate/typescript` は内部で v3 に変換するため、`openapi-typescript` は v3 を前提に動作します。
+- 生成される型の名前や構造は OpenAPI の `definitions` / `paths` に従います。必要に応じて生成後に手でラップすることを検討してください。
+
+---
+
+
 ---
 
 ## Observability

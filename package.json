@@ -1,0 +1,12 @@
+{
+  "name": "tsudzuri-api-types",
+  "version": "0.0.0",
+  "private": true,
+  "devDependencies": {
+    "openapi-typescript": "^14.3.0",
+    "swagger2openapi": "^9.0.0"
+  },
+  "scripts": {
+    "generate:api-types": "swagger2openapi api/protobuf/gen/openapi/tsudzuri/v1/tsudzuri.swagger.json -o api/protobuf/gen/openapi/tsudzuri/v1/tsudzuri.openapi.json --yaml=false && openapi-typescript api/protobuf/gen/openapi/tsudzuri/v1/tsudzuri.openapi.json -o api/protobuf/gen/openapi/tsudzuri/v1/types.ts"
+  }
+}

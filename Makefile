@@ -131,6 +131,16 @@ generate/protobuf/go:
 	@cd api/protobuf && $(BUF) dep update && $(BUF) build && $(BUF) generate; cd -
 	@echo "Protobuf code generation completed."
 
+# Generate TypeScript types from generated OpenAPI (for frontend)
+generate/typescript:
+	@echo "Generating TypeScript types from OpenAPI..."
+	@# Convert Swagger v2 -> OpenAPI v3 then generate types
+	@echo "Converting Swagger v2 to OpenAPI v3..."
+	@npx swagger2openapi api/protobuf/gen/openapi/tsudzuri/v1/tsudzuri.swagger.json -o api/protobuf/gen/openapi/tsudzuri/v1/tsudzuri.openapi.json --yaml=false
+	@echo "Generating TypeScript types from converted OpenAPI v3..."
+	@npx openapi-typescript api/protobuf/gen/openapi/tsudzuri/v1/tsudzuri.openapi.json -o api/protobuf/gen/openapi/tsudzuri/v1/types.ts
+	@echo "TypeScript types generated at api/protobuf/gen/openapi/tsudzuri/v1/types.ts"
+
 # Generate code (e.g., mocks)
 generate:
 	# Generate all code (Ent + mocks, etc.) via go:generate directives
