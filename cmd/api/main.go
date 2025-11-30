@@ -189,6 +189,9 @@ func buildGatewayMux(ctx context.Context, conf *config.Config) (*runtime.ServeMu
 }
 
 func buildHTTPServer(conf *config.Config, handler http.Handler) *http.Server {
+	// Wrap handler with a very simple, hard-coded CORS middleware.
+	handler = corsMiddleware(handler)
+
 	return &http.Server{
 		Addr:         fmt.Sprintf(":%d", conf.Port),
 		Handler:      otelhttp.NewHandler(handler, "tsudzuri-http-gateway"),
@@ -196,6 +199,28 @@ func buildHTTPServer(conf *config.Config, handler http.Handler) *http.Server {
 		WriteTimeout: serverTimeout,
 		IdleTimeout:  30 * time.Second,
 	}
+}
+
+// corsMiddleware adds a minimal, hard-coded CORS policy for the HTTP gateway.
+// It allows any origin ("*"), basic methods and headers, and short-circuits
+// OPTIONS requests with 204 No Content.
+func corsMiddleware(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		// NOTE: This is intentionally simple (hard-coded) as requested.
+		w.Header().Set("Access-Control-Allow-Origin", "*")
+		w.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
+		w.Header().Set("Access-Control-Allow-Headers", "Accept, Accept-Language, Content-Type, Authorization, Origin, X-Requested-With")
+
+		if r.Method == http.MethodOptions {
+			// Preflight request; respond without calling inner handler.
+			w.WriteHeader(http.StatusNoContent)
+			return
+		}
+
+		if next != nil {
+			next.ServeHTTP(w, r)
+		}
+	})
 }
 
 func runServers(
