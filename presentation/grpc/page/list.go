@@ -44,7 +44,7 @@ func (s *ListService) List(ctx context.Context, _ *tsudzuriv1.ListPagesRequest) 
 	if len(pages) > 0 {
 		resp.Pages = make([]*tsudzuriv1.Page, 0, len(pages))
 		for _, p := range pages {
-			resp.Pages = append(resp.Pages, toProtoPage(p))
+			resp.Pages = append(resp.Pages, toProtoPage(p, user))
 		}
 	}
 

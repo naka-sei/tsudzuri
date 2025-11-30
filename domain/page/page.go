@@ -50,8 +50,15 @@ func (p *Page) Title() string {
 	return p.title
 }
 
-// inviteCode returns the page's invite code.
-func (p *Page) InviteCode() string {
+// InviteCode returns the page's invite code if the given user is the creator of the page.
+// If the user is nil or not the creator, it returns an empty string.
+func (p *Page) InviteCode(user *duser.User) string {
+	if user == nil {
+		return ""
+	}
+	if p.createdBy.ID() != user.ID() {
+		return ""
+	}
 	return p.inviteCode
 }
 

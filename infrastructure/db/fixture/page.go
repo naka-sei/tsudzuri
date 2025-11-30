@@ -57,7 +57,7 @@ func (f *Fixture) NewPage(page *dpage.Page) {
 		id:        pageID,
 		title:     title,
 		creatorID: creatorID,
-		invite:    page.InviteCode(),
+		invite:    page.InviteCode(page.CreatedBy()),
 	})
 
 	// Map alias to generated UUID

@@ -140,7 +140,7 @@ func (r *pageRepository) Save(ctx context.Context, pg *dpage.Page) (*dpage.Page,
 		createBuilder := client.Page.Create().
 			SetTitle(pg.Title()).
 			SetCreatorID(creatorUUID).
-			SetInviteCode(pg.InviteCode())
+			SetInviteCode(pg.InviteCode(pg.CreatedBy()))
 		if len(invitedUUIDs) > 0 {
 			createBuilder = createBuilder.AddInvitedUserIDs(invitedUUIDs...)
 		}
@@ -191,7 +191,7 @@ func (r *pageRepository) Save(ctx context.Context, pg *dpage.Page) (*dpage.Page,
 		}
 	}
 
-	return dpage.ReconstructPage(pageID.String(), pg.Title(), *pg.CreatedBy(), pg.InviteCode(), pg.Links(), pg.InvitedUsers()), nil
+	return dpage.ReconstructPage(pageID.String(), pg.Title(), *pg.CreatedBy(), pg.InviteCode(pg.CreatedBy()), pg.Links(), pg.InvitedUsers()), nil
 }
 
 // DeleteByID deletes a page by ID (cascade relies on FK / DB constraints).

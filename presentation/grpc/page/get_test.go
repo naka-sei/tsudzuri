@@ -72,7 +72,7 @@ func TestGetService_Get(t *testing.T) {
 				res: &tsudzuriv1.Page{
 					Id:         "page-2",
 					Title:      "title-2",
-					InviteCode: "invite-code",
+					InviteCode: "",
 					Links: []*tsudzuriv1.Link{{
 						Url:      "https://example.com",
 						Memo:     "memo",

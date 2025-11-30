@@ -5,9 +5,10 @@ import (
 
 	tsudzuriv1 "github.com/naka-sei/tsudzuri/api/tsudzuri/v1"
 	dpage "github.com/naka-sei/tsudzuri/domain/page"
+	duser "github.com/naka-sei/tsudzuri/domain/user"
 )
 
-func toProtoPage(p *dpage.Page) *tsudzuriv1.Page {
+func toProtoPage(p *dpage.Page, user *duser.User) *tsudzuriv1.Page {
 	if p == nil {
 		return nil
 	}
@@ -15,7 +16,7 @@ func toProtoPage(p *dpage.Page) *tsudzuriv1.Page {
 	protoPage := &tsudzuriv1.Page{
 		Id:         p.ID(),
 		Title:      p.Title(),
-		InviteCode: p.InviteCode(),
+		InviteCode: p.InviteCode(user),
 	}
 
 	if links := p.Links(); len(links) > 0 {

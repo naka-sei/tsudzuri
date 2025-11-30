@@ -40,7 +40,7 @@ func (s *GetService) Get(ctx context.Context, req *tsudzuriv1.GetPageRequest) (*
 		return nil, err
 	}
 
-	resp := toProtoPage(page)
+	resp := toProtoPage(page, user)
 	linksCount := 0
 	if resp != nil {
 		linksCount = len(resp.GetLinks())
